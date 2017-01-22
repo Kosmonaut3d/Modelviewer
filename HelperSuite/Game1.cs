@@ -34,18 +34,11 @@ namespace HelperSuite
             //Size of our application / starting back buffer
             _graphics.PreferredBackBufferWidth = GameSettings.g_ScreenWidth;
             _graphics.PreferredBackBufferHeight = GameSettings.g_ScreenHeight;
-
-            _graphics.PreferMultiSampling = false;
-            _graphics.PreferredBackBufferFormat = SurfaceFormat.Color;
-
-            //_graphics.PreferredDepthStencilFormat = DepthFormat.Depth24;
-            //HiDef enables usable shaders
+            
             _graphics.GraphicsProfile = GraphicsProfile.HiDef;
 
             _graphics.ApplyChanges();
-
-            //_graphics.GraphicsDevice.DeviceLost += new EventHandler<EventArgs>(ClientLostDevice);
-
+            
             //Mouse should not disappear
             IsMouseVisible = true;
 
