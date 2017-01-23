@@ -34,7 +34,7 @@ namespace HelperSuite.HelperSuite.GUI
         }
         private StringBuilder _text;
 
-        private Vector2 _fontPosition;
+        protected Vector2 _fontPosition;
         protected GUIStyle.TextAlignment _textAlignment;
         protected Vector2 _textBorder = new Vector2(10,1);
         private Vector2 _dimensions;

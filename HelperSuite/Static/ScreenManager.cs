@@ -17,6 +17,7 @@ namespace OceanRender.Main
         
         private DebugScreen _debug;
         private GuiLogicSample _guiLogicSample;
+        private MainLogic _mainLogic;
         private GUIRenderer _guiRenderer;
         
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -26,8 +27,9 @@ namespace OceanRender.Main
         public void Initialize(GraphicsDevice graphicsDevice)
         {
             _debug.Initialize(graphicsDevice);
-            
+            _mainLogic.Initialize(graphicsDevice);
             _guiRenderer.Initialize(graphicsDevice);
+            _guiLogicSample.Initialize(_mainLogic);
         }
 
         //Update per frame
@@ -48,15 +50,20 @@ namespace OceanRender.Main
             _debug = new DebugScreen();
             _debug.LoadContent(content);
 
+            _mainLogic = new MainLogic();
+            _mainLogic.Load(content);
+
             _guiRenderer = new GUIRenderer();
             _guiRenderer.Load(content);
             
             _guiLogicSample = new GuiLogicSample();
+            
         }
 
         public void Unload(ContentManager content)
         {
-            content.Dispose();
+            //content.Dispose();
+            _mainLogic.Unload();
         }
         
         public void Draw(GameTime gameTime)
@@ -66,7 +73,10 @@ namespace OceanRender.Main
             //Our renderer gives us information on what id is currently hovered over so we can update / manipulate objects in the logic functions
             _debug.Draw(gameTime);
 
+            _mainLogic.Draw();
+
             _guiRenderer.Draw(_guiLogicSample.getCanvas());
+
         }
 
         public void UpdateResolution()

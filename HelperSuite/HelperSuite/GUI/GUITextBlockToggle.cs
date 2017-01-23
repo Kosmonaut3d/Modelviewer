@@ -13,9 +13,7 @@ namespace HelperSuite.HelperSuite.GUI
 
         private const float ToggleIndicatorSize = 20;
         private const float ToggleIndicatorBorder = 10;
-
-        private Vector2 _fontPosition;
-
+        
         public PropertyInfo ToggleProperty;
         public FieldInfo ToggleField;
         public Object ToggleObject;

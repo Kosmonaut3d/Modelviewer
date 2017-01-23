@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using HelperSuite.HelperSuite.GUI;
+﻿using HelperSuite.HelperSuite.GUI;
 using HelperSuite.HelperSuite.GUIRenderer;
 using HelperSuite.HelperSuite.Static;
 using Microsoft.Xna.Framework;
@@ -18,7 +13,7 @@ namespace HelperSuite.Logic
 
         private GUIStyle defaultStyle;
 
-        public GuiLogicSample()
+        public void Initialize(MainLogic mainLogic)
         {
 
             defaultStyle = new GUIStyle()
@@ -65,6 +60,13 @@ namespace HelperSuite.Logic
                 SliderField = typeof(GameSettings).GetField("testvalueb"),
                 SliderValue = (float)typeof(GameSettings).GetField("testvalueb").GetValue(null),
             });
+            baseList.AddElement(new GUITextBlockButton(Vector2.Zero, new Vector2(200,35), "Button", GUIRenderer.MonospaceFont, Color.Gray, Color.White )
+                {
+                    ButtonObject = mainLogic,
+                    ButtonMethod = typeof( MainLogic ).GetMethod("TestFunction")
+                }
+            );
+
         }
 
         public void UpdateResolution()

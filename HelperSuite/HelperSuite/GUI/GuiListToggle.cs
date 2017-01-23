@@ -6,12 +6,14 @@ namespace HelperSuite.HelperSuite.GUI
 {
     class GuiListToggle : GUIList
     {
-        private const float ToggleButtonHeight = 14;
-        private const float ArrowButtonHeight = 8;
+        private static float ToggleButtonHeight = 14;
+        private static float ArrowButtonHeight = 8;
+
+        private static readonly Color HoverColor = Color.Tomato;
         
         private Vector2 _toggleDimensions;
 
-        private bool isHovered = false;
+        private bool _isHovered = false;
 
         public bool IsToggled = true;
 
@@ -41,7 +43,7 @@ namespace HelperSuite.HelperSuite.GUI
         {
             if (!IsEnabled) return;
 
-            isHovered = false;
+            _isHovered = false;
 
             Vector2 bound1 = Position + parentPosition;
             Vector2 bound2 = bound1 + _toggleDimensions;
@@ -49,7 +51,7 @@ namespace HelperSuite.HelperSuite.GUI
             if (mousePosition.X >= bound1.X && mousePosition.Y >= bound1.Y && mousePosition.X < bound2.X &&
                 mousePosition.Y < bound2.Y)
             {
-                isHovered = true;
+                _isHovered = true;
                 if(Input.WasLMBClicked())
                 {
                     GameStats.UIWasClicked = true;
@@ -75,7 +77,7 @@ namespace HelperSuite.HelperSuite.GUI
         {
             if (!IsEnabled) return;
             //Draw toggle element
-            guiRenderer.DrawQuad(parentPosition + Position, _toggleDimensions, isHovered ? Color.Tomato : Color.DimGray);
+            guiRenderer.DrawQuad(parentPosition + Position, _toggleDimensions, _isHovered ? HoverColor : Color.DimGray);
 
             //arrow
             if (IsToggled)

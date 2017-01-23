@@ -34,11 +34,16 @@ namespace HelperSuite
             //Size of our application / starting back buffer
             _graphics.PreferredBackBufferWidth = GameSettings.g_ScreenWidth;
             _graphics.PreferredBackBufferHeight = GameSettings.g_ScreenHeight;
-            
+
+            _graphics.PreferMultiSampling = false;
+            _graphics.PreferredBackBufferFormat = SurfaceFormat.Color;
+
+            //_graphics.PreferredDepthStencilFormat = DepthFormat.Depth24;
+            //HiDef enables usable shaders
             _graphics.GraphicsProfile = GraphicsProfile.HiDef;
 
             _graphics.ApplyChanges();
-            
+
             //Mouse should not disappear
             IsMouseVisible = true;
 
@@ -106,7 +111,7 @@ namespace HelperSuite
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             _screenManager.Load(Content, GraphicsDevice);
-
+            
             _screenManager.Initialize(GraphicsDevice);
             // TODO: use this.Content to load your game content here
         }
@@ -118,6 +123,7 @@ namespace HelperSuite
         protected override void UnloadContent()
         {
             // TODO: Unload any non ContentManager content here
+            _screenManager.Unload(Content);
         }
 
         /// <summary>
