@@ -62,18 +62,18 @@ namespace OceanRender.Main
 
         public void Unload(ContentManager content)
         {
-            //content.Dispose();
+            content.Dispose();
             _mainLogic.Unload();
         }
         
         public void Draw(GameTime gameTime)
         {
-            
+
+
+            _mainLogic.Draw(gameTime);
 
             //Our renderer gives us information on what id is currently hovered over so we can update / manipulate objects in the logic functions
             _debug.Draw(gameTime);
-
-            _mainLogic.Draw();
 
             _guiRenderer.Draw(_guiLogicSample.getCanvas());
 

@@ -42,6 +42,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Game1.cs" />
+    <Compile Include="HelperSuite\ContentLoader\ThreadSafeContentManager.cs" />
     <Compile Include="HelperSuite\GUIRenderer\GUIRenderer.cs" />
     <Compile Include="HelperSuite\GUIRenderer\Helper\MngStringBuilder.cs" />
     <Compile Include="HelperSuite\GUI\GUIBlock.cs" />
