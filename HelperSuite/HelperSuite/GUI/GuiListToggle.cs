@@ -73,7 +73,7 @@ namespace HelperSuite.HelperSuite.GUI
             }
         }
 
-        public override void Draw(GUIRenderer.GUIRenderer guiRenderer, Microsoft.Xna.Framework.Vector2 parentPosition)
+        public override void Draw(GUIRenderer.GUIRenderer guiRenderer, Vector2 parentPosition, Vector2 mousePosition)
         {
             if (!IsEnabled) return;
             //Draw toggle element
@@ -106,7 +106,7 @@ namespace HelperSuite.HelperSuite.GUI
                 for (int index = 0; index < _children.Count; index++)
                 {
                     GUIElement child = _children[index];
-                    child.Draw(guiRenderer, parentPosition + Position + height * Vector2.UnitY);
+                    child.Draw(guiRenderer, parentPosition + Position + height * Vector2.UnitY, mousePosition);
 
                     height += _children[index].Dimensions.Y;
                 }

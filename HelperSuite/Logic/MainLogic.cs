@@ -45,7 +45,7 @@ namespace HelperSuite.Logic
             _contentManager = new ThreadSafeContentManager(contentManager.ServiceProvider);
             _contentManager.RootDirectory = "Content";
 
-            rollTexture2D = _contentManager.Load<Texture2D>("backarrow02");
+            rollTexture2D = _contentManager.Load<Texture2D>("Graphical User Interface/ring");
         }
 
 
@@ -81,8 +81,6 @@ namespace HelperSuite.Logic
                 
                 if (shortFileName != null)
                     copiedFilePath = Application.StartupPath + "/" + fileName;
-
-                
             }
 
             _task = Task.Factory.StartNew(() => {
@@ -202,7 +200,7 @@ namespace HelperSuite.Logic
                 
             }
 
-            _spriteBatch.Draw(rollTexture2D, new Rectangle(200, 600, 100,100), null, Color.White, (float) -gameTime.TotalGameTime.TotalSeconds*3, new Vector2(rollTexture2D.Width/2, rollTexture2D.Height), SpriteEffects.None, 0);
+            _spriteBatch.Draw(rollTexture2D, new Rectangle(10, GameSettings.g_ScreenHeight - 10, 20,20), null, Color.White, (float) -gameTime.TotalGameTime.TotalSeconds*3, new Vector2(rollTexture2D.Width/2, rollTexture2D.Height/2), SpriteEffects.None, 0);
 
             _spriteBatch.End();
 

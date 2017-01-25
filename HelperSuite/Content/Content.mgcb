@@ -33,15 +33,15 @@
 /processorParam:DebugMode=Auto
 /build:Graphical User Interface/GUIEffect.fx
 
-#begin backarrow02.png
+#begin Graphical User Interface/ring.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
+/processorParam:ColorKeyEnabled=False
 /processorParam:GenerateMipmaps=False
 /processorParam:PremultiplyAlpha=True
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:backarrow02.png
+/processorParam:TextureFormat=NoChange
+/build:Graphical User Interface/ring.png
 

@@ -46,7 +46,7 @@ namespace HelperSuite.HelperSuite.GUI
             }
         }
 
-        public override void Draw(GUIRenderer.GUIRenderer guiRenderer, Vector2 parentPosition)
+        public override void Draw(GUIRenderer.GUIRenderer guiRenderer, Vector2 parentPosition, Vector2 mousePosition)
         {
             guiRenderer.DrawQuad(parentPosition + Position, Dimensions, Color);
             guiRenderer.DrawQuad(parentPosition + Position + Dimensions * new Vector2(1, 0.5f) - ToggleIndicatorBorder * Vector2.UnitX - ToggleIndicatorSize * new Vector2(1,0.5f) , Vector2.One * ToggleIndicatorSize, Toggle ? Color.LimeGreen : Color.Red);

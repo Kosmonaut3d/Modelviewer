@@ -2,6 +2,7 @@
 using HelperSuite.HelperSuite.GUI;
 using HelperSuite.HelperSuite.GUIRenderer.Helper;
 using HelperSuite.HelperSuite.Static;
+using HelperSuite.Logic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -17,9 +18,21 @@ namespace HelperSuite.HelperSuite.GUIRenderer
         
         private Texture2D _plainWhite;
         public static SpriteFont MonospaceFont;
+
+        private int _foregroundIndex;
+        private ForegroundImage[] foregroundImages = new ForegroundImage[10];
+        public struct ForegroundImage
+        {
+            public Texture2D tex;
+            public Vector2 pos;
+            public Vector2 dim;
+            public Color color;
+        };
         
         public void Initialize(GraphicsDevice graphicsDevice)
         {
+            _foregroundIndex = 0;
+            
             _graphicsDevice = graphicsDevice;
             _spriteBatch = new SpriteBatch(graphicsDevice);
 
@@ -38,11 +51,19 @@ namespace HelperSuite.HelperSuite.GUIRenderer
         {
             if (!GameSettings.ui_DrawUI) return;
 
+            _foregroundIndex = 0;
             _graphicsDevice.SetRenderTarget(null);
             _graphicsDevice.RasterizerState = RasterizerState.CullNone;
             
             _spriteBatch.Begin();
-            canvas.Draw(this, Vector2.Zero);
+            canvas.Draw(this, Vector2.Zero, Input.GetMousePosition().ToVector2());
+
+            //Now draw foregroundImages
+            for (int index = 0; index <= _foregroundIndex-1; index++)
+            {
+                ForegroundImage image = foregroundImages[index];
+                DrawImage(image.pos, image.dim, image.tex, image.color, false);
+            }
             _spriteBatch.End();
         }
 
@@ -50,6 +71,24 @@ namespace HelperSuite.HelperSuite.GUIRenderer
         {
             _spriteBatch.Draw(_plainWhite, RectangleFromVectors(pos, dim), color);
         }
+
+        public void DrawImage(Vector2 pos, Vector2 dim, Texture2D tex, Color color, bool drawLater)
+        {
+            if (!drawLater)
+            {
+                _spriteBatch.Draw(tex, RectangleFromVectors(pos, dim), color);
+            }
+            else
+            {
+                foregroundImages[_foregroundIndex].color = color;
+                foregroundImages[_foregroundIndex].dim = dim;
+                foregroundImages[_foregroundIndex].pos = pos;
+                foregroundImages[_foregroundIndex].tex = tex;
+
+                _foregroundIndex++;
+            }
+        }
+    
 
         private Rectangle RectangleFromVectors(Vector2 pos, Vector2 dim)
         {

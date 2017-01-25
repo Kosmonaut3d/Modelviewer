@@ -32,7 +32,8 @@ namespace HelperSuite.HelperSuite.GUI
                 ComputeFontPosition();
             }
         }
-        private StringBuilder _text;
+
+        protected StringBuilder _text;
 
         protected Vector2 _fontPosition;
         protected GUIStyle.TextAlignment _textAlignment;
@@ -101,7 +102,7 @@ namespace HelperSuite.HelperSuite.GUI
             }
         }
 
-        public override void Draw(GUIRenderer.GUIRenderer guiRenderer, Vector2 parentPosition)
+        public override void Draw(GUIRenderer.GUIRenderer guiRenderer, Vector2 parentPosition, Vector2 mousePosition)
         {
             guiRenderer.DrawQuad(parentPosition + Position, Dimensions, Color);
             guiRenderer.DrawText(parentPosition + Position + _fontPosition, _text, TextFont, TextColor);

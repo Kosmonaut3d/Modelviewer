@@ -57,6 +57,7 @@ namespace OceanRender.Main
             _guiRenderer.Load(content);
             
             _guiLogicSample = new GuiLogicSample();
+            _guiLogicSample.Load(content);
             
         }
 

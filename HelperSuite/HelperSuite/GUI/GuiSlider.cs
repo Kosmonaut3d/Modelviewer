@@ -76,7 +76,7 @@ namespace HelperSuite.HelperSuite.GUI
             }
         }
 
-        public override void Draw(GUIRenderer.GUIRenderer guiRenderer, Vector2 parentPosition)
+        public override void Draw(GUIRenderer.GUIRenderer guiRenderer, Vector2 parentPosition, Vector2 mousePosition)
         {
             guiRenderer.DrawQuad(parentPosition + Position, Dimensions, Color);
             

@@ -326,8 +326,10 @@ namespace OceanRender.Main
                 _mngStringBuilder.AppendLine();
                 _mngStringBuilder.Append("testValue: ");
                 _mngStringBuilder.AppendTrim(GameSettings.testvaluer);
-                
 
+
+                _spriteBatch.DrawString(_monospaceFont, _mngStringBuilder.StringBuilder,
+                    new Vector2(11.0f, 11.0f), Color.Black);
                 _spriteBatch.DrawString(_monospaceFont, _mngStringBuilder.StringBuilder,
                     new Vector2(10.0f, 10.0f), Color.White);
 

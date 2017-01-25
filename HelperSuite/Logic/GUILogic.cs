@@ -1,7 +1,10 @@
 ﻿using HelperSuite.HelperSuite.GUI;
+using HelperSuite.HelperSuite.GUIHelper;
 using HelperSuite.HelperSuite.GUIRenderer;
 using HelperSuite.HelperSuite.Static;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace HelperSuite.Logic
 {
@@ -12,6 +15,8 @@ namespace HelperSuite.Logic
         private GUIList baseList;
 
         private GUIStyle defaultStyle;
+
+        private GUIContentLoader _guiContentLoader;
 
         public void Initialize(MainLogic mainLogic)
         {
@@ -66,7 +71,26 @@ namespace HelperSuite.Logic
                     ButtonMethod = typeof( MainLogic ).GetMethod("TestFunction")
                 }
             );
+            baseList.AddElement(new GUITextBlock(Vector2.Zero, new Vector2(200, 35), "this is a generic testblock and it tests wrap ", GUIRenderer.MonospaceFont, Color.Gray, Color.White));
+            baseList.AddElement(new GuiTextBlockLoadDialog(Vector2.Zero, new Vector2(200, 35), "LoadFile:", GUIRenderer.MonospaceFont, Color.Gray, Color.White)
+            {
+                ButtonObject = _guiContentLoader,
+                ButtonMethod = _guiContentLoader.GetType().GetMethod("LoadContentFile").MakeGenericMethod(typeof(Texture2D))
+            }
+            );
+            baseList.AddElement(new GuiTextBlockLoadDialog(Vector2.Zero, new Vector2(200, 35), "LoadFile:", GUIRenderer.MonospaceFont, Color.Gray, Color.White)
+            {
+                ButtonObject = _guiContentLoader,
+                ButtonMethod = _guiContentLoader.GetType().GetMethod("LoadContentFile").MakeGenericMethod(typeof(Texture2D))
+            }
+            );
 
+        }
+
+        public void Load(ContentManager content)
+        {
+            _guiContentLoader = new GUIContentLoader();
+            _guiContentLoader.Load(content);
         }
 
         public void UpdateResolution()

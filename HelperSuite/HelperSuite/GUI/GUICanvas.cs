@@ -8,7 +8,7 @@ namespace HelperSuite.HelperSuite.GUI
     {
         public Vector2 Position;
         public virtual Vector2 Dimensions { get; set; }
-        public abstract void Draw(GUIRenderer.GUIRenderer guiRenderer, Vector2 parentPosition);
+        public abstract void Draw(GUIRenderer.GUIRenderer guiRenderer, Vector2 parentPosition, Vector2 mousePosition);
         public abstract void ParentResized(Vector2 dimensions);
         public abstract int Layer { get; set; }
         public abstract void Update(GameTime gameTime, Vector2 mousePosition, Vector2 parentPosition);
@@ -37,13 +37,13 @@ namespace HelperSuite.HelperSuite.GUI
         }
 
         //Draw the GUI, cycle through the children
-        public override void Draw(GUIRenderer.GUIRenderer guiRenderer, Microsoft.Xna.Framework.Vector2 parentPosition)
+        public override void Draw(GUIRenderer.GUIRenderer guiRenderer, Vector2 parentPosition, Vector2 mousePosition)
         {
             if (!IsEnabled) return;
             for (int index = 0; index < _children.Count; index++)
             {
                 GUIElement child = _children[index];
-                child.Draw(guiRenderer, parentPosition + Position);
+                child.Draw(guiRenderer, parentPosition + Position, mousePosition);
             }
         }
 
