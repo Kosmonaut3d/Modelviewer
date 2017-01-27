@@ -197,7 +197,7 @@ namespace HelperSuite.Logic
 
             if (loadedTexture != null)
             {
-                _spriteBatch.Draw(loadedTexture, new Rectangle(0,0,GameSettings.g_ScreenWidth, GameSettings.g_ScreenHeight), new Color(GameSettings.testvaluer, GameSettings.testvalueg, GameSettings.testvalueb));
+                _spriteBatch.Draw(loadedTexture, new Rectangle(0,0,GameSettings.g_ScreenWidth, GameSettings.g_ScreenHeight), GameSettings.bgColor);
                 
             }
 

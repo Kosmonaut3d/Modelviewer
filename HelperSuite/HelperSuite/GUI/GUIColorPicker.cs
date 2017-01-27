@@ -25,6 +25,9 @@ namespace HelperSuite.HelperSuite.GUI
         private float _mousePointerLength = 5;
         private float _mousePointerThickness = 1;
         private float _mousePointerOffset = 3;
+
+        private float _mouseFineX = 1;
+        private float _mouseFineY = 0;
         public float border = 5f;
 
         private SpriteFont _font;
@@ -89,7 +92,7 @@ namespace HelperSuite.HelperSuite.GUI
                 Color? output = null;
                 //Get Color!
 
-                if (xcoord >= 0.8f)
+                if (xcoord >= 0.85f)
                 {
 
                     float sixth = 1.0f/6;
@@ -128,19 +131,24 @@ namespace HelperSuite.HelperSuite.GUI
                     xcoord /= 0.75f;
                     ycoord /= 0.75f;
 
-                    if (ycoord <= 1)
+                    if (ycoord <= 1.05f && xcoord <= 1.05f)
                     {
+                        _mouseFineX = xcoord;
+                        _mouseFineY = ycoord;
 
-                        output = Color.Lerp(
-                            Color.Lerp(Color.Black, CurrentFullColor, xcoord),
-                            Color.Lerp(Color.Black, Color.White, xcoord), ycoord);
+                        output = CurrentFullColor;
 
                         _mousePointerFine = mousePosition;
                     }
 
+
                 }
 
                 if (output == null) return;
+
+                output = Color.Lerp(
+                            Color.Lerp(Color.Black, CurrentFullColor, _mouseFineX),
+                            Color.Lerp(Color.Black, Color.White, _mouseFineX), _mouseFineY);
 
                 CurrentFineColor = (Color)output;
                 _colorString.Clear();
