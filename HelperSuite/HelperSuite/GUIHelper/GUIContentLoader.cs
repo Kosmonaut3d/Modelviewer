@@ -47,7 +47,6 @@ namespace HelperSuite.HelperSuite.GUIHelper
             filenameOut = "...";
 
             string completeFilePath = null;
-            //string copiedFilePath = null;
 
             string fileName = null;
             //string shortFileName = null;
@@ -71,10 +70,7 @@ namespace HelperSuite.HelperSuite.GUIHelper
 
                 //shortFileName = split[0];
                 //fileEnding = split[1];
-
-                //if (shortFileName != null)
-                //    copiedFilePath = Application.StartupPath + "/" + fileName;
-
+                
                 filenameOut = fileName;
             }
             else
@@ -92,50 +88,33 @@ namespace HelperSuite.HelperSuite.GUIHelper
             else
             {
                 if (pointerPositionInOut >= ContentArray.Count)
-                    throw new NotImplementedException("");
+                    throw new NotImplementedException("Shouldn't be possible, pointer is greater than list.count");
             }
 
             int position = pointerPositionInOut;
 
             loadTaskOut = Task.Factory.StartNew(() =>
             {
-                try
-                {
-                    //if (copiedFilePath != null)
-                        //File.Copy(completeFilePath, copiedFilePath);
-                }
-                catch (Exception e)
-                {
-                    Debug.WriteLine(e.Message);
-                }
-
-                //todo write exceptions here
-                //if (copiedFilePath == null) return;
-                //if (!File.Exists(copiedFilePath)) return;
-
                 //string MGCBpathDirectory = Application.StartupPath + "/Content/MGCB/";
-                string MGCBpathExe = Application.StartupPath + "/Content/MGCB/mgcb.exe";
-
-                //Create pProcess
-                Process pProcess = new Process();
-
-                //strCommand is path and file name of command to run
-                pProcess.StartInfo.FileName = MGCBpathExe;
+                string mgcbPathExe = Application.StartupPath + "/Content/MGCB/mgcb.exe";
 
                 completeFilePath = completeFilePath.Replace("\\", "/");
-
-                Debug.Assert(fileName != null, "fileName != null");
-                pProcess.StartInfo.Arguments = "/@:\"Content/mgcb/" + pipeLineFile +
-                                               "\" /build:\"" + completeFilePath+"\""; /*/build:" + completeFilePath*/;
-
-                pProcess.StartInfo.CreateNoWindow = true;
-                pProcess.StartInfo.UseShellExecute = false;
-                pProcess.StartInfo.RedirectStandardError = true;
-                pProcess.StartInfo.RedirectStandardOutput = true;
-              
-                //Set output of program to be written to pProcess output stream
-                pProcess.StartInfo.RedirectStandardOutput = true;
-
+                
+                //Create pProcess
+                Process pProcess = new Process
+                {
+                    StartInfo =
+                    {
+                        FileName = mgcbPathExe,
+                        Arguments = "/@:\"Content/mgcb/" + pipeLineFile +
+                                    "\" /build:\"" + completeFilePath + "\"",
+                        CreateNoWindow = true,
+                        UseShellExecute = false,
+                        RedirectStandardError = true,
+                        RedirectStandardOutput = true
+                    }
+                };
+                
                 //Get program output
                 string stdError = null;
 
@@ -156,7 +135,7 @@ namespace HelperSuite.HelperSuite.GUIHelper
 
                 if (pProcess.ExitCode == 0)
                 {
-                    stdOutput.ToString();
+
                 }
                 else
                 {
@@ -177,9 +156,7 @@ namespace HelperSuite.HelperSuite.GUIHelper
 
                     throw new Exception("mgcb finished with exit code = " + pProcess.ExitCode + ": " + message);
                 }
-
-            //if(loadedTexture!=null)
-            //loadedTexture.Dispose();
+                
                 if (typeof(T) == typeof(Texture2D))
                 {
                     if(ContentArray[position]!=null)
@@ -189,6 +166,7 @@ namespace HelperSuite.HelperSuite.GUIHelper
                 ContentArray[position] = _contentManager.Load<T>(path);
                 //_contentManager.Load<T>("Runtime/Textures/" + shortFileName);
 
+                //We should delete the generated .xnb file in the directory now
                 File.Delete(path+".xnb");
             });
 

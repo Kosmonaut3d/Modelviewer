@@ -46,8 +46,10 @@
     <Compile Include="HelperSuite\GUIHelper\GUIContentLoader.cs" />
     <Compile Include="HelperSuite\GUIRenderer\GUIRenderer.cs" />
     <Compile Include="HelperSuite\GUIRenderer\Helper\MngStringBuilder.cs" />
+    <Compile Include="HelperSuite\GUIRenderer\Helper\QuadRenderer.cs" />
     <Compile Include="HelperSuite\GUI\GUIBlock.cs" />
     <Compile Include="HelperSuite\GUI\GUICanvas.cs" />
+    <Compile Include="HelperSuite\GUI\GUIColorPicker.cs" />
     <Compile Include="HelperSuite\GUI\GUIList.cs" />
     <Compile Include="HelperSuite\GUI\GuiListToggle.cs" />
     <Compile Include="HelperSuite\GUI\GuiSlider.cs" />
