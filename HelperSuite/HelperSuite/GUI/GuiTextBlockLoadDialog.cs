@@ -19,6 +19,8 @@ namespace HelperSuite.HelperSuite.GUI
 
         private static readonly Color HoverColor = Color.LightGray;
 
+        private static readonly int HoverImageWidth = 250;
+
         private Vector2 _declarationTextDimensions;
         
         private bool _isHovered = false;
@@ -94,12 +96,19 @@ namespace HelperSuite.HelperSuite.GUI
 
                 Vector2 position = mousePosition;
 
-                float overborder = position.X + 200 - GameSettings.g_ScreenWidth;
+                float overborder = position.X + HoverImageWidth - GameSettings.g_ScreenWidth;
 
                 if (overborder > 0)
                     position.X -= overborder;
 
-                guiRenderer.DrawImage(position, new Vector2(200,200), (Texture2D) ButtonObject.ContentArray[_loadedObjectPointer], Color.White, true);
+                
+                if (ButtonObject.ContentArray[_loadedObjectPointer] != null)
+                {
+                    Texture2D image = (Texture2D) ButtonObject.ContentArray[_loadedObjectPointer];
+                    float height = (float) image.Height/image.Width* HoverImageWidth;
+                    guiRenderer.DrawImage(position, new Vector2(HoverImageWidth, height),
+                        image, Color.White, true);
+                }
             }
 
         }

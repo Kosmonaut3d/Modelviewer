@@ -46,6 +46,7 @@ namespace HelperSuite.Logic
             _contentManager.RootDirectory = "Content";
 
             rollTexture2D = _contentManager.Load<Texture2D>("Graphical User Interface/ring");
+
         }
 
 

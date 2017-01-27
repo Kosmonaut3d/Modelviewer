@@ -133,6 +133,8 @@ namespace HelperSuite
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+            if (!_isActive) return;
+
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
                 Keyboard.GetState().IsKeyDown(Keys.Escape))
             {
@@ -140,6 +142,7 @@ namespace HelperSuite
                 Exit();
             }
             // TODO: Add your update logic here
+
 
             _screenManager.Update(gameTime, _isActive);
 
@@ -152,8 +155,10 @@ namespace HelperSuite
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(new Color(GameSettings.testvaluer, GameSettings.testvalueg, GameSettings.testvalueb));
+            if (!_isActive) return;
 
+            GraphicsDevice.Clear(new Color(GameSettings.testvaluer, GameSettings.testvalueg, GameSettings.testvalueb));
+            if(_isActive)
             _screenManager.Draw(gameTime);
 
             // TODO: Add your drawing code here

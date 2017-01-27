@@ -1,4 +1,5 @@
 /outputDir:Content/Runtime/Textures
+/intermediateDir:Content/Runtime
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255

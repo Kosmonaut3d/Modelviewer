@@ -47,8 +47,6 @@ namespace HelperSuite.Logic
                 ToggleField = typeof(GameSettings).GetField("ui_debug"),
                 Toggle = (bool)typeof(GameSettings).GetField("ui_debug").GetValue(null),
             });
-            baseList.AddElement(new GUITextBlockToggle(Vector2.Zero, new Vector2(100, 35), "toggle2", GUIRenderer.MonospaceFont, Color.Gray, Color.White));
-            baseList.AddElement(new GUITextBlock(Vector2.Zero, new Vector2(100, 35), "this is a generic testblock and it tests wrap ", GUIRenderer.MonospaceFont, Color.Gray, Color.White));
             baseList.AddElement(new GUITextBlock(Vector2.Zero, new Vector2(200, 35), "this is a generic testblock and it tests wrap ", GUIRenderer.MonospaceFont, Color.Gray, Color.White));
             baseList.AddElement(new GuiSlider(Vector2.Zero, new Vector2(200, 35), 0, 1, Color.DimGray, Color.Red )
             {
