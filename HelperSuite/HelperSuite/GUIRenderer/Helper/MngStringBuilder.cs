@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Text;
+using Microsoft.Xna.Framework;
 
 namespace HelperSuite.HelperSuite.GUIRenderer.Helper //StringBuilderII
 {
@@ -714,8 +715,24 @@ namespace HelperSuite.HelperSuite.GUIRenderer.Helper //StringBuilderII
                 return string_builder;
             }
 
-            //! Convert a given unsigned integer value to a string and concatenate onto the stringbuilder. Assume no padding and base ten.
-            public static StringBuilder Concat(this StringBuilder string_builder, uint uint_val)
+
+            public static StringBuilder AppendColor(this StringBuilder string_builder, Color color)
+        {
+            const string r = "r:";
+            const string g = " g:";
+            const string b = " b:";
+
+            string_builder.Append(r);
+            string_builder.Concat(color.R);
+            string_builder.Append(g);
+            string_builder.Concat(color.G);
+            string_builder.Append(b);
+            string_builder.Concat(color.B);
+            return string_builder;
+        }
+
+        //! Convert a given unsigned integer value to a string and concatenate onto the stringbuilder. Assume no padding and base ten.
+        public static StringBuilder Concat(this StringBuilder string_builder, uint uint_val)
             {
                 string_builder.Concat(uint_val, 0, ms_default_pad_char, 10);
                 return string_builder;

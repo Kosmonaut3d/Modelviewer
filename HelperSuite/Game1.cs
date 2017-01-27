@@ -157,7 +157,8 @@ namespace HelperSuite
         {
             if (!_isActive) return;
 
-            GraphicsDevice.Clear(new Color(GameSettings.testvaluer, GameSettings.testvalueg, GameSettings.testvalueb));
+            //GraphicsDevice.Clear(new Color(GameSettings.testvaluer, GameSettings.testvalueg, GameSettings.testvalueb));
+            GraphicsDevice.Clear(GameSettings.bgColor);
             if(_isActive)
             _screenManager.Draw(gameTime);
 

@@ -82,7 +82,11 @@ namespace HelperSuite.Logic
                 ButtonMethod = _guiContentLoader.GetType().GetMethod("LoadContentFile").MakeGenericMethod(typeof(Texture2D))
             }
             );
-            baseList.AddElement(new GUIColorPicker(new Vector2(0, 0), new Vector2(200,200), Color.Red ));
+            baseList.AddElement(new GUIColorPicker(new Vector2(0, 0), new Vector2(200,200), Color.Gray, GUIRenderer.MonospaceFont)
+            {
+                ToggleField = typeof(GameSettings).GetField("bgColor"),
+                ToggleObject = (Color)typeof(GameSettings).GetField("bgColor").GetValue(null),
+            });
 
         }
 

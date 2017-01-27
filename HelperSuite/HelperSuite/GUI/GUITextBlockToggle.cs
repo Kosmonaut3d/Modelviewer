@@ -16,7 +16,7 @@ namespace HelperSuite.HelperSuite.GUI
         
         public PropertyInfo ToggleProperty;
         public FieldInfo ToggleField;
-        public Object ToggleObject;
+        public Color ToggleObject;
 
         public GUITextBlockToggle(Vector2 position, Vector2 dimensions, String text, SpriteFont font, Color blockColor, Color textColor, GUIStyle.TextAlignment textAlignment = GUIStyle.TextAlignment.Left, Vector2 textBorder = default(Vector2), int layer = 0, GUIStyle.GUIAlignment alignment = GUIStyle.GUIAlignment.None, Vector2 parentDimensions = default(Vector2)) : base(position, dimensions, text, font, blockColor, textColor, textAlignment, textBorder, layer)
         {

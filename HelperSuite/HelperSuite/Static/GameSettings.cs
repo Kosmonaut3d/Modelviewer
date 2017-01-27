@@ -1,4 +1,6 @@
-﻿namespace HelperSuite.HelperSuite.Static
+﻿using Microsoft.Xna.Framework;
+
+namespace HelperSuite.HelperSuite.Static
 {
     public static class GameSettings
     {
@@ -13,5 +15,7 @@
         public static float testvaluer = 0f;
         public static float testvalueg = 0f;
         public static float testvalueb = 0f;
+
+        public static Color bgColor = Color.Red;
     }
 }
