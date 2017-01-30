@@ -6,8 +6,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using HelperSuite.HelperSuite.ContentLoader;
+using HelperSuite.HelperSuite.Static;
+using HelperSuite.Logic;
+using HelperSuite.Renderer.ShaderModules.Helper;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 
 namespace HelperSuite.HelperSuite.GUIHelper
 {
@@ -35,11 +39,11 @@ namespace HelperSuite.HelperSuite.GUIHelper
                     "image files (*.png, .jpg, .jpeg, .bmp, .gif)|*.png;*.jpg;*.bmp;*.jpeg;*.gif|All files (*.*)|*.*";
                 pipeLineFile = "runtimetexture.txt";
             }
-            else if (typeof(T) == typeof(Model))
+            else if (typeof(T) == typeof(AnimatedModel))
             {
                 dialogFilter =
                     "model file (*.fbx)|*.fbx|All files (*.*)|*.*";
-                pipeLineFile = "runtimemodel.txt";
+                pipeLineFile = "runtimeanimatedmodel.txt";
             }
             else
             {
@@ -53,15 +57,19 @@ namespace HelperSuite.HelperSuite.GUIHelper
             string fileName = null;
             string copiedFilePath = null;
             string shortFileName;
+            
             //string fileEnding = null;
             OpenFileDialog openFileDialog1 = new OpenFileDialog
             {
-                InitialDirectory = Application.StartupPath,
+                //InitialDirectory = Application.StartupPath,
                 Filter = dialogFilter,
                 FilterIndex = 1,
                 RestoreDirectory = true,
                 Multiselect = false
             };
+
+            Input.mouseLastState = Mouse.GetState();
+            Input.mouseState = Mouse.GetState();
 
             //"c:\\";
 
@@ -85,6 +93,8 @@ namespace HelperSuite.HelperSuite.GUIHelper
             else
             {
                 loadTaskOut = null;
+                if(pointerPositionInOut!=-1)
+                    ContentArray[pointerPositionInOut] = null;
                 return;
             }
 
@@ -122,75 +132,105 @@ namespace HelperSuite.HelperSuite.GUIHelper
                 string mgcbPathExe = Application.StartupPath + "/Content/MGCB/mgcb.exe";
 
                 completeFilePath = completeFilePath.Replace("\\", "/");
-                
-                //Create pProcess
-                Process pProcess = new Process
+
+                int tries = 0;
+
+                while (tries<2)
                 {
-                    StartInfo =
+                    if (tries>0 && typeof(T) == typeof(AnimatedModel))
                     {
-                        FileName = mgcbPathExe,
-                        Arguments = "/@:\"Content/mgcb/" + pipeLineFile +
-                                    "\" /build:\"" + fileName/*completeFilePath*/ + "\"",
-                        CreateNoWindow = true,
-                        UseShellExecute = false,
-                        RedirectStandardError = true,
-                        RedirectStandardOutput = true
-                    }
-                };
-                
-                //Get program output
-                string stdError = null;
-
-                var stdOutput = new StringBuilder();
-                pProcess.OutputDataReceived += (sender, args) => stdOutput.Append(args.Data);
-
-                try
-                {
-                    pProcess.Start();
-                    pProcess.BeginOutputReadLine();
-                    stdError = pProcess.StandardError.ReadToEnd();
-                    pProcess.WaitForExit();
-                }
-                catch (Exception e)
-                {
-                    throw new Exception("OS error while executing : " + e.Message, e);
-                }
-
-                if (pProcess.ExitCode == 0)
-                {
-
-                }
-                else
-                {
-                    var message = new StringBuilder();
-
-                    if (!string.IsNullOrEmpty(stdError))
-                    {
-                        message.AppendLine(stdError);
+                        pipeLineFile = "runtimemodel.txt";
                     }
 
-                    if (stdOutput.Length != 0)
+                    //Create pProcess
+                    Process pProcess = new Process
                     {
-                        message.AppendLine("Std output:");
-                        message.AppendLine(stdOutput.ToString());
+                        StartInfo =
+                        {
+                            FileName = mgcbPathExe,
+                            Arguments = "/@:\"Content/mgcb/" + pipeLineFile +
+                                        "\" /build:\"" + fileName /*completeFilePath*/+ "\"",
+                            CreateNoWindow = true,
+                            UseShellExecute = false,
+                            RedirectStandardError = true,
+                            RedirectStandardOutput = true
+                        }
+                    };
+
+                    //Get program output
+                    string stdError = null;
+
+                    var stdOutput = new StringBuilder();
+                    pProcess.OutputDataReceived += (sender, args) => stdOutput.Append(args.Data);
+
+                    try
+                    {
+                        pProcess.Start();
+                        pProcess.BeginOutputReadLine();
+                        stdError = pProcess.StandardError.ReadToEnd();
+                        pProcess.WaitForExit();
+                    }
+                    catch (Exception e)
+                    {
+                        throw new Exception("OS error while executing : " + e.Message, e);
                     }
 
-                    Debug.WriteLine(message);
+                    if (pProcess.ExitCode == 0)
+                    {
 
-                    throw new Exception("mgcb finished with exit code = " + pProcess.ExitCode + ": " + message);
+                        tries = 10;
+                    }
+                    else
+                    {
+                        var message = new StringBuilder();
+
+                        if (!string.IsNullOrEmpty(stdError))
+                        {
+                            message.AppendLine(stdError);
+                        }
+
+                        if (stdOutput.Length != 0)
+                        {
+                            message.AppendLine("Std output:");
+                            message.AppendLine(stdOutput.ToString());
+                        }
+
+                        tries++;
+                        //Debug.WriteLine(message);
+
+                        //throw new Exception("mgcb finished with exit code = " + pProcess.ExitCode + ": " + message);
+                    }
                 }
-                
-                if (typeof(T) == typeof(Texture2D))
-                {
-                    if(ContentArray[position]!=null)
-                        ((Texture2D)ContentArray[position]).Dispose();
-                }
+
+                //if (typeof(T) == typeof(Texture2D))
+                //{
+                //    if(ContentArray[position]!=null)
+                //        ((Texture2D)ContentArray[position]).Dispose();
+                //}
 
                 //string path = completeFilePath.Split('.')[0];
                 //ContentArray[position] = _contentManager.Load<T>(path);
                 //File.Delete(path + ".xnb");
 
-                ContentArray[position] = _contentManager.Load<T>("Runtime/Textures/" + shortFileName);
+                if (typeof(T) == typeof(AnimatedModel))
+                {
+                    //Have to load normal model
+                    if (tries != 10)
+                    {
+                        ContentArray[position] = _contentManager.Load<Model>("Runtime/Textures/" + shortFileName);
+                    }
+                    else
+                    {
+                        ContentArray[position] = new AnimatedModel("Runtime/Textures/" + shortFileName);
+                        ((AnimatedModel)ContentArray[position]).LoadContent(_contentManager);
+                    }
+                    
+                    //_contentManager.Load<T>("Runtime/Textures/" + shortFileName);
+                }
+                else
+                {
+                    ContentArray[position] = _contentManager.Load<T>("Runtime/Textures/" + shortFileName);
+                }
                 string path = Application.StartupPath + "\\Content\\Runtime\\Textures\\" + shortFileName;
                 File.Delete(path + ".xnb");
 

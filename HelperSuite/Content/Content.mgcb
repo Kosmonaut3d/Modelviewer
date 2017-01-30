@@ -11,6 +11,8 @@
 #-------------------------------- References --------------------------------#
 
 /reference:ProtonType.Content.Pipeline.DDSImporter.dll
+/reference:..\..\MGSkinnedAnimationPipeline\bin\Debug\MGSkinnedAnimationAux.dll
+/reference:..\..\MGSkinnedAnimationPipeline\bin\Debug\MGSkinnedAnimationPipeline.dll
 
 #---------------------------------- Content ---------------------------------#
 
@@ -108,7 +110,7 @@
 
 #begin ShaderModules/AnimatedModelShader/cube.fbx
 /importer:FbxImporter
-/processor:ModelProcessor
+/processor:AnimationProcessor
 /processorParam:ColorKeyColor=0,0,0,0
 /processorParam:ColorKeyEnabled=True
 /processorParam:DefaultEffect=BasicEffect
@@ -136,4 +138,16 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:ShaderModules/AnimatedModelShader/fresnel.png
+
+#begin ShaderModules/AnimatedModelShader/fresnel2.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:ShaderModules/AnimatedModelShader/fresnel2.png
 

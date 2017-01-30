@@ -58,7 +58,7 @@ DrawBasic_VSIn DrawSkybox_VertexShader(DrawBasic_VSIn input)
 float4 DrawSkybox_PixelShader(DrawBasic_VSIn input) : COLOR
 {
 	float3 normal = normalize(input.Normal);
-	return SkyboxTexture.SampleLevel(CubeMapSampler, normal.xzy,0);
+	return SkyboxTexture.SampleLevel(CubeMapSampler, normal.xzy,2);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

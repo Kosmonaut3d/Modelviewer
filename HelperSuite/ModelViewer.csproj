@@ -9,11 +9,26 @@
     <ProjectGuid>{7FF8E367-E83B-4D02-A7E2-D8A7D8B0EB15}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>HelperSuite</RootNamespace>
-    <AssemblyName>HelperSuite</AssemblyName>
+    <RootNamespace>ModelViewer</RootNamespace>
+    <AssemblyName>ModelViewer</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MonoGamePlatform>Windows</MonoGamePlatform>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -59,6 +74,8 @@
     <Compile Include="HelperSuite\GUI\GUITextBlockButton.cs" />
     <Compile Include="HelperSuite\GUI\GUITextBlockToggle.cs" />
     <Compile Include="Logic\Camera.cs" />
+    <Compile Include="Renderer\ShaderModules\Helper\AnimatedModel.cs" />
+    <Compile Include="Renderer\ShaderModules\Helper\AnimationPlayer.cs" />
     <Compile Include="Static\Extension.cs" />
     <Compile Include="Logic\GUILogic.cs" />
     <Compile Include="Logic\Input.cs" />
@@ -121,6 +138,12 @@
     <Content Include="Content\mgcb\MGCB.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\mgcb\MGSkinnedAnimationAux.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\mgcb\MGSkinnedAnimationPipeline.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\mgcb\MonoGame.Framework.Content.Pipeline.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -139,6 +162,9 @@
     <Content Include="Content\mgcb\PVRTexLibWrapper.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\mgcb\runtimeanimatedmodel.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\mgcb\runtimemodel.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -154,7 +180,24 @@
     </MonoGameContentReference>
     <None Include="app.manifest" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\..\OceanRender\MGSkinnedAnimationAux\MGSkinnedAnimationAux.csproj">
+      <Project>{D1CC382B-7D83-4AB0-9978-DFDAFDE7F027}</Project>
+      <Name>MGSkinnedAnimationAux</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.5">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.5 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -30,14 +30,23 @@ float3x3 WorldIT;
 
 float4x3 Bones[SKINNED_EFFECT_MAX_BONES];
 
-float Metallic = 0.5f;
+float Metallic = 0.3f;
+bool UseMetallicMap = false;
 float Roughness = 0.3f;
+bool UseRoughnessMap = false;
 
 float4 AlbedoColor = float4(1, 1, 1, 1);
+bool UseAlbedoMap = false;
+
+bool UseLinear = true;
+
 
 Texture2D<float4> NormalMap;
 Texture2D<float4> AlbedoMap;
-Texture1D<float4> FresnelMap;
+Texture2D<float4> MetallicMap;
+Texture2D<float4> RoughnessMap;
+
+Texture2D<float4> FresnelMap;
 TextureCube<float4> EnvironmentMap;
 
 sampler TextureSampler
@@ -211,6 +220,7 @@ VertexShaderOutput Skinned_VertexShaderFunction(SkinnedVertexShaderInput input)
 	output.WorldPosition = WorldPosition.xyz;
     output.Position = mul(WorldPosition, ViewProj);
 	output.Normal = mul(input.Normal, WorldIT).xyz;
+	output.TexCoord = input.TexCoord;
 	return output;
 }
 
@@ -246,8 +256,10 @@ float4 Lighting(LightingParams input)
 {
 	float3 normal = normalize(input.Normal);
 
-	float4 color = pow(abs(input.Color), 2.2f);
-	float metalness = input.Metallic;
+	float4 color = input.Color;
+	if (UseLinear) color = pow(abs(color), 2.2f);
+
+	float metallic = input.Metallic;
 	float roughness = input.Roughness;
 
 	const float3 lightVector = normalize(float3(0, 0, 1/*-0.8f, -0.8f, 0.3f*/));
@@ -255,31 +267,34 @@ float4 Lighting(LightingParams input)
 	const float3 lightColor = float3(0, 0, 0);
 	float3 viewDir = normalize(input.WorldPosition - CameraPosition);
 
-	float f0 = lerp(0.04f, color.g * 0.25 + 0.75, metalness);
+	float f0 = lerp(0.04f, color.g * 0.25 + 0.75, metallic);
 
 	float NdL = /*saturate((dot(normal, lightVector) + 0.5f) / 1.5f);*/saturate(dot(normal, lightVector));
 	float3 diffuseLight = 0;
 	[branch]
-	if (metalness < 0.99)
+	if (metallic < 0.99)
 	{
 		//diffuseLight = DiffuseOrenNayar(NdL, normal, lightVector, -cameraDirection, lightIntensity, lightColor, roughness); //NdL * lightColor.rgb;
 		diffuseLight = NdL*0;
 	}
-	float3 specularLight = SpecularCookTorrance(NdL, normal, lightVector, -viewDir, lightIntensity, lightColor, f0, roughness);
+	float3 specularLight = float3(0,0,0);// SpecularCookTorrance(NdL, normal, lightVector, -viewDir, lightIntensity, lightColor, f0, roughness);
 
 	diffuseLight = (diffuseLight * (1 - f0)); //* (1 - f0)) * (f0 + 1) * (f0 + 1);
-	specularLight = specularLight;
 
-	float fresnelFactor = FresnelMap.Sample(FresnelSampler, saturate(dot(-viewDir, normal))).r;
+	float2 fresnelFactor = FresnelMap.Sample(FresnelSampler, float2(roughness, 1-dot(-viewDir, normal))).rg;
 
 	float3 reflectVector = -reflect(-viewDir, normal);
 
-	float4 specularReflection = EnvironmentMap.Sample(CubeMapSampler, reflectVector.xzy);
+	float4 specularReflection = EnvironmentMap.SampleLevel(CubeMapSampler, reflectVector.xzy, (roughness) * 8);
+	if (UseLinear) specularReflection = pow(abs(specularReflection), 2.2f);
 
-	specularReflection = lerp(float4(0, 0, 0, 0), specularReflection, fresnelFactor);
+	specularReflection = specularReflection * (fresnelFactor.r * f0 + fresnelFactor.g);
+	//specularReflection = lerp(float4(0, 0, 0, 0), specularReflection, fresnelFactor);
 
-	float4 diffuseReflection = EnvironmentMap.SampleLevel(CubeMapSampler, reflectVector.xzy,6);
+	float4 diffuseReflection = EnvironmentMap.SampleLevel(CubeMapSampler, reflectVector.xzy,6) ;
+	if (UseLinear) diffuseReflection = pow(abs(diffuseReflection), 2.2f);
 
+	diffuseReflection *= (1 - (fresnelFactor.r * f0 + fresnelFactor.g));
 	//float envMapCoord = saturate((-normal.z + 1) / 2);
 
 	//float4 ambientDiffuse = float4(EnvironmentMap.Load(int3(127, envMapCoord * 128, 0), int2(0, 0)).rgb, 1); //EnvironmentMap.Sample(EnvironmentMapSampler, float2(1.0f, envMapCoord)); EnvironmentMap.Load(int3(1, envMapCoord * 128, 0), int2(0, 0)); // EnvironmentMap.SampleLevel(EnvironmentMapSampler, float2(-1, envMapCoord), 0)*10;
@@ -288,17 +303,21 @@ float4 Lighting(LightingParams input)
 	//ambientDiffuse = pow(abs(ambientDiffuse), 2.2f) * EnvironmentIntensity;
 	//ambientSpecular = pow(abs(ambientSpecular), 4.4f) * EnvironmentIntensity;
 
-	//float strength = lerp(ambientSpecular.a * 2, 1, metalness);
+	//float strength = lerp(ambientSpecular.a * 2, 1, metallic);
 
 	//ambientSpecular = float4(ambientSpecular.rgb *strength, 1);
 
-	float3 plasticFinal = color.rgb * (diffuseLight + diffuseReflection)+specularLight; //ambientSpecular;
+	float3 plasticFinal = color.rgb * (diffuseLight + diffuseReflection)+specularLight + specularReflection; //ambientSpecular;
+	if (UseLinear) plasticFinal = pow(abs(plasticFinal), 0.45454545f);
 
 	float3 metalFinal = (specularLight + specularReflection)* color.rgb;
+	if (UseLinear) metalFinal = pow(abs(metalFinal), 0.45454545f);
 
-	float3 finalValue = lerp(plasticFinal, metalFinal, metalness);
-
-	return float4(pow(abs(finalValue), 1 / 2.2f), 1);
+	float3 finalValue = lerp(plasticFinal, metalFinal, metallic);
+/*
+	if (UseLinear) finalValue = pow(abs(finalValue), 0.45454545f);
+*/
+	return float4(finalValue, 1);
 }
 
 float4 PixelShaderFunction(VertexShaderOutput input) : SV_TARGET0
@@ -306,16 +325,37 @@ float4 PixelShaderFunction(VertexShaderOutput input) : SV_TARGET0
 	float3 normal = input.Normal;
 	///*input.WorldToTangentSpace[2];*/GetNormalMap(input.TexCoord);
 	////normal = normalize(mul(normal, input.WorldToTangentSpace));
+	float sampleLevel = AlbedoMap.CalculateLevelOfDetail(TextureSampler, input.TexCoord);
 
-	float4 albedo = float4(1, 1, 1, 1);//AlbedoMap.Sample(TextureSampler, input.TexCoord);
+	float4 albedo = AlbedoColor;//AlbedoMap.Sample(TextureSampler, input.TexCoord);
+
+	[branch]
+	if (UseAlbedoMap)
+	{
+		albedo = AlbedoMap.SampleLevel(TextureSampler, input.TexCoord, sampleLevel);
+	}
+
+	float roughness = Roughness;
+	[branch]
+	if (UseRoughnessMap)
+	{
+		roughness = RoughnessMap.SampleLevel(TextureSampler, input.TexCoord, sampleLevel);
+	}
+
+	float metallic = Metallic;
+	[branch]
+	if (UseMetallicMap)
+	{
+		metallic = MetallicMap.SampleLevel(TextureSampler, input.TexCoord, sampleLevel);
+	}
 
 	LightingParams renderParams;
 
 	renderParams.Color = albedo;
 	renderParams.Normal = normal;
 	////renderParams.Depth = input.Depth;
-	renderParams.Metallic = Metallic;
-	renderParams.Roughness = Roughness;
+	renderParams.Metallic = metallic;
+	renderParams.Roughness = roughness;
 	renderParams.WorldPosition = input.WorldPosition;
 
 	return Lighting(renderParams);
@@ -323,8 +363,44 @@ float4 PixelShaderFunction(VertexShaderOutput input) : SV_TARGET0
 
 float4 TangentSpace_PixelShaderFunction(Normal_VertexShaderOutput input) : SV_TARGET0
 {
-	float nDotL = saturate(input.WorldToTangentSpace[2].z + 0.5f) / 1.5f;
-	return float4(1, 1, 1, 1) * nDotL;
+	float sampleLevel = AlbedoMap.CalculateLevelOfDetail(TextureSampler, input.TexCoord);
+
+	float4 albedo = AlbedoColor;//AlbedoMap.Sample(TextureSampler, input.TexCoord);
+
+	[branch]
+	if (UseAlbedoMap)
+	{
+		albedo = AlbedoMap.SampleLevel(TextureSampler, input.TexCoord, sampleLevel);
+	}
+
+	float roughness = Roughness;
+	[branch]
+	if (UseRoughnessMap)
+	{
+		roughness = RoughnessMap.SampleLevel(TextureSampler, input.TexCoord, sampleLevel);
+	}
+
+	float metallic = Metallic;
+	[branch]
+	if (UseMetallicMap)
+	{
+		metallic = MetallicMap.SampleLevel(TextureSampler, input.TexCoord, sampleLevel);
+	}
+
+	float3 normalMap = NormalMap.SampleLevel(TextureSampler, input.TexCoord, sampleLevel).xyz - float3(0.5f, 0.5f, 0.5f);
+
+	float3 normal = normalize(mul(normalMap, input.WorldToTangentSpace));
+
+	LightingParams renderParams;
+
+	renderParams.Color = albedo;
+	renderParams.Normal = normal;
+	////renderParams.Depth = input.Depth;
+	renderParams.Metallic = metallic;
+	renderParams.Roughness = roughness;
+	renderParams.WorldPosition = input.WorldPosition;
+
+	return Lighting(renderParams);
 }
 
 

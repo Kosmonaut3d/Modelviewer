@@ -148,6 +148,39 @@ float3 DiffuseOrenNayar(float NdotL, float3 normal, float3 lightDirection, float
     return L1 * lightColor * lightIntensity / 4;
 }
 
+float3 SpecularCookTorranceCube(float3 normal,float3 cameraDirectionP, float f0, float roughness)
+{
+	float3 specular = float3(0, 0, 0);
+
+		float3 halfVector = normalize(normal + cameraDirectionP);
+
+		float NdotH = saturate(dot(normal, halfVector));
+		float NdotV = saturate(dot(normal, cameraDirectionP));
+		float VdotH = saturate(dot(cameraDirectionP, halfVector));
+		float mSquared = roughness * roughness;
+
+		//Trowbridge-Reitz
+		float D_lowerTerm = (NdotH * NdotH * (mSquared * mSquared - 1) + 1);
+		float D = mSquared * mSquared / (3.14 * D_lowerTerm * D_lowerTerm);
+
+		//fresnel        (Schlick)
+		float F = pow(1.0 - VdotH, 5.0);
+		F *= (1.0 - f0);
+		F += f0;
+
+		//Schlick Smith
+		float k = (roughness + 1) * (roughness + 1) / 8;
+		float g_v = NdotV / (NdotV * (1 - k) + k);
+		float g_l = 1 / (1 * (1 - k) + k);
+
+		float G = g_l * g_v;
+
+		specular = max(0, (D * F * G) / (4)); //todo check this!!!!!!!!!!! why 3.14?j only relevant if we have it 
+
+		
+	return specular;
+}
+
 //half2 encode(float3 n)
 //{
 //    half f = sqrt(8 * n.z + 8);

@@ -40,13 +40,36 @@ namespace HelperSuite.Renderer.ShaderModules
         private EffectParameter _normalMapParameter;
         private EffectParameter _albedoMapParameter;
         private EffectParameter _albedoColorParameter;
+        private EffectParameter _useAlbedoMapParameter;
         private EffectParameter _environmentMapParameter;
         private EffectParameter _fresnelMapParameter;
+        private EffectParameter _roughnessMapParameter;
+        private EffectParameter _useRoughnessMapParameter;
+        private EffectParameter _metallicMapParameter;
+        private EffectParameter _useMetallicMapParameter;
+
+        private EffectParameter _useLinearParameter;
+
+        private EffectParameter _roughnessParameter;
+        private EffectParameter _metallicParameter;
 
         private EffectPass _unskinnedNormalMappedPass;
         private EffectPass _unskinnedPass;
         private EffectPass _skinnedPass;
         private EffectPass _skinnedNormalMappedPass;
+
+        private bool _useLinear = true;
+        public bool UseLinear
+        {
+            get { return _useLinear; }
+            set {
+                if (_useLinear != value)
+                {
+                    _useLinear = value;
+                    _useLinearParameter.SetValue(_useLinear);
+                } }
+        }
+
 
         private Texture2D _normalMap;
         public Texture2D NormalMap
@@ -90,6 +113,7 @@ namespace HelperSuite.Renderer.ShaderModules
                 if (_albedoMap != value)
                 {
                     _albedoMap = value;
+                    _useAlbedoMapParameter.SetValue(_albedoMap != null);
                     _albedoMapParameter.SetValue(_albedoMap);
                 }
             }
@@ -124,6 +148,65 @@ namespace HelperSuite.Renderer.ShaderModules
             }
         }
 
+        public float Roughness
+        {
+            get { return _roughness; }
+            set {
+                if (Math.Abs(_roughness - value) > 0.0001f)
+                {
+                    _roughness = value;
+                    _roughnessParameter.SetValue(_roughness);
+                } }
+        }
+
+        private float _roughness;
+
+        private Texture2D _roughnessMap;
+
+        public Texture2D RoughnessMap
+        {
+            get { return _roughnessMap; }
+            set
+            {
+                if (_roughnessMap != value)
+                {
+                    _roughnessMap = value;
+                    _useRoughnessMapParameter.SetValue(_roughnessMap != null);
+                    _roughnessMapParameter.SetValue(_roughnessMap);
+                }
+            }
+        }
+
+        public float Metallic
+        {
+            get { return _metallic; }
+            set
+            {
+                if (Math.Abs(_metallic - value) > 0.0001f)
+                {
+                    _metallic = value;
+                    _metallicParameter.SetValue(_metallic);
+                }
+            }
+        }
+
+        private float _metallic;
+
+        private Texture2D _metallicMap;
+
+        public Texture2D MetallicMap
+        {
+            get { return _metallicMap; }
+            set
+            {
+                if (_metallicMap != value)
+                {
+                    _metallicMap = value;
+                    _useMetallicMapParameter.SetValue(_metallicMap != null);
+                    _metallicMapParameter.SetValue(_metallicMap);
+                }
+            }
+        }
 
         public enum EffectPasses
         {
@@ -152,8 +235,19 @@ namespace HelperSuite.Renderer.ShaderModules
             _normalMapParameter = _shaderEffect.Parameters["NormalMap"];
             _albedoColorParameter = _shaderEffect.Parameters["AlbedoColor"];
             _albedoMapParameter = _shaderEffect.Parameters["AlbedoMap"];
+            _useAlbedoMapParameter = _shaderEffect.Parameters["UseAlbedoMap"];
+            
             _environmentMapParameter = _shaderEffect.Parameters["EnvironmentMap"];
             _fresnelMapParameter = _shaderEffect.Parameters["FresnelMap"];
+            
+            _roughnessParameter = _shaderEffect.Parameters["Roughness"];
+            _roughnessMapParameter = _shaderEffect.Parameters["RoughnessMap"];
+            _useRoughnessMapParameter = _shaderEffect.Parameters["UseRoughnessMap"];
+            _metallicParameter = _shaderEffect.Parameters["Metallic"];
+            _metallicMapParameter = _shaderEffect.Parameters["MetallicMap"];
+            _useMetallicMapParameter = _shaderEffect.Parameters["UseMetallicMap"];
+
+            _useLinearParameter = _shaderEffect.Parameters["UseLinear"];
 
             _unskinnedPass = _shaderEffect.Techniques["Unskinned"].Passes[0];
             _unskinnedNormalMappedPass = _shaderEffect.Techniques["UnskinnedNormalMapped"].Passes[0];
@@ -197,6 +291,7 @@ namespace HelperSuite.Renderer.ShaderModules
                 }
             }
         }
+        
 
         /// <summary>
         /// Draw Mesh with the effect applied

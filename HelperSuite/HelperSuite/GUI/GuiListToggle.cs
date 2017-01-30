@@ -34,7 +34,7 @@ namespace HelperSuite.HelperSuite.GUI
             //element.Position = new Vector2(0, height);
 
             DefaultDimensions = new Vector2(DefaultDimensions.X, height + element.Dimensions.Y);
-            
+            Dimensions = DefaultDimensions;
             //In Order
             _children.Add(element);
         }
@@ -70,6 +70,11 @@ namespace HelperSuite.HelperSuite.GUI
 
                     height += _children[index].Dimensions.Y;
                 }
+                Dimensions = DefaultDimensions;
+            }
+            else
+            {
+                Dimensions = _toggleDimensions;
             }
         }
 

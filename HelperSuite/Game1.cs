@@ -1,5 +1,6 @@
 ﻿using System;
 using HelperSuite.HelperSuite.Static;
+using HelperSuite.Logic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -26,7 +27,7 @@ namespace HelperSuite
             _screenManager = new ScreenManager();
 
             //Set up graphics properties, no vsync, no framelock
-            _graphics.SynchronizeWithVerticalRetrace = true;
+            _graphics.SynchronizeWithVerticalRetrace = false;
             IsFixedTimeStep = true;
             //TargetElapsedTime = TimeSpan.FromMilliseconds(100);
 

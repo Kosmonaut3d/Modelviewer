@@ -1,7 +1,10 @@
 /outputDir:Content/Runtime/Textures
 
+/reference:Content/mgcb/MGSkinnedAnimationAux.dll
+/reference:Content/mgcb/MGSkinnedAnimationPipeline.dll
+
 /importer:FbxImporter
-/processor:ModelProcessor
+/processor:AnimationProcessor
 /processorParam:ColorKeyColor=0,0,0,0
 /processorParam:ColorKeyEnabled=True
 /processorParam:DefaultEffect=BasicEffect

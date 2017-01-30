@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelperSuite", "HelperSuite\HelperSuite.csproj", "{7FF8E367-E83B-4D02-A7E2-D8A7D8B0EB15}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModelViewer", "HelperSuite\ModelViewer.csproj", "{7FF8E367-E83B-4D02-A7E2-D8A7D8B0EB15}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MGSkinnedAnimationAux", "..\OceanRender\MGSkinnedAnimationAux\MGSkinnedAnimationAux.csproj", "{D1CC382B-7D83-4AB0-9978-DFDAFDE7F027}"
 EndProject

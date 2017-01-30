@@ -21,7 +21,7 @@ namespace OceanRender.Main
         private GuiLogicSample _guiLogicSample;
         private MainLogic _mainLogic;
         private GUIRenderer _guiRenderer;
-        private Renderer _renderer;
+        private HelperSuite.Renderer.Renderer _renderer;
         
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //  FUNCTIONS
@@ -65,7 +65,7 @@ namespace OceanRender.Main
             _guiLogicSample = new GuiLogicSample();
             _guiLogicSample.Load(content);
             
-            _renderer = new Renderer();
+            _renderer = new HelperSuite.Renderer.Renderer();
             _renderer.Load(content);
         }
 
@@ -77,7 +77,7 @@ namespace OceanRender.Main
         
         public void Draw(GameTime gameTime)
         {
-            _renderer.Draw(_mainLogic.GetCamera(), _mainLogic.modelLoader.LoadedObject, gameTime);
+            _renderer.Draw(_mainLogic.GetCamera(), _mainLogic, _mainLogic.modelPosition, gameTime);
 
             _mainLogic.Draw(gameTime);
 

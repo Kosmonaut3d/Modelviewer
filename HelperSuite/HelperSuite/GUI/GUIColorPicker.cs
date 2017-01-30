@@ -19,7 +19,7 @@ namespace HelperSuite.HelperSuite.GUI
         public Color CurrentFullColor = Color.Red;
         public Color CurrentFineColor = Color.White;
 
-        private Vector2 _mousePointerFine;
+        private Vector2 _mousePointerFine; 
         private Vector2 _mousePointerFull;
         private float _mousePointerLength = 5;
         private float _mousePointerThickness = 1;
@@ -41,7 +41,8 @@ namespace HelperSuite.HelperSuite.GUI
 
             _colorString.AppendColor(CurrentFullColor);
 
-            _mousePointerFine = position;
+            _mousePointerFine = position + Vector2.One*20;
+            _mousePointerFull = position + Vector2.One * 20;
         }
 
 
@@ -60,7 +61,7 @@ namespace HelperSuite.HelperSuite.GUI
             guiRenderer.DrawQuad(parentPosition + Position + border * Vector2.One, findColorPickerDimensions, Color.White);
             guiRenderer.DrawColorQuad2(parentPosition + Position + border * Vector2.One, findColorPickerDimensions, CurrentFullColor);
 
-            guiRenderer.DrawQuad(new Vector2(parentPosition.X + Position.X + border + Dimensions.X - fullcolorPickerDimensions.X, _mousePointerFull.Y - _mousePointerThickness), new Vector2(10, _mousePointerThickness*2),  Color.White);
+            guiRenderer.DrawQuad(new Vector2(parentPosition.X + Position.X + border + Dimensions.X - fullcolorPickerDimensions.X, Position.Y + parentPosition.Y + _mousePointerFull.Y - _mousePointerThickness), new Vector2(10, _mousePointerThickness*2),  Color.White);
             
 
             guiRenderer.DrawQuad(parentPosition + Position + border * Vector2.One + (findColorPickerDimensions + Dimensions * 0.02f) * Vector2.UnitY, new Vector2(findColorPickerDimensions.X, 30), CurrentFineColor);
@@ -68,12 +69,13 @@ namespace HelperSuite.HelperSuite.GUI
             guiRenderer.DrawText(parentPosition + Position + Vector2.One + border * Vector2.One * 2 + (findColorPickerDimensions + Dimensions * 0.05f) * Vector2.UnitY, _colorString, _font, Color.Black);
             guiRenderer.DrawText(parentPosition + Position + border * Vector2.One * 2 + (findColorPickerDimensions + Dimensions*0.05f) * Vector2.UnitY, _colorString, _font, Color.White);
 
+            Vector2 msFine = Position + parentPosition + _mousePointerFine;
             //mouse pointer
-            guiRenderer.DrawQuad(_mousePointerFine - new Vector2(_mousePointerLength + _mousePointerOffset, _mousePointerThickness), new Vector2(_mousePointerLength, _mousePointerThickness*2), Color.White);
-            guiRenderer.DrawQuad(_mousePointerFine + new Vector2(_mousePointerOffset, -_mousePointerThickness), new Vector2(_mousePointerLength, _mousePointerThickness * 2), Color.White);
+            guiRenderer.DrawQuad(msFine - new Vector2(_mousePointerLength + _mousePointerOffset, _mousePointerThickness), new Vector2(_mousePointerLength, _mousePointerThickness*2), Color.White);
+            guiRenderer.DrawQuad(msFine + new Vector2(_mousePointerOffset, -_mousePointerThickness), new Vector2(_mousePointerLength, _mousePointerThickness * 2), Color.White);
 
-            guiRenderer.DrawQuad(_mousePointerFine - new Vector2(_mousePointerThickness, _mousePointerLength + _mousePointerOffset), new Vector2(_mousePointerThickness * 2,_mousePointerLength), Color.White);
-            guiRenderer.DrawQuad(_mousePointerFine + new Vector2(-_mousePointerThickness, _mousePointerOffset), new Vector2(_mousePointerThickness * 2, _mousePointerLength), Color.White);
+            guiRenderer.DrawQuad(msFine - new Vector2(_mousePointerThickness, _mousePointerLength + _mousePointerOffset), new Vector2(_mousePointerThickness * 2,_mousePointerLength), Color.White);
+            guiRenderer.DrawQuad(msFine + new Vector2(-_mousePointerThickness, _mousePointerOffset), new Vector2(_mousePointerThickness * 2, _mousePointerLength), Color.White);
         }
 
         public override void Update(GameTime gameTime, Vector2 mousePosition, Vector2 parentPosition)
@@ -125,7 +127,7 @@ namespace HelperSuite.HelperSuite.GUI
 
                     if (output != null) CurrentFullColor = (Color) output;
 
-                    _mousePointerFull = mousePosition;
+                    _mousePointerFull = mousePosition - Position - parentPosition;
                 }
                 else
                 {
@@ -139,7 +141,7 @@ namespace HelperSuite.HelperSuite.GUI
 
                         output = CurrentFullColor;
 
-                        _mousePointerFine = mousePosition;
+                        _mousePointerFine = mousePosition - Position - parentPosition;
                     }
 
 

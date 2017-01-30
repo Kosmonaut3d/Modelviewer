@@ -7,6 +7,7 @@ using HelperSuite.HelperSuite.ContentLoader;
 using HelperSuite.HelperSuite.Static;
 using HelperSuite.Logic;
 using HelperSuite.Renderer.ShaderModules;
+using HelperSuite.Renderer.ShaderModules.Helper;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -53,7 +54,7 @@ namespace HelperSuite.Renderer
 
             rollTexture2D = _contentManager.Load<Texture2D>("Graphical User Interface/ring");
             skyboxCube = _contentManager.Load<TextureCube>("ShaderModules/Skybox/skyboxCubemap");
-            fresnelMap = _contentManager.Load<Texture>("ShaderModules/AnimatedModelShader/fresnel");
+            fresnelMap = _contentManager.Load<Texture>("ShaderModules/AnimatedModelShader/fresnel2");
 
             model = _contentManager.Load<Model>("ShaderModules/Skybox/isosphere"/*"ShaderModules/AnimatedModelShader/cube"*/);
 
@@ -67,33 +68,77 @@ namespace HelperSuite.Renderer
             _animatedModelShader.FresnelMap = fresnelMap;
         }
 
-        public void Draw(Camera camera, object loadedModel, GameTime gameTime)
+        public void Draw(Camera camera, MainLogic mainLogic, Vector3 modelPosition, GameTime gameTime)
         {
             UpdateViewProjection(camera);
+
+            AnimatedModelShader.EffectPasses pass = AnimatedModelShader.EffectPasses.Unskinned;
 
             _graphics.BlendState = BlendState.Opaque;
             _graphics.DepthStencilState = DepthStencilState.Default;
 
+            object loadedModel = mainLogic.modelLoader.LoadedObject;
+            AnimatedModel usedModel = loadedModel != null ? (AnimatedModel)loadedModel : null;
 
-            Model usedModel = loadedModel != null ? (Model)loadedModel : model;
-            
-            Matrix size = Matrix.CreateScale((float) Math.Pow(10, GameSettings.m_size)/10);
+            {
+                object loadedMaterial = mainLogic.albedoLoader.LoadedObject;
+                Texture2D loadedAlbedo = loadedMaterial != null ? (Texture2D) loadedMaterial : null;
+                _animatedModelShader.AlbedoMap = loadedAlbedo;
+            }
 
-            Matrix world = size * Matrix.CreateTranslation(-usedModel.Meshes[0].BoundingSphere.Center) * (GameSettings.m_orientationy ? YupOrientation : Matrix.Identity);
+            {
+                object loadedMaterial = mainLogic.normalLoader.LoadedObject;
+                Texture2D loadedNormal = loadedMaterial != null ? (Texture2D)loadedMaterial : null;
+                _animatedModelShader.NormalMap = loadedNormal;
 
+                if(loadedNormal!=null)
+                pass = AnimatedModelShader.EffectPasses.UnskinnedNormalMapped;
+            }
+            {
+                object loadedMaterial = mainLogic.roughnessLoader.LoadedObject;
+                Texture2D loadedAlbedo = loadedMaterial != null ? (Texture2D)loadedMaterial : null;
+                _animatedModelShader.RoughnessMap = loadedAlbedo;
+            }
+            {
+                object loadedMaterial = mainLogic.metallicLoader.LoadedObject;
+                Texture2D loadedAlbedo = loadedMaterial != null ? (Texture2D)loadedMaterial : null;
+                _animatedModelShader.MetallicMap = loadedAlbedo;
+            }
+
+
+            float scale = (float) Math.Pow(10, GameSettings.m_size)/10;
+            Matrix size = Matrix.CreateScale(scale);
+
+            Matrix world = (GameSettings.m_orientationy ? YupOrientation : Matrix.Identity) * Matrix.CreateTranslation(/*-usedModel.Meshes[0].BoundingSphere.Center*/ - modelPosition/ scale) * size ;
+
+            _animatedModelShader.AlbedoColor = GameSettings.bgColor;
+            _animatedModelShader.Roughness = GameSettings.m_roughness;
+            _animatedModelShader.Metallic = GameSettings.m_metallic;
+            _animatedModelShader.UseLinear = GameSettings.r_UseLinear;
 
             if (loadedModel != null)
             {
-                _animatedModelShader.DrawMesh((Model) loadedModel, world, _viewProjection, camera.Position, AnimatedModelShader.EffectPasses.Unskinned);
+                //_animatedModelShader.DrawMesh((Model) loadedModel, world, _viewProjection, camera.Position, pass);
+                usedModel.Draw(world, _viewProjection, camera.Position, _animatedModelShader, pass);
+
+                if(usedModel.Clips.Count>0 && GameSettings.m_updateAnimation)
+                   usedModel.Update(gameTime);
+
+                if (GameSettings.m_startClip)
+                {
+                    usedModel.PlayClip(usedModel.Clips[0], true);
+                    GameSettings.m_startClip = false;
+                }
+
             }
             else
             {
-                _animatedModelShader.DrawMesh(model, world, _viewProjection, camera.Position, AnimatedModelShader.EffectPasses.Unskinned);
+                _animatedModelShader.DrawMesh(model, world, _viewProjection, camera.Position, pass);
             }
 
 
             _graphics.RasterizerState = RasterizerState.CullClockwise;
-            _skyboxRenderModule.Draw(_viewProjection, Vector3.Zero, 300);
+            _skyboxRenderModule.Draw(Matrix.CreateTranslation(camera.Position) *  _viewProjection, Vector3.Zero, 300);
 
             DrawInteractivityAnimation(gameTime);
         }
@@ -102,7 +147,7 @@ namespace HelperSuite.Renderer
         {
             _spriteBatch.Begin();
             
-            _spriteBatch.Draw(rollTexture2D, new Rectangle(10, GameSettings.g_ScreenHeight - 10, 20, 20), null, Color.White, (float)-gameTime.TotalGameTime.TotalSeconds * 3, new Vector2(rollTexture2D.Width / 2, rollTexture2D.Height / 2), SpriteEffects.None, 0);
+            _spriteBatch.Draw(rollTexture2D, new Rectangle(10, GameSettings.g_ScreenHeight - 80, 20, 20), null, Color.White, (float)-gameTime.TotalGameTime.TotalSeconds * 3, new Vector2(rollTexture2D.Width / 2, rollTexture2D.Height / 2), SpriteEffects.None, 0);
 
             _spriteBatch.End();
 

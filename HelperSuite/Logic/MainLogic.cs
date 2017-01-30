@@ -12,6 +12,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using ButtonState = Microsoft.Xna.Framework.Input.ButtonState;
+using Keys = Microsoft.Xna.Framework.Input.Keys;
 
 namespace HelperSuite.Logic
 {
@@ -23,10 +24,15 @@ namespace HelperSuite.Logic
         
         public Texture2D loadedTexture;
         public GuiTextBlockLoadDialog modelLoader;
+        public GuiTextBlockLoadDialog albedoLoader;
+        public GuiTextBlockLoadDialog normalLoader;
+        public GuiTextBlockLoadDialog roughnessLoader;
+        public GuiTextBlockLoadDialog metallicLoader;
         private Texture2D rollTexture2D;
         private SpriteBatch _spriteBatch;
         private Camera _camera;
-
+        public Vector3 modelPosition;
+        
 
         public void Initialize(GraphicsDevice graphicsDevice)
         {
@@ -45,9 +51,12 @@ namespace HelperSuite.Logic
         }
 
 
-        private static void MouseEvents(Camera camera)
+        private void MouseEvents(Camera camera, ref Vector3 position)
         {
-
+            if (Input.WasKeyPressed(Keys.Space))
+            {
+                modelPosition = Vector3.Zero;
+            }
             if (Input.mouseState.ScrollWheelValue != Input.mouseLastState.ScrollWheelValue)
             {
                 camera.DistanceFromCenter += ((float)(Input.mouseState.ScrollWheelValue - Input.mouseLastState.ScrollWheelValue)/100);
@@ -58,7 +67,7 @@ namespace HelperSuite.Logic
                 //camera.Forward = new Vector3(x, y, z);
                 camera.Position = camera.Lookat + length*camera.DistanceFromCenter;
             }
-            if (Input.mouseState.LeftButton == ButtonState.Pressed)
+            if (Input.mouseState.RightButton == ButtonState.Pressed)
             {
                 if (!GameSettings.RotateOrbit)
                 {
@@ -112,141 +121,29 @@ namespace HelperSuite.Logic
 
                 }
             }
+            if (Input.mouseState.LeftButton == ButtonState.Pressed)
+            {
+
+                float x = (Input.mouseState.X - Input.mouseLastState.X) / 1000.0f * camera.DistanceFromCenter;
+                float y = -(Input.mouseState.Y - Input.mouseLastState.Y) / 1000.0f * camera.DistanceFromCenter;
+
+                Vector3 normal = Vector3.Cross(camera.Up, camera.Forward);
+                Vector3 realup = Vector3.Cross(normal, camera.Forward);
+                
+                normal.Normalize();
+                realup.Normalize();
+
+                position += normal * x + realup * y;
+                //camera.Position += normal * x + realup * y;
+
+            }
 
         }
-
-        public void TestFunction()
-        {
-
-            string completeFilePath = null;
-            string copiedFilePath = null;
-
-            string fileName = null;
-            string shortFileName = null;
-            string fileEnding = null;
-            OpenFileDialog openFileDialog1 = new OpenFileDialog
-            {
-                InitialDirectory = Application.StartupPath,
-                Filter =
-                    "image files (*.png, .jpg, .jpeg, .bmp, .gif)|*.png;*.jpg;*.bmp;*.jpeg;*.gif|All files (*.*)|*.*",
-                FilterIndex = 1,
-                RestoreDirectory = true,
-                Multiselect = false
-            };
-
-            //"c:\\";
-
-            if (openFileDialog1.ShowDialog() == DialogResult.OK)
-            {
-                completeFilePath = openFileDialog1.FileName;
-                if (openFileDialog1.SafeFileName != null)
-                    fileName = openFileDialog1.SafeFileName;
-
-                //Make it test instead of test.jpg;
-                string[] split = fileName.Split('.');
-
-                shortFileName = split[0];
-                fileEnding = split[1];
-                
-                if (shortFileName != null)
-                    copiedFilePath = Application.StartupPath + "/" + fileName;
-            }
-
-            _task = Task.Factory.StartNew(() => {
-                try
-            {
-                if (copiedFilePath != null)
-                    File.Copy(completeFilePath, copiedFilePath);
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine(e.Message);
-            }
-
-            //todo write exceptions here
-            if (copiedFilePath == null) return;
-            if (!File.Exists(copiedFilePath)) return;
-                
-            string MGCBpathDirectory = Application.StartupPath + "/Content/MGCB/";
-            string MGCBpathExe = Application.StartupPath + "/Content/MGCB/mgcb.exe";
-
-            //Create pProcess
-                Process pProcess = new Process {StartInfo = {FileName = MGCBpathExe}};
-
-                //strCommand is path and file name of command to run
-
-                completeFilePath = completeFilePath.Replace("\\", "/");
-
-            Debug.Assert(fileName != null, "fileName != null");
-            pProcess.StartInfo.Arguments = "/@:Content/mgcb/runtimepipeline.txt /build:"+ fileName;
-
-            pProcess.StartInfo.CreateNoWindow = true;
-
-            pProcess.StartInfo.UseShellExecute = false;
-
-            pProcess.StartInfo.RedirectStandardError = true;
-            pProcess.StartInfo.RedirectStandardOutput = true;
-            
-            //Set output of program to be written to pProcess output stream
-            pProcess.StartInfo.RedirectStandardOutput = true;
-
-            //Get program output
-            string stdError = null;
-
-            var stdOutput = new StringBuilder();
-            pProcess.OutputDataReceived += (sender, args) => stdOutput.Append(args.Data);
-
-            try
-            {
-                pProcess.Start();
-                pProcess.BeginOutputReadLine();
-                stdError = pProcess.StandardError.ReadToEnd();
-                pProcess.WaitForExit();
-            }
-            catch (Exception e)
-            {
-                throw new Exception("OS error while executing : " + e.Message, e);
-                    
-            }
-
-            if (pProcess.ExitCode == 0)
-            {
-                stdOutput.ToString();
-            }
-            else
-            {
-                var message = new StringBuilder();
-
-                if (!string.IsNullOrEmpty(stdError))
-                {
-                    message.AppendLine(stdError);
-                }
-
-                if (stdOutput.Length != 0)
-                {
-                    message.AppendLine("Std output:");
-                    message.AppendLine(stdOutput.ToString());
-                }
-
-                Debug.WriteLine(message);
-
-                throw new Exception("mgcb finished with exit code = " + pProcess.ExitCode + ": " + message);
-                    
-            }
-
-            //if(loadedTexture!=null)
-            //loadedTexture.Dispose();
-                loadedTexture = _contentManager.Load<Texture2D>("Runtime/Textures/" + shortFileName);
-                
-            File.Delete(copiedFilePath);
-            });
-        }
-
-
+        
         public void Update(GameTime gameTime)
         {
             if(!GameStats.UIWasClicked)
-            MouseEvents(_camera);      
+            MouseEvents(_camera, ref modelPosition);      
         }
 
         public void Draw(GameTime gameTime)
@@ -267,6 +164,8 @@ namespace HelperSuite.Logic
             {
                 dir.Delete(true);
             }
+
+            _contentManager.Dispose();
         }
 
         public Camera GetCamera()
