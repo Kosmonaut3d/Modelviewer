@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,15 +22,16 @@ namespace HelperSuite.HelperSuite.GUI
 
         private Vector2 _declarationTextDimensions;
         
-        private bool _isHovered = false;
+        private bool _isHovered;
 
-        private short _isLoaded = 0; //0 -> 1 -> 2
+        private short _isLoaded; //0 -> 1 -> 2
 
         //Load
         private Task _loadTaskReference;
-        private Object _loadedObject;
+        public object LoadedObject;
         private int _loadedObjectPointer = -1;
         private StringBuilder _loadedObjectName = new StringBuilder(100);
+        private StringBuilder _loadingStringBuilder = new StringBuilder("loading...");
         
         public MethodInfo ButtonMethod;
         public GUIContentLoader ButtonObject;
@@ -86,28 +86,32 @@ namespace HelperSuite.HelperSuite.GUI
             guiRenderer.DrawText(parentPosition + Position + _fontPosition, Text, TextFont, TextColor);
 
             //Description
-            guiRenderer.DrawText(parentPosition + Position + buttonLeft + new Vector2(4, _fontPosition.Y), _loadedObjectName, TextFont, TextColor);
+            guiRenderer.DrawText(parentPosition + Position + buttonLeft + new Vector2(4, _fontPosition.Y), _isLoaded == 1 ? _loadingStringBuilder : _loadedObjectName, TextFont, TextColor);
 
             //Show texture if _isHovered
-
-            if (_isHovered && _isLoaded == 2)
+            if (_isLoaded == 2)
             {
-                //compute position
-
-                Vector2 position = mousePosition;
-
-                float overborder = position.X + HoverImageWidth - GameSettings.g_ScreenWidth;
-
-                if (overborder > 0)
-                    position.X -= overborder;
-
+                LoadedObject = ButtonObject.ContentArray[_loadedObjectPointer];
                 
-                if (ButtonObject.ContentArray[_loadedObjectPointer] != null)
+                if (_isHovered)
                 {
-                    Texture2D image = (Texture2D) ButtonObject.ContentArray[_loadedObjectPointer];
-                    float height = (float) image.Height/image.Width* HoverImageWidth;
-                    guiRenderer.DrawImage(position, new Vector2(HoverImageWidth, height),
-                        image, Color.White, true);
+                    //compute position
+
+                    Vector2 position = mousePosition;
+
+                    float overborder = position.X + HoverImageWidth - GameSettings.g_ScreenWidth;
+
+                    if (overborder > 0)
+                        position.X -= overborder;
+
+
+                    if (LoadedObject != null && LoadedObject.GetType() == typeof(Texture2D))
+                    {
+                        Texture2D image = (Texture2D) LoadedObject;
+                        float height = (float) image.Height/image.Width*HoverImageWidth;
+                        guiRenderer.DrawImage(position, new Vector2(HoverImageWidth, height),
+                            image, Color.White, true);
+                    }
                 }
             }
 
@@ -141,7 +145,7 @@ namespace HelperSuite.HelperSuite.GUI
                 if (ButtonObject != null)
                 {
                     string s = null;
-                    object[] args = new object[] {_loadTaskReference, _loadedObjectPointer, s};
+                    object[] args = {_loadTaskReference, _loadedObjectPointer, s};
                     if (ButtonMethod != null) ButtonMethod.Invoke(ButtonObject, args);
                     
                     _loadTaskReference = (Task) args[0];

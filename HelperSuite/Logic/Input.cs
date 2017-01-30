@@ -1,7 +1,9 @@
 ﻿using System;
 using HelperSuite.HelperSuite.Static;
+using HelperSuite.Static;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using OceanRender.Main;
 
 namespace HelperSuite.Logic
 {
@@ -18,34 +20,9 @@ namespace HelperSuite.Logic
             mouseState = Mouse.GetState();
             keyboardState = Keyboard.GetState();
 
-            KeyboardEvents(gameTime);
-            MouseEvents();
+           // KeyboardEvents(gameTime, camera);
         }
 
-        private static void MouseEvents()
-        {
-            //float mouseAmount = 0.01f;
-
-            //Vector3 direction = camera.Forward;
-            //direction.Normalize();
-
-            //Vector3 normal = Vector3.Cross(direction, camera.Up);
-
-            //if (mouseState.RightButton == ButtonState.Pressed)
-            //{
-            //    float y = mouseState.Y - mouseLastState.Y;
-            //    float x = mouseState.X - mouseLastState.X;
-
-            //    y *= GameSettings.g_ScreenHeight/800.0f;
-            //    x *= GameSettings.g_ScreenWidth/1280.0f;
-
-            //    camera.Forward += x * mouseAmount * normal;
-
-            //    camera.Forward -= y * mouseAmount * camera.Up;
-            //    camera.Forward.Normalize();
-            //}
-
-        }
 
         public static Point GetMousePosition()
         {
@@ -54,13 +31,46 @@ namespace HelperSuite.Logic
 
         public static Vector2 GetMousePositionNormalized()
         {
-            return new Vector2((float)mouseState.X/GameSettings.g_ScreenWidth, (float)mouseState.Y/GameSettings.g_ScreenHeight);
+            return new Vector2((float)mouseState.X / GameSettings.g_ScreenWidth, (float)mouseState.Y / GameSettings.g_ScreenHeight);
         }
 
-        private static void KeyboardEvents(GameTime gameTime)
+        private static void KeyboardEvents(GameTime gameTime, Camera camera)
         {
-            //if (DebugScreen.ConsoleOpen) return;
-            
+            if (DebugScreen.ConsoleOpen) return;
+
+            if (!GameSettings.RotateOrbit)
+            {
+                float delta = (float) gameTime.ElapsedGameTime.TotalMilliseconds*60/1000;
+
+                Vector3 direction = camera.Forward;
+                direction.Normalize();
+
+                Vector3 normal = Vector3.Cross(direction, camera.Up);
+
+                float amount = 0.8f*delta;
+
+                float amountNormal = 0.2f*delta;
+
+                if (keyboardState.IsKeyDown(Keys.W))
+                {
+                    camera.Position += direction*amount;
+                }
+
+                if (keyboardState.IsKeyDown(Keys.S))
+                {
+                    camera.Position -= direction*amount;
+                }
+
+                if (keyboardState.IsKeyDown(Keys.D))
+                {
+                    camera.Position += normal*amountNormal;
+                }
+
+                if (keyboardState.IsKeyDown(Keys.A))
+                {
+                    camera.Position -= normal*amountNormal;
+                }
+            }
         }
 
         // Checks if a key was just pressed down
@@ -186,5 +196,4 @@ namespace HelperSuite.Logic
             return (capsLock ^ shift) ? char.ToUpper(baseChar) : baseChar;
         }
     }
-
 }

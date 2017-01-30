@@ -1,5 +1,4 @@
 ﻿using System;
-using System.CodeDom;
 using System.Reflection;
 using System.Text;
 using HelperSuite.HelperSuite.GUIRenderer.Helper;
@@ -18,7 +17,7 @@ namespace HelperSuite.HelperSuite.GUI
         public Object ToggleObject;
 
         public Color CurrentFullColor = Color.Red;
-        public Color CurrentFineColor = Color.Red;
+        public Color CurrentFineColor = Color.White;
 
         private Vector2 _mousePointerFine;
         private Vector2 _mousePointerFull;
@@ -27,7 +26,7 @@ namespace HelperSuite.HelperSuite.GUI
         private float _mousePointerOffset = 3;
 
         private float _mouseFineX = 1;
-        private float _mouseFineY = 0;
+        private float _mouseFineY;
         public float border = 5f;
 
         private SpriteFont _font;
@@ -89,6 +88,8 @@ namespace HelperSuite.HelperSuite.GUI
 
             if (xcoord >= 0 && xcoord <=1 && ycoord >= 0 && ycoord <=1)
             {
+                GameStats.UIWasClicked = true;
+
                 Color? output = null;
                 //Get Color!
 
@@ -122,7 +123,7 @@ namespace HelperSuite.HelperSuite.GUI
                         output = Color.Lerp(Color.Yellow, Color.Red, (ycoord - sixth*5)/sixth);
                     }
 
-                    CurrentFullColor = (Color) output;
+                    if (output != null) CurrentFullColor = (Color) output;
 
                     _mousePointerFull = mousePosition;
                 }

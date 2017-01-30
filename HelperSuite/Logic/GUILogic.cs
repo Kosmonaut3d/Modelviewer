@@ -1,6 +1,8 @@
-﻿using HelperSuite.HelperSuite.GUI;
+﻿using System;
+using HelperSuite.HelperSuite.GUI;
 using HelperSuite.HelperSuite.GUIHelper;
 using HelperSuite.HelperSuite.GUIRenderer;
+using HelperSuite.HelperSuite.GUIRenderer.Helper;
 using HelperSuite.HelperSuite.Static;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -13,6 +15,7 @@ namespace HelperSuite.Logic
         private GUICanvas screenCanvas;
 
         private GUIList baseList;
+        private GUITextBlock _sizeBlock;
 
         private GUIStyle defaultStyle;
 
@@ -21,7 +24,7 @@ namespace HelperSuite.Logic
         public void Initialize(MainLogic mainLogic)
         {
 
-            defaultStyle = new GUIStyle()
+            defaultStyle = new GUIStyle
             {
                 BlockColor = Color.Gray,
                 TextColor = Color.White,
@@ -45,35 +48,38 @@ namespace HelperSuite.Logic
                 //_lightEnableToggle.ToggleProperty = typeof(PointLightSource).GetProperty("IsEnabled");
                 //ToggleObject = (GameSettings as GameSettings),
                 ToggleField = typeof(GameSettings).GetField("ui_debug"),
-                Toggle = (bool)typeof(GameSettings).GetField("ui_debug").GetValue(null),
+                Toggle = (bool)typeof(GameSettings).GetField("ui_debug").GetValue(null)
             });
             baseList.AddElement(new GUITextBlock(Vector2.Zero, new Vector2(200, 35), "this is a generic testblock and it tests wrap ", GUIRenderer.MonospaceFont, Color.Gray, Color.White));
-            baseList.AddElement(new GuiSlider(Vector2.Zero, new Vector2(200, 35), 0, 1, Color.DimGray, Color.Red )
+
+            baseList.AddElement(_sizeBlock = new GUITextBlock(Vector2.Zero, new Vector2(200, 35), "Model Size: "+GameSettings.m_size, GUIRenderer.MonospaceFont, Color.Gray, Color.White));
+            baseList.AddElement(new GuiSlider(Vector2.Zero, new Vector2(200, 35), 0, 3, Color.DimGray, Color.Black )
             {
-                SliderField = typeof(GameSettings).GetField("testvaluer"),
-                SliderValue = (float)typeof(GameSettings).GetField("testvaluer").GetValue(null),
+                SliderField = typeof(GameSettings).GetField("m_size"),
+                SliderValue = (float)typeof(GameSettings).GetField("m_size").GetValue(null)
             });
-            baseList.AddElement(new GuiSlider(Vector2.Zero, new Vector2(200, 35), 0, 1, Color.DimGray, Color.Green)
+
+            //baseList.AddElement(new GUITextBlockButton(Vector2.Zero, new Vector2(200,35), "Button", GUIRenderer.MonospaceFont, Color.Gray, Color.White )
+            //    {
+            //        ButtonObject = mainLogic,
+            //        ButtonMethod = typeof( MainLogic ).GetMethod("TestFunction")
+            //    }
+            //);
+
+            baseList.AddElement(new GUITextBlockToggle(Vector2.Zero, new Vector2(200, 35), "Model: Y up", GUIRenderer.MonospaceFont, Color.Gray, Color.White)
             {
-                SliderField = typeof(GameSettings).GetField("testvalueg"),
-                SliderValue = (float)typeof(GameSettings).GetField("testvalueg").GetValue(null),
+                //    _lightEnableToggle.ToggleObject = editorObject;
+                //_lightEnableToggle.Toggle = (editorObject as PointLightSource).IsEnabled;
+                //_lightEnableToggle.ToggleProperty = typeof(PointLightSource).GetProperty("IsEnabled");
+                //ToggleObject = (GameSettings as GameSettings),
+                ToggleField = typeof(GameSettings).GetField("m_orientationy"),
+                Toggle = (bool)typeof(GameSettings).GetField("m_orientationy").GetValue(null)
             });
-            baseList.AddElement(new GuiSlider(Vector2.Zero, new Vector2(200, 35), 0, 1, Color.DimGray, Color.Blue)
-            {
-                SliderField = typeof(GameSettings).GetField("testvalueb"),
-                SliderValue = (float)typeof(GameSettings).GetField("testvalueb").GetValue(null),
-            });
-            baseList.AddElement(new GUITextBlockButton(Vector2.Zero, new Vector2(200,35), "Button", GUIRenderer.MonospaceFont, Color.Gray, Color.White )
-                {
-                    ButtonObject = mainLogic,
-                    ButtonMethod = typeof( MainLogic ).GetMethod("TestFunction")
-                }
-            );
-            baseList.AddElement(new GUITextBlock(Vector2.Zero, new Vector2(200, 35), "this is a generic testblock and it tests wrap ", GUIRenderer.MonospaceFont, Color.Gray, Color.White));
-            baseList.AddElement(new GuiTextBlockLoadDialog(Vector2.Zero, new Vector2(200, 35), "LoadFile:", GUIRenderer.MonospaceFont, Color.Gray, Color.White)
+            GuiTextBlockLoadDialog modelLoader;
+            baseList.AddElement(modelLoader = new GuiTextBlockLoadDialog(Vector2.Zero, new Vector2(200, 35), "Model:", GUIRenderer.MonospaceFont, Color.Gray, Color.White)
             {
                 ButtonObject = _guiContentLoader,
-                ButtonMethod = _guiContentLoader.GetType().GetMethod("LoadContentFile").MakeGenericMethod(typeof(Texture2D))
+                ButtonMethod = _guiContentLoader.GetType().GetMethod("LoadContentFile").MakeGenericMethod(typeof(Model)),
             }
             );
             baseList.AddElement(new GuiTextBlockLoadDialog(Vector2.Zero, new Vector2(200, 35), "LoadFile:", GUIRenderer.MonospaceFont, Color.Gray, Color.White)
@@ -82,10 +88,13 @@ namespace HelperSuite.Logic
                 ButtonMethod = _guiContentLoader.GetType().GetMethod("LoadContentFile").MakeGenericMethod(typeof(Texture2D))
             }
             );
+
+            mainLogic.modelLoader = modelLoader;
+
             baseList.AddElement(new GUIColorPicker(new Vector2(0, 0), new Vector2(200,200), Color.Gray, GUIRenderer.MonospaceFont)
             {
                 ToggleField = typeof(GameSettings).GetField("bgColor"),
-                ToggleObject = (Color)typeof(GameSettings).GetField("bgColor").GetValue(null),
+                ToggleObject = (Color)typeof(GameSettings).GetField("bgColor").GetValue(null)
             });
 
         }
@@ -104,8 +113,17 @@ namespace HelperSuite.Logic
 
         public void Update(GameTime gameTime)
         {
-            if(GameSettings.ui_DrawUI)
-            screenCanvas.Update(gameTime, Input.GetMousePosition().ToVector2(), Vector2.Zero);
+            GameStats.UIWasClicked = false;
+            if (GameSettings.ui_DrawUI)
+            {
+                _sizeBlock.Text.Clear();
+                _sizeBlock.Text.Append("Model Size: ");
+                _sizeBlock.Text.Concat((float) Math.Pow(10, GameSettings.m_size), 2);
+
+                screenCanvas.Update(gameTime, Input.GetMousePosition().ToVector2(), Vector2.Zero);
+
+
+            }
         }
 
         public GUICanvas getCanvas()

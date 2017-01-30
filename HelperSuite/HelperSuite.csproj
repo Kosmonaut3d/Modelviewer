@@ -58,6 +58,8 @@
     <Compile Include="HelperSuite\GUI\GuiTextBlockLoadDialog.cs" />
     <Compile Include="HelperSuite\GUI\GUITextBlockButton.cs" />
     <Compile Include="HelperSuite\GUI\GUITextBlockToggle.cs" />
+    <Compile Include="Logic\Camera.cs" />
+    <Compile Include="Static\Extension.cs" />
     <Compile Include="Logic\GUILogic.cs" />
     <Compile Include="Logic\Input.cs" />
     <Compile Include="Logic\MainLogic.cs" />
@@ -65,6 +67,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="HelperSuite\Static\GameSettings.cs" />
     <Compile Include="HelperSuite\Static\GameStats.cs" />
+    <Compile Include="Renderer\Renderer.cs" />
+    <Compile Include="Renderer\ShaderModules\AnimatedModelShader.cs" />
+    <Compile Include="Renderer\ShaderModules\Skybox.cs" />
     <Compile Include="Static\DebugScreen.cs" />
     <Compile Include="Static\ScreenManager.cs" />
   </ItemGroup>
@@ -134,9 +139,13 @@
     <Content Include="Content\mgcb\PVRTexLibWrapper.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\mgcb\runtimepipeline.txt">
+    <Content Include="Content\mgcb\runtimemodel.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\mgcb\runtimetexture.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\ProtonType.Content.Pipeline.DDSImporter.dll" />
     <Content Include="Icon.ico" />
   </ItemGroup>
   <ItemGroup>

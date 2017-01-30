@@ -9,7 +9,7 @@ namespace HelperSuite.HelperSuite.GUI
         public Vector2 DefaultDimensions;
 
         protected List<GUIElement> _children = new List<GUIElement>();
-        
+
         /// <summary>
         /// A list has a unified width/height of the elements. Each element is rendered below the other one
         /// </summary>
@@ -17,6 +17,7 @@ namespace HelperSuite.HelperSuite.GUI
         /// <param name="defaultDimensions"></param>
         /// <param name="layer"></param>
         /// <param name="alignment"></param>
+        /// <param name="ParentDimensions"></param>
         public GUIList(Vector2 position, Vector2 defaultDimensions, int layer = 0, GUIStyle.GUIAlignment alignment = GUIStyle.GUIAlignment.None, Vector2 ParentDimensions = default(Vector2))
         {
             DefaultDimensions = defaultDimensions;

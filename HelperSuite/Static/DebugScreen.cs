@@ -11,7 +11,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace OceanRender.Main
+namespace HelperSuite.Static
 {
     public class DebugScreen
     {
@@ -30,7 +30,6 @@ namespace OceanRender.Main
         //private GraphicsDevice _graphicsDevice;
 
         private long _maxGcMemory;
-        private long _previousMemory;
 
         private double _fps;
         private double _smoothfps = 60;
@@ -230,7 +229,7 @@ namespace OceanRender.Main
 
                 if (Math.Abs(_minfpsshort - _minfps) > 0.1f) _minfps = _minfpsshort;
 
-                _spriteBatch.Begin(SpriteSortMode.Deferred);
+                _spriteBatch.Begin();
                 
                 if (ConsoleOpen)
                 {
@@ -324,8 +323,6 @@ namespace OceanRender.Main
                 _mngStringBuilder.Append(_maxGcMemory/1024);
                     
                 _mngStringBuilder.AppendLine();
-                _mngStringBuilder.Append("testValue: ");
-                _mngStringBuilder.AppendTrim(GameSettings.testvaluer);
 
 
                 _spriteBatch.DrawString(_monospaceFont, _mngStringBuilder.StringBuilder,

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.Text;
 using Microsoft.Xna.Framework;
 
@@ -97,7 +98,7 @@ namespace HelperSuite.HelperSuite.GUIRenderer.Helper //StringBuilderII
         public static void CheckSeperator()
         {
             decimalseperator =
-                Convert.ToChar(System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator);
+                Convert.ToChar(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator);
         }
 
         // operators
@@ -114,10 +115,10 @@ namespace HelperSuite.HelperSuite.GUIRenderer.Helper //StringBuilderII
 
         public void AppendAt(int index, StringBuilder s)
         {
-            int len = this.StringBuilder.Length;
-            int reqcapacity = (index + s.Length + 1) - this.StringBuilder.Capacity;
+            int len = StringBuilder.Length;
+            int reqcapacity = (index + s.Length + 1) - StringBuilder.Capacity;
             if (reqcapacity > 0)
-                this.StringBuilder.Capacity += reqcapacity;
+                StringBuilder.Capacity += reqcapacity;
 
             int initialLength = StringBuilder.Length;
             //If we append near the end we can run out of space in the for loop. Make sure we are large enough
@@ -137,34 +138,34 @@ namespace HelperSuite.HelperSuite.GUIRenderer.Helper //StringBuilderII
 
             for (int i = 0; i < s.Length; i++)
             {
-                this.StringBuilder[i + index] = (char) (s[i]);
+                StringBuilder[i + index] = s[i];
             }
         }
 
 
         public void Append(StringBuilder s)
         {
-            int len = this.StringBuilder.Length;
-            int reqcapacity = (s.Length + len) - this.StringBuilder.Capacity;
+            int len = StringBuilder.Length;
+            int reqcapacity = (s.Length + len) - StringBuilder.Capacity;
             //int reqcapacity = (s.Length + len +1) - this.StringBuilder.Capacity;
             if (reqcapacity > 0)
-                this.StringBuilder.Capacity += reqcapacity;
+                StringBuilder.Capacity += reqcapacity;
 
-            this.StringBuilder.Length = len + s.Length;
+            StringBuilder.Length = len + s.Length;
             for (int i = 0; i < s.Length; i++)
             {
-                this.StringBuilder[i + len] = (char) (s[i]);
+                StringBuilder[i + len] = s[i];
             }
         }
 
         public void Append(string s)
         {
-            this.StringBuilder.Append(s);
+            StringBuilder.Append(s);
         }
 
         public void Append(char c)
         {
-            this.StringBuilder.Append(c);
+            StringBuilder.Append(c);
         }
 
         public void Append(byte value)
@@ -275,7 +276,7 @@ namespace HelperSuite.HelperSuite.GUIRenderer.Helper //StringBuilderII
                 return;
             }
             // part 1 pull integer digits
-            int n = (int) (value);
+            int n = value;
             bool addzeros = false;
             while (place > 0)
             {
@@ -321,7 +322,7 @@ namespace HelperSuite.HelperSuite.GUIRenderer.Helper //StringBuilderII
                 return;
             }
             // part 1 pull integer digits
-            long n = (long) (value);
+            long n = value;
             bool addzeros = false;
             while (place > 0)
             {
@@ -390,7 +391,7 @@ namespace HelperSuite.HelperSuite.GUIRenderer.Helper //StringBuilderII
             }
 
             // ok lets try again
-            float nd = value - (float) (n);
+            float nd = value - n;
             if (nd > 0 && nd < 1)
             {
                 sb.Append(decimalseperator);
@@ -465,7 +466,7 @@ namespace HelperSuite.HelperSuite.GUIRenderer.Helper //StringBuilderII
             }
 
             // the decimal part
-            double nd = number - (double) (n);
+            double nd = number - n;
             if (nd > 0 && nd < 1)
             {
                 sb.Append(decimalseperator);
@@ -539,7 +540,7 @@ namespace HelperSuite.HelperSuite.GUIRenderer.Helper //StringBuilderII
             }
 
             // ok lets try again
-            float nd = value - (float) (n);
+            float nd = value - n;
             sb.Append(decimalseperator);
             addzeros = true;
             //nd = value;
@@ -609,7 +610,7 @@ namespace HelperSuite.HelperSuite.GUIRenderer.Helper //StringBuilderII
             }
 
             // ok lets try again
-            double nd = number - (double) (n);
+            double nd = number - n;
             sb.Append(decimalseperator);
             addzeros = true;
             //nd = number;
@@ -647,12 +648,12 @@ namespace HelperSuite.HelperSuite.GUIRenderer.Helper //StringBuilderII
 
         public void Insert(int index, StringBuilder s)
         {
-            this.StringBuilder.Insert(index, s);
+            StringBuilder.Insert(index, s);
         }
 
         public void Remove(int index, int length)
         {
-            this.StringBuilder.Remove(index, length);
+            StringBuilder.Remove(index, length);
         }
 
         public char[] ToCharArray()
@@ -669,11 +670,11 @@ namespace HelperSuite.HelperSuite.GUIRenderer.Helper //StringBuilderII
     }
 
     //http://www.gavpugh.com* 0.5f010/04/01/xnac-avoiding-garbage-when-working-with-stringbuilder/
-    public static partial class StringBuilderExtensions
+    public static class StringBuilderExtensions
         {
             // These digits are here in a static array to support hex with simple, easily-understandable code. 
             // Since A-Z don't sit next to 0-9 in the ascii table.
-            private static readonly char[] ms_digits = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+            private static readonly char[] ms_digits = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
             private static readonly uint ms_default_decimal_places = 5; //< Matches standard .NET formatting dp's
             private static readonly char ms_default_pad_char = '0';

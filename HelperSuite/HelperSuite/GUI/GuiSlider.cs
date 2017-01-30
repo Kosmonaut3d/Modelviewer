@@ -28,7 +28,7 @@ namespace HelperSuite.HelperSuite.GUI
         }
 
         public float MaxValue = 1; 
-        public float MinValue = 0;
+        public float MinValue;
 
         private Color _sliderColor;
 

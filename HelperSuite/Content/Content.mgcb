@@ -10,6 +10,7 @@
 
 #-------------------------------- References --------------------------------#
 
+/reference:ProtonType.Content.Pipeline.DDSImporter.dll
 
 #---------------------------------- Content ---------------------------------#
 
@@ -45,18 +46,6 @@
 /processorParam:TextureFormat=NoChange
 /build:Graphical User Interface/ring.png
 
-#begin E:/Eigene Dateien/Pictures/00GAP/backarrow01.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:E:/Eigene Dateien/Pictures/00GAP/backarrow01.png
-
 #begin Graphical User Interface/colorpickersmall.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -80,4 +69,71 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Graphical User Interface/colorpickerbig.png
+
+#begin ShaderModules/Skybox/Skybox.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:ShaderModules/Skybox/Skybox.fx
+
+#begin ShaderModules/Skybox/isosphere.fbx
+/importer:FbxImporter
+/processor:ModelProcessor
+/processorParam:ColorKeyColor=0,0,0,0
+/processorParam:ColorKeyEnabled=True
+/processorParam:DefaultEffect=BasicEffect
+/processorParam:GenerateMipmaps=False
+/processorParam:GenerateTangentFrames=False
+/processorParam:PremultiplyTextureAlpha=False
+/processorParam:PremultiplyVertexColors=True
+/processorParam:ResizeTexturesToPowerOfTwo=False
+/processorParam:RotationX=0
+/processorParam:RotationY=0
+/processorParam:RotationZ=0
+/processorParam:Scale=1
+/processorParam:SwapWindingOrder=False
+/processorParam:TextureFormat=Compressed
+/build:ShaderModules/Skybox/isosphere.fbx
+
+#begin ShaderModules/Skybox/skyboxCubemap.dds
+/importer:TextureImporter
+/processor:PassThroughProcessor
+/build:ShaderModules/Skybox/skyboxCubemap.dds
+
+#begin ShaderModules/AnimatedModelShader/AnimatedModelShader.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:ShaderModules/AnimatedModelShader/AnimatedModelShader.fx
+
+#begin ShaderModules/AnimatedModelShader/cube.fbx
+/importer:FbxImporter
+/processor:ModelProcessor
+/processorParam:ColorKeyColor=0,0,0,0
+/processorParam:ColorKeyEnabled=True
+/processorParam:DefaultEffect=BasicEffect
+/processorParam:GenerateMipmaps=True
+/processorParam:GenerateTangentFrames=False
+/processorParam:PremultiplyTextureAlpha=True
+/processorParam:PremultiplyVertexColors=True
+/processorParam:ResizeTexturesToPowerOfTwo=False
+/processorParam:RotationX=0
+/processorParam:RotationY=0
+/processorParam:RotationZ=0
+/processorParam:Scale=1
+/processorParam:SwapWindingOrder=False
+/processorParam:TextureFormat=Compressed
+/build:ShaderModules/AnimatedModelShader/cube.fbx
+
+#begin ShaderModules/AnimatedModelShader/fresnel.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:ShaderModules/AnimatedModelShader/fresnel.png
 

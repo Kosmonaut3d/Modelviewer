@@ -1,16 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Content;
 
 namespace HelperSuite.HelperSuite.ContentLoader
 {
     public class ThreadSafeContentManager : ContentManager
     {
-        static object loadLock = new object();
+        private static readonly object LoadLock = new object();
 
         public ThreadSafeContentManager(IServiceProvider serviceProvider)
             : base(serviceProvider)
@@ -24,7 +19,7 @@ namespace HelperSuite.HelperSuite.ContentLoader
 
         public override T Load<T>(string assetName)
         {
-            lock (loadLock)
+            lock (LoadLock)
             {
                 return base.Load<T>(assetName);
             }

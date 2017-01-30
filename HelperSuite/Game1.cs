@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using HelperSuite.HelperSuite.Static;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -13,8 +12,8 @@ namespace HelperSuite
     /// </summary>
     public class Game1 : Game
     {
-        GraphicsDeviceManager _graphics;
-        SpriteBatch spriteBatch;
+        readonly GraphicsDeviceManager _graphics;
+        SpriteBatch _spriteBatch;
 
         private ScreenManager _screenManager;
         private bool _isActive = true;
@@ -35,7 +34,7 @@ namespace HelperSuite
             _graphics.PreferredBackBufferWidth = GameSettings.g_ScreenWidth;
             _graphics.PreferredBackBufferHeight = GameSettings.g_ScreenHeight;
 
-            _graphics.PreferMultiSampling = false;
+            _graphics.PreferMultiSampling = true;
             _graphics.PreferredBackBufferFormat = SurfaceFormat.Color;
 
             //_graphics.PreferredDepthStencilFormat = DepthFormat.Depth24;
@@ -108,7 +107,7 @@ namespace HelperSuite
         protected override void LoadContent()
         {
             // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice);
+            _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             _screenManager.Load(Content, GraphicsDevice);
             

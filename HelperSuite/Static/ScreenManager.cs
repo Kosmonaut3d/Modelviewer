@@ -1,5 +1,7 @@
 ﻿using HelperSuite.HelperSuite.GUIRenderer;
 using HelperSuite.Logic;
+using HelperSuite.Renderer;
+using HelperSuite.Static;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -19,6 +21,7 @@ namespace OceanRender.Main
         private GuiLogicSample _guiLogicSample;
         private MainLogic _mainLogic;
         private GUIRenderer _guiRenderer;
+        private Renderer _renderer;
         
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //  FUNCTIONS
@@ -30,6 +33,7 @@ namespace OceanRender.Main
             _mainLogic.Initialize(graphicsDevice);
             _guiRenderer.Initialize(graphicsDevice);
             _guiLogicSample.Initialize(_mainLogic);
+            _renderer.Initialize(graphicsDevice);
         }
 
         //Update per frame
@@ -38,8 +42,10 @@ namespace OceanRender.Main
             if (!isActive) return;
 
             Input.Update(gameTime);
-
+            
             _guiLogicSample.Update(gameTime);
+
+            _mainLogic.Update(gameTime);
 
             _debug.Update(gameTime);
         }
@@ -59,6 +65,8 @@ namespace OceanRender.Main
             _guiLogicSample = new GuiLogicSample();
             _guiLogicSample.Load(content);
             
+            _renderer = new Renderer();
+            _renderer.Load(content);
         }
 
         public void Unload(ContentManager content)
@@ -69,7 +77,7 @@ namespace OceanRender.Main
         
         public void Draw(GameTime gameTime)
         {
-
+            _renderer.Draw(_mainLogic.GetCamera(), _mainLogic.modelLoader.LoadedObject, gameTime);
 
             _mainLogic.Draw(gameTime);
 
@@ -77,7 +85,6 @@ namespace OceanRender.Main
             _debug.Draw(gameTime);
 
             _guiRenderer.Draw(_guiLogicSample.getCanvas());
-
         }
 
         public void UpdateResolution()

@@ -15,7 +15,7 @@ namespace HelperSuite.HelperSuite.GUI
 
         private static readonly Color HoverColor = Color.Tomato;
         
-        private bool _isHovered = false;
+        private bool _isHovered;
         
         public MethodInfo ButtonMethod;
         public Object ButtonObject;

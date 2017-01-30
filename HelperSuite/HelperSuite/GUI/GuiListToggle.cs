@@ -13,7 +13,7 @@ namespace HelperSuite.HelperSuite.GUI
         
         private Vector2 _toggleDimensions;
 
-        private bool _isHovered = false;
+        private bool _isHovered;
 
         public bool IsToggled = true;
 

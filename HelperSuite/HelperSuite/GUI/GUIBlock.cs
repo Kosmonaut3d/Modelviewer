@@ -7,7 +7,7 @@ namespace HelperSuite.HelperSuite.GUI
     /// </summary>
     public class GUIBlock : GUIElement
     {
-        public Color Color;
+        protected Color Color;
 
         public GUIBlock(Vector2 position, Vector2 dimensions, Color color, int layer = 0, GUIStyle.GUIAlignment alignment = GUIStyle.GUIAlignment.None, Vector2 ParentDimensions = default(Vector2))
         {

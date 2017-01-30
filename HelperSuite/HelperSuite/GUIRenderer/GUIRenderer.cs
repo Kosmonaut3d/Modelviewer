@@ -32,7 +32,7 @@ namespace HelperSuite.HelperSuite.GUIRenderer
             public Vector2 pos;
             public Vector2 dim;
             public Color color;
-        };
+        }
         
         public void Initialize(GraphicsDevice graphicsDevice)
         {
@@ -46,7 +46,7 @@ namespace HelperSuite.HelperSuite.GUIRenderer
             Resolution = new Vector2(GameSettings.g_ScreenWidth, GameSettings.g_ScreenHeight);
 
             _plainWhite = new Texture2D(graphicsDevice, 1,1);
-            _plainWhite.SetData(new Color[] { Color.White });
+            _plainWhite.SetData(new[] { Color.White });
         }
 
         public void Load(ContentManager content)

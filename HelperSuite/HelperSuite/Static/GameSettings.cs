@@ -11,11 +11,12 @@ namespace HelperSuite.HelperSuite.Static
         public static bool ui_DrawUI = true;
 
         public static bool ui_debug = true;
-
-        public static float testvaluer = 0f;
-        public static float testvalueg = 0f;
-        public static float testvalueb = 0f;
+        
 
         public static Color bgColor = Color.Red;
+        public static float g_FarPlane = 500;
+        public static bool RotateOrbit = true;
+        public static bool m_orientationy = false;
+        public static float m_size = 1;
     }
 }
