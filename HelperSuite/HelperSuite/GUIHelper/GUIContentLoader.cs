@@ -137,7 +137,7 @@ namespace HelperSuite.HelperSuite.GUIHelper
 
                 while (tries<2)
                 {
-                    if (tries>0 && typeof(T) == typeof(AnimatedModel))
+                    if (tries>0 /*&& typeof(T) == typeof(AnimatedModel)*/)
                     {
                         pipeLineFile = "runtimemodel.txt";
                     }
@@ -222,7 +222,14 @@ namespace HelperSuite.HelperSuite.GUIHelper
                     else
                     {
                         ContentArray[position] = new AnimatedModel("Runtime/Textures/" + shortFileName);
-                        ((AnimatedModel)ContentArray[position]).LoadContent(_contentManager);
+                    ((AnimatedModel)ContentArray[position]).
+                        LoadContent(_contentManager);
+                        //if (!((AnimatedModel) ContentArray[position]).LoadContent(_contentManager))
+                        //{
+
+                        //    ContentArray[position] = _contentManager.Load<Model>("Runtime/Textures/" + shortFileName);
+                        //}
+
                     }
                     
                     //_contentManager.Load<T>("Runtime/Textures/" + shortFileName);

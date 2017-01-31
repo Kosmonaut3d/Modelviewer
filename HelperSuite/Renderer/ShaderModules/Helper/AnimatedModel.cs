@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using MGSkinnedAnimationAux;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -41,6 +42,9 @@ namespace HelperSuite.Renderer.ShaderModules.Helper
         /// </summary>
         private AnimationPlayer player = null;
 
+
+        private bool hasSkinnedVertexType = false;
+
         #endregion
 
         #region Properties
@@ -81,15 +85,35 @@ namespace HelperSuite.Renderer.ShaderModules.Helper
         /// Load the model asset from content
         /// </summary>
         /// <param name="content"></param>
-        public void LoadContent(ContentManager content)
+        public bool LoadContent(ContentManager content)
         {
+            bool success = false;
             this.model = content.Load<Model>(assetName);
             modelExtra = model.Tag as ModelExtra;
-            System.Diagnostics.Debug.Assert(modelExtra != null);
 
-            ObtainBones();
+            //System.Diagnostics.Debug.Assert(modelExtra != null);
+            if (modelExtra != null)
+            {
+                ObtainBones();
 
-            boneTransforms = new Matrix[bones.Count];
+                boneTransforms = new Matrix[bones.Count];
+
+                success = true;
+            }
+            
+            VertexElement[] test = model.Meshes[0].MeshParts[0].VertexBuffer.VertexDeclaration.GetVertexElements();
+
+            for (int index = 0; index < test.Length; index++)
+            {
+                var t = test[index];
+                if (t.VertexElementUsage == VertexElementUsage.BlendWeight)
+                {
+                    hasSkinnedVertexType = true;
+                    break;
+                }
+            }
+
+            return success;
         }
 
 
@@ -180,40 +204,44 @@ namespace HelperSuite.Renderer.ShaderModules.Helper
             //
             // Compute all of the bone absolute transforms
             //
-
-            for (int i = 0; i < bones.Count; i++)
+            if (modelExtra != null && hasSkinnedVertexType)
             {
-                Bone bone = bones[i];
-                bone.ComputeAbsoluteTransform();
 
-                boneTransforms[i] = bone.AbsoluteTransform;
-            }
-
-            //
-            // Determine the skin transforms from the skeleton
-            //
-
-            Matrix[] skeleton = new Matrix[modelExtra.Skeleton.Count];
-            for (int s = 0; s < modelExtra.Skeleton.Count; s++)
-            {
-                Bone bone = bones[modelExtra.Skeleton[s]];
-                skeleton[s] = bone.SkinTransform * bone.AbsoluteTransform;
-            }
-
-            if (bones.Count > 1)
-            {
-                switch (pass)
+                for (int i = 0; i < bones.Count; i++)
                 {
-                    case AnimatedModelShader.EffectPasses.Unskinned:
-                        pass = AnimatedModelShader.EffectPasses.Skinned;
-                        break;
-                    case AnimatedModelShader.EffectPasses.UnskinnedNormalMapped:
-                        pass = AnimatedModelShader.EffectPasses.SkinnedNormalMapped;
-                        break;
-                }
-            }
-            _skinnedShader.DrawMesh(model, world, viewProjection, cameraPosition, pass, skeleton);
+                    Bone bone = bones[i];
+                    bone.ComputeAbsoluteTransform();
 
+                    boneTransforms[i] = bone.AbsoluteTransform;
+                }
+
+                //
+                // Determine the skin transforms from the skeleton
+                //
+
+                Matrix[] skeleton = new Matrix[modelExtra.Skeleton.Count];
+                for (int s = 0; s < modelExtra.Skeleton.Count; s++)
+                {
+                    Bone bone = bones[modelExtra.Skeleton[s]];
+                    skeleton[s] = bone.SkinTransform*bone.AbsoluteTransform;
+                }
+
+                if (bones.Count > 1)
+                {
+                    switch (pass)
+                    {
+                        case AnimatedModelShader.EffectPasses.Unskinned:
+                            pass = AnimatedModelShader.EffectPasses.Skinned;
+                            break;
+                        case AnimatedModelShader.EffectPasses.UnskinnedNormalMapped:
+                            pass = AnimatedModelShader.EffectPasses.SkinnedNormalMapped;
+                            break;
+                    }
+                }
+                _skinnedShader.DrawMesh(model, world, viewProjection, cameraPosition, pass, skeleton);
+            }
+
+            _skinnedShader.DrawMesh(model, world, viewProjection, cameraPosition, pass, null);
 
             //// Draw the model.
             //foreach (ModelMesh modelMesh in model.Meshes)
