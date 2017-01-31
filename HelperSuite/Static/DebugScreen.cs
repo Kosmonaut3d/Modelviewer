@@ -56,6 +56,7 @@ namespace HelperSuite.Static
         private readonly StringBuilder sb_multipliedBy = new StringBuilder(" x ");
         private readonly StringBuilder sb_emptySpace = new StringBuilder(" ");
         private readonly StringBuilder sb_memoryGc = new StringBuilder(" | Memory(GC): ");
+        private readonly StringBuilder sb_version = new StringBuilder(GameStats.Version);
         
 
         // Console
@@ -323,6 +324,7 @@ namespace HelperSuite.Static
                 _mngStringBuilder.Append(_maxGcMemory/1024);
                     
                 _mngStringBuilder.AppendLine();
+                _mngStringBuilder.Append(sb_version);
 
 
                 _spriteBatch.DrawString(_monospaceFont, _mngStringBuilder.StringBuilder,

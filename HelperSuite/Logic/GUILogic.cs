@@ -58,8 +58,8 @@ namespace HelperSuite.Logic
                 ToggleField = typeof(GameSettings).GetField("ui_debug"),
                 Toggle = (bool)typeof(GameSettings).GetField("ui_debug").GetValue(null)
             });
-            baseList.AddElement(new GUITextBlock(Vector2.Zero, new Vector2(200, 35), "this is a generic testblock and it tests wrap ", GUIRenderer.MonospaceFont, Color.Gray, Color.White));
-            baseList.AddElement(new GuiSlider(Vector2.Zero, new Vector2(200, 35), 0, 3, Color.DimGray, Color.Black )
+            //baseList.AddElement(new GUITextBlock(Vector2.Zero, new Vector2(200, 35), "this is a generic testblock and it tests wrap ", GUIRenderer.MonospaceFont, Color.Gray, Color.White));
+            baseList.AddElement(new GuiSlider(Vector2.Zero, new Vector2(200, 35), 0, 3, Color.Gray, Color.Black )
             {
                 SliderField = typeof(GameSettings).GetField("m_size"),
                 SliderValue = (float)typeof(GameSettings).GetField("m_size").GetValue(null)
@@ -166,7 +166,7 @@ namespace HelperSuite.Logic
                     _roughnessBlock =
                         new GUITextBlock(Vector2.Zero, new Vector2(200, 35), "Roughness: " + GameSettings.m_roughness,
                             GUIRenderer.MonospaceFont, Color.Gray, Color.White));
-                colorList.AddElement(new GuiSlider(Vector2.Zero, new Vector2(200, 35), 0, 1, Color.DimGray, Color.Black)
+                colorList.AddElement(new GuiSlider(Vector2.Zero, new Vector2(200, 35), 0, 1, Color.Gray, Color.Black)
                 {
                     SliderField = typeof(GameSettings).GetField("m_roughness"),
                     SliderValue = (float) typeof(GameSettings).GetField("m_roughness").GetValue(null)
@@ -176,7 +176,7 @@ namespace HelperSuite.Logic
                     _metallicBlock =
                         new GUITextBlock(Vector2.Zero, new Vector2(200, 35), "Metallic: " + GameSettings.m_metallic,
                             GUIRenderer.MonospaceFont, Color.Gray, Color.White));
-                colorList.AddElement(new GuiSlider(Vector2.Zero, new Vector2(200, 35), 0, 1, Color.DimGray, Color.Black)
+                colorList.AddElement(new GuiSlider(Vector2.Zero, new Vector2(200, 35), 0, 1, Color.Gray, Color.Black)
                 {
                     SliderField = typeof(GameSettings).GetField("m_metallic"),
                     SliderValue = (float) typeof(GameSettings).GetField("m_metallic").GetValue(null)

@@ -36,13 +36,13 @@ namespace HelperSuite.HelperSuite.GUIHelper
             if (typeof(T) == typeof(Texture2D))
             {
                 dialogFilter =
-                    "image files (*.png, .jpg, .jpeg, .bmp, .gif)|*.png;*.jpg;*.bmp;*.jpeg;*.gif|All files (*.*)|*.*";
+                    "image files (*.png, .jpg, .jpeg, .bmp, .dds, .gif)|*.png;*.jpg;*.bmp;*.jpeg;*.gif;*.dds|All files (*.*)|*.*";
                 pipeLineFile = "runtimetexture.txt";
             }
             else if (typeof(T) == typeof(AnimatedModel))
             {
                 dialogFilter =
-                    "model file (*.fbx)|*.fbx|All files (*.*)|*.*";
+                    "model file (*.fbx, *.obj)|*.fbx;*.obj|All files (*.*)|*.*";
                 pipeLineFile = "runtimeanimatedmodel.txt";
             }
             else
@@ -58,7 +58,7 @@ namespace HelperSuite.HelperSuite.GUIHelper
             string copiedFilePath = null;
             string shortFileName;
             
-            //string fileEnding = null;
+            string fileEnding = null;
             OpenFileDialog openFileDialog1 = new OpenFileDialog
             {
                 //InitialDirectory = Application.StartupPath,
@@ -83,7 +83,7 @@ namespace HelperSuite.HelperSuite.GUIHelper
                 string[] split = fileName.Split(new[] { '.' });
 
                 shortFileName = split[0];
-                //fileEnding = split[1];
+                fileEnding = split[1];
 
                 if (fileName != null)
                     copiedFilePath = Application.StartupPath + "/" + fileName;
@@ -95,6 +95,9 @@ namespace HelperSuite.HelperSuite.GUIHelper
                 loadTaskOut = null;
                 if(pointerPositionInOut!=-1)
                     ContentArray[pointerPositionInOut] = null;
+
+                filenameOut = "...";
+
                 return;
             }
 
@@ -141,7 +144,11 @@ namespace HelperSuite.HelperSuite.GUIHelper
                     {
                         pipeLineFile = "runtimemodel.txt";
                     }
-
+                    //else if (fileEnding == "obj")
+                    //{
+                    //    int i = 0;
+                    //}
+                    
                     //Create pProcess
                     Process pProcess = new Process
                     {
@@ -198,7 +205,8 @@ namespace HelperSuite.HelperSuite.GUIHelper
                         tries++;
                         //Debug.WriteLine(message);
 
-                        //throw new Exception("mgcb finished with exit code = " + pProcess.ExitCode + ": " + message);
+                        throw new Exception("mgcb finished with exit code = " + pProcess.ExitCode + ": " + message);
+                        
                     }
                 }
 
@@ -245,6 +253,7 @@ namespace HelperSuite.HelperSuite.GUIHelper
 
                 if (copiedFilePath != null)
                     File.Delete(copiedFilePath);
+
 
             });
 

@@ -25,8 +25,11 @@ IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 float3 CameraPosition;
 
 float4x4 ViewProj;
+float4x4 View;
 float4x4 World;
 float3x3 WorldIT;
+
+float FarClip = 500;
 
 float4x3 Bones[SKINNED_EFFECT_MAX_BONES];
 
@@ -89,6 +92,11 @@ struct VertexShaderInput
 	float2 TexCoord : TEXCOORD0;
 };
 
+struct Depth_VertexShaderInput
+{
+	float4 Position : POSITION0;
+};
+
 struct Normal_VertexShaderInput
 {
 	float4 Position : POSITION0;
@@ -103,6 +111,13 @@ struct SkinnedVertexShaderInput
 	float4 Position : POSITION0;
 	float3 Normal   : NORMAL0;
 	float2 TexCoord : TEXCOORD0;
+	uint4  Indices  : BLENDINDICES0;
+	float4 Weights  : BLENDWEIGHT0;
+};
+
+struct Depth_SkinnedVertexShaderInput
+{
+	float4 Position : POSITION0;
 	uint4  Indices  : BLENDINDICES0;
 	float4 Weights  : BLENDWEIGHT0;
 };
@@ -125,6 +140,12 @@ struct VertexShaderOutput
 	float2 TexCoord : TEXCOORD0;
 	float3 WorldPosition : TEXCOORD2;
 }; 
+
+struct Depth_VertexShaderOutput
+{
+	float4 Position : SV_POSITION;
+	float Depth : DEPTH;
+};
 
 struct Normal_VertexShaderOutput
 {
@@ -149,6 +170,19 @@ struct LightingParams
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  VS
+
+void SkinWorld(inout Depth_SkinnedVertexShaderInput vin, uniform int boneCount)
+{
+	float4x3 skinning = 0;
+
+	[unroll]
+	for (int i = 0; i < boneCount; i++)
+	{
+		skinning += Bones[vin.Indices[i]] * vin.Weights[i];
+	}
+
+	vin.Position.xyz = mul(vin.Position, skinning);
+}
 
 void SkinNormal(inout SkinnedVertexShaderInput vin, uniform int boneCount)
 {
@@ -192,6 +226,16 @@ VertexShaderOutput Unskinned_VertexShaderFunction(VertexShaderInput input)
 	return output;
 }
 
+Depth_VertexShaderOutput UnskinnedDepth_VertexShaderFunction(Depth_VertexShaderInput input)
+{
+	Depth_VertexShaderOutput output;
+
+	float4 WorldPosition = mul(input.Position, World);
+	output.Position = mul(WorldPosition, ViewProj);
+	output.Depth = mul(WorldPosition, View).z /-FarClip;
+	return output;
+}
+
 Normal_VertexShaderOutput UnskinnedNormalMapped_VertexShaderFunction(Normal_VertexShaderInput input)
 {
 	Normal_VertexShaderOutput output;
@@ -221,6 +265,18 @@ VertexShaderOutput Skinned_VertexShaderFunction(SkinnedVertexShaderInput input)
     output.Position = mul(WorldPosition, ViewProj);
 	output.Normal = mul(input.Normal, WorldIT).xyz;
 	output.TexCoord = input.TexCoord;
+	return output;
+}
+
+Depth_VertexShaderOutput SkinnedDepth_VertexShaderFunction(Depth_SkinnedVertexShaderInput input)
+{
+	Depth_VertexShaderOutput output;
+
+	SkinWorld(input, 4);
+
+	float4 WorldPosition = mul(input.Position, World);
+	output.Position = mul(WorldPosition, ViewProj);
+	output.Depth = mul(WorldPosition, View).z / -FarClip;
 	return output;
 }
 
@@ -262,55 +318,41 @@ float4 Lighting(LightingParams input)
 	float metallic = input.Metallic;
 	float roughness = input.Roughness;
 
-	const float3 lightVector = normalize(float3(0, 0, 1/*-0.8f, -0.8f, 0.3f*/));
-	const float lightIntensity = 1;
-	const float3 lightColor = float3(0, 0, 0);
 	float3 viewDir = normalize(input.WorldPosition - CameraPosition);
 
 	float f0 = lerp(0.04f, color.g * 0.25 + 0.75, metallic);
 
-	float NdL = /*saturate((dot(normal, lightVector) + 0.5f) / 1.5f);*/saturate(dot(normal, lightVector));
-	float3 diffuseLight = 0;
-	[branch]
-	if (metallic < 0.99)
-	{
-		//diffuseLight = DiffuseOrenNayar(NdL, normal, lightVector, -cameraDirection, lightIntensity, lightColor, roughness); //NdL * lightColor.rgb;
-		diffuseLight = NdL*0;
-	}
-	float3 specularLight = float3(0,0,0);// SpecularCookTorrance(NdL, normal, lightVector, -viewDir, lightIntensity, lightColor, f0, roughness);
+	//float NdL = /*saturate((dot(normal, lightVector) + 0.5f) / 1.5f);*/saturate(dot(normal, lightVector));
+	//float3 diffuseLight = 0;
+	//[branch]
+	//if (metallic < 0.99)
+	//{
+	//	//diffuseLight = DiffuseOrenNayar(NdL, normal, lightVector, -cameraDirection, lightIntensity, lightColor, roughness); //NdL * lightColor.rgb;
+	//	diffuseLight = NdL*0;
+	//}
+	//float3 specularLight = float3(0,0,0);// SpecularCookTorrance(NdL, normal, lightVector, -viewDir, lightIntensity, lightColor, f0, roughness);
 
-	diffuseLight = (diffuseLight * (1 - f0)); //* (1 - f0)) * (f0 + 1) * (f0 + 1);
+	//diffuseLight = (diffuseLight * (1 - f0)); //* (1 - f0)) * (f0 + 1) * (f0 + 1);
 
 	float2 fresnelFactor = FresnelMap.Sample(FresnelSampler, float2(roughness, 1-dot(-viewDir, normal))).rg;
 
 	float3 reflectVector = -reflect(-viewDir, normal);
 
-	float4 specularReflection = EnvironmentMap.SampleLevel(CubeMapSampler, reflectVector.xzy, (roughness) * 8);
+	float3 specularReflection = EnvironmentMap.SampleLevel(CubeMapSampler, reflectVector.xzy, (roughness) * 8).rgb;
 	if (UseLinear) specularReflection = pow(abs(specularReflection), 2.2f);
 
 	specularReflection = specularReflection * (fresnelFactor.r * f0 + fresnelFactor.g);
 	//specularReflection = lerp(float4(0, 0, 0, 0), specularReflection, fresnelFactor);
 
-	float4 diffuseReflection = EnvironmentMap.SampleLevel(CubeMapSampler, reflectVector.xzy,6) ;
+	float3 diffuseReflection = EnvironmentMap.SampleLevel(CubeMapSampler, reflectVector.xzy,6).rgb ;
 	if (UseLinear) diffuseReflection = pow(abs(diffuseReflection), 2.2f);
 
 	diffuseReflection *= (1 - (fresnelFactor.r * f0 + fresnelFactor.g));
-	//float envMapCoord = saturate((-normal.z + 1) / 2);
 
-	//float4 ambientDiffuse = float4(EnvironmentMap.Load(int3(127, envMapCoord * 128, 0), int2(0, 0)).rgb, 1); //EnvironmentMap.Sample(EnvironmentMapSampler, float2(1.0f, envMapCoord)); EnvironmentMap.Load(int3(1, envMapCoord * 128, 0), int2(0, 0)); // EnvironmentMap.SampleLevel(EnvironmentMapSampler, float2(-1, envMapCoord), 0)*10;
-	//float4 ambientSpecular = EnvironmentMap.Load(int3(input.Roughness * 128, envMapCoord * 128, 0), int2(0, 0)); //EnvironmentMap.Load(int3(0, envMapCoord * 128, 0), int2(0, 0));
-
-	//ambientDiffuse = pow(abs(ambientDiffuse), 2.2f) * EnvironmentIntensity;
-	//ambientSpecular = pow(abs(ambientSpecular), 4.4f) * EnvironmentIntensity;
-
-	//float strength = lerp(ambientSpecular.a * 2, 1, metallic);
-
-	//ambientSpecular = float4(ambientSpecular.rgb *strength, 1);
-
-	float3 plasticFinal = color.rgb * (diffuseLight + diffuseReflection)+specularLight + specularReflection; //ambientSpecular;
+	float3 plasticFinal = color.rgb * (/*diffuseLight +*/ diffuseReflection)/*+specularLight*/ + specularReflection; //ambientSpecular;
 	if (UseLinear) plasticFinal = pow(abs(plasticFinal), 0.45454545f);
 
-	float3 metalFinal = (specularLight + specularReflection)* color.rgb;
+	float3 metalFinal = (/*specularLight +*/ specularReflection)* color.rgb;
 	if (UseLinear) metalFinal = pow(abs(metalFinal), 0.45454545f);
 
 	float3 finalValue = lerp(plasticFinal, metalFinal, metallic);
@@ -339,14 +381,14 @@ float4 PixelShaderFunction(VertexShaderOutput input) : SV_TARGET0
 	[branch]
 	if (UseRoughnessMap)
 	{
-		roughness = RoughnessMap.SampleLevel(TextureSampler, input.TexCoord, sampleLevel);
+		roughness = RoughnessMap.SampleLevel(TextureSampler, input.TexCoord, sampleLevel).r;
 	}
 
 	float metallic = Metallic;
 	[branch]
 	if (UseMetallicMap)
 	{
-		metallic = MetallicMap.SampleLevel(TextureSampler, input.TexCoord, sampleLevel);
+		metallic = MetallicMap.SampleLevel(TextureSampler, input.TexCoord, sampleLevel).r;
 	}
 
 	LightingParams renderParams;
@@ -377,14 +419,14 @@ float4 TangentSpace_PixelShaderFunction(Normal_VertexShaderOutput input) : SV_TA
 	[branch]
 	if (UseRoughnessMap)
 	{
-		roughness = RoughnessMap.SampleLevel(TextureSampler, input.TexCoord, sampleLevel);
+		roughness = RoughnessMap.SampleLevel(TextureSampler, input.TexCoord, sampleLevel).r;
 	}
 
 	float metallic = Metallic;
 	[branch]
 	if (UseMetallicMap)
 	{
-		metallic = MetallicMap.SampleLevel(TextureSampler, input.TexCoord, sampleLevel);
+		metallic = MetallicMap.SampleLevel(TextureSampler, input.TexCoord, sampleLevel).r;
 	}
 
 	float3 normalMap = NormalMap.SampleLevel(TextureSampler, input.TexCoord, sampleLevel).xyz - float3(0.5f, 0.5f, 0.5f);
@@ -401,6 +443,11 @@ float4 TangentSpace_PixelShaderFunction(Normal_VertexShaderOutput input) : SV_TA
 	renderParams.WorldPosition = input.WorldPosition;
 
 	return Lighting(renderParams);
+}
+
+float4 Depth_PixelShaderFunction(Depth_VertexShaderOutput input) : SV_TARGET
+{
+	return float4(input.Depth,0,0,0);
 }
 
 
@@ -440,5 +487,23 @@ technique SkinnedNormalMapped
 	{
 		VertexShader = compile vs_5_0 SkinnedNormalMapped_VertexShaderFunction();
 		PixelShader = compile ps_5_0 TangentSpace_PixelShaderFunction();
+	}
+}
+
+technique UnskinnedDepth
+{
+	pass Pass1
+	{
+		VertexShader = compile vs_5_0 UnskinnedDepth_VertexShaderFunction();
+		PixelShader = compile ps_5_0 Depth_PixelShaderFunction();
+	}
+}
+
+technique SkinnedDepth
+{
+	pass Pass1
+	{
+		VertexShader = compile vs_5_0 SkinnedDepth_VertexShaderFunction();
+		PixelShader = compile ps_5_0 Depth_PixelShaderFunction();
 	}
 }

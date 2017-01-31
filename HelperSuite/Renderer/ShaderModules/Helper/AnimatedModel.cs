@@ -30,6 +30,9 @@ namespace HelperSuite.Renderer.ShaderModules.Helper
         /// </summary>
         private List<Bone> bones = new List<Bone>();
 
+
+        private Matrix[] skeleton;
+
         private Matrix[] boneTransforms;
 
         /// <summary>
@@ -98,6 +101,7 @@ namespace HelperSuite.Renderer.ShaderModules.Helper
 
                 boneTransforms = new Matrix[bones.Count];
 
+                skeleton = new Matrix[modelExtra.Skeleton.Count];
                 success = true;
             }
             
@@ -219,7 +223,6 @@ namespace HelperSuite.Renderer.ShaderModules.Helper
                 // Determine the skin transforms from the skeleton
                 //
 
-                Matrix[] skeleton = new Matrix[modelExtra.Skeleton.Count];
                 for (int s = 0; s < modelExtra.Skeleton.Count; s++)
                 {
                     Bone bone = bones[modelExtra.Skeleton[s]];

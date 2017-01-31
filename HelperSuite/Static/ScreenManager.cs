@@ -5,6 +5,7 @@ using HelperSuite.Static;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 
 namespace OceanRender.Main
 {
@@ -22,6 +23,8 @@ namespace OceanRender.Main
         private MainLogic _mainLogic;
         private GUIRenderer _guiRenderer;
         private HelperSuite.Renderer.Renderer _renderer;
+
+        private bool _wasInactive = true;
         
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //  FUNCTIONS
@@ -39,7 +42,18 @@ namespace OceanRender.Main
         //Update per frame
         public void Update(GameTime gameTime, bool isActive)
         {
-            if (!isActive) return;
+            if (!isActive)
+            {
+                _wasInactive = true;
+                return;
+            }
+
+            //if (_wasInactive)
+            //{
+            //    Input.mouseLastState = Mouse.GetState();
+            //    _wasInactive = false;
+            //}
+
 
             Input.Update(gameTime);
             

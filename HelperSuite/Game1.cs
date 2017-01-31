@@ -60,6 +60,7 @@ namespace HelperSuite
         }
         private void IsActivated(object sender, EventArgs e)
         {
+            Input.mouseState = Mouse.GetState();
             _isActive = true;
         }
 
@@ -133,18 +134,19 @@ namespace HelperSuite
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            if (!_isActive) return;
-
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
-                Keyboard.GetState().IsKeyDown(Keys.Escape))
-            {
-                UnloadContent();
-                Exit();
-            }
             // TODO: Add your update logic here
 
 
             _screenManager.Update(gameTime, _isActive);
+
+            if (!_isActive) return;
+
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
+                Input.WasKeyPressed(Keys.Escape))
+            {
+                UnloadContent();
+                Exit();
+            }
 
             base.Update(gameTime);
         }
