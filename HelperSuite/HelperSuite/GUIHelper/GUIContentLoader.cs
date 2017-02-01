@@ -8,10 +8,10 @@ using System.Windows.Forms;
 using HelperSuite.HelperSuite.ContentLoader;
 using HelperSuite.HelperSuite.Static;
 using HelperSuite.Logic;
-using HelperSuite.Renderer.ShaderModules.Helper;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using ModelViewer.Renderer.ShaderModules.Helper;
 
 namespace HelperSuite.HelperSuite.GUIHelper
 {
@@ -21,6 +21,10 @@ namespace HelperSuite.HelperSuite.GUIHelper
         private ContentManager _contentManager;
 
         public readonly List<object> ContentArray = new List<object>();
+        
+        enum buildMode
+        { defaultMode, retryWithoutAnimation, retryWithoutTangents, finished, failed };
+
 
         public void Load(ContentManager contentManager)
         {
@@ -136,28 +140,29 @@ namespace HelperSuite.HelperSuite.GUIHelper
 
                 completeFilePath = completeFilePath.Replace("\\", "/");
 
-                int tries = 0;
+                buildMode mode = buildMode.defaultMode;
 
-                while (tries<2)
+                while (mode != buildMode.finished)
                 {
-                    if (tries>0 /*&& typeof(T) == typeof(AnimatedModel)*/)
+                    if (mode == buildMode.retryWithoutAnimation)
                     {
                         pipeLineFile = "runtimemodel.txt";
                     }
-                    //else if (fileEnding == "obj")
-                    //{
-                    //    int i = 0;
-                    //}
-                    
+                    else if (mode == buildMode.retryWithoutTangents)
+                    {
+                        pipeLineFile = "runtimemodelnotangent.txt";
+                    }
+
                     //Create pProcess
                     Process pProcess = new Process
                     {
                         StartInfo =
                         {
                             FileName = mgcbPathExe,
-                            Arguments = "/@:\"Content/mgcb/" + pipeLineFile +
-                                        "\" /build:\"" + fileName /*completeFilePath*/+ "\"",
+                            Arguments = "/@:\"Content/mgcb/" + pipeLineFile + "\""
+                            +" /build:\"" + fileName /*completeFilePath*/+ "\"",
                             CreateNoWindow = true,
+                            WorkingDirectory = Application.StartupPath,
                             UseShellExecute = false,
                             RedirectStandardError = true,
                             RedirectStandardOutput = true
@@ -166,9 +171,8 @@ namespace HelperSuite.HelperSuite.GUIHelper
 
                     //Get program output
                     string stdError = null;
-
-                    var stdOutput = new StringBuilder();
-                    pProcess.OutputDataReceived += (sender, args) => stdOutput.Append(args.Data);
+                    StringBuilder stdOutput = new StringBuilder();
+                    pProcess.OutputDataReceived += (sender, args) => stdOutput.Append( args.Data );
 
                     try
                     {
@@ -185,7 +189,7 @@ namespace HelperSuite.HelperSuite.GUIHelper
                     if (pProcess.ExitCode == 0)
                     {
 
-                        tries = 10;
+                       mode = buildMode.finished;
                     }
                     else
                     {
@@ -196,51 +200,51 @@ namespace HelperSuite.HelperSuite.GUIHelper
                             message.AppendLine(stdError);
                         }
 
+                        bool fail = true;
+
                         if (stdOutput.Length != 0)
                         {
+                            string stout = stdOutput.ToString();
+                            //A bit senseless, eh?
                             message.AppendLine("Std output:");
-                            message.AppendLine(stdOutput.ToString());
+                            message.AppendLine(stout);
+
+                            if (stout.Contains("tangent") && mode == buildMode.defaultMode)
+                            {
+                                mode = buildMode.retryWithoutTangents;
+                                fail = false;
+                            }
                         }
 
-                        tries++;
-                        //Debug.WriteLine(message);
+                        if (fail)
+                        {
+                            //Debug.WriteLine(message);
 
-                        throw new Exception("mgcb finished with exit code = " + pProcess.ExitCode + ": " + message);
-                        
+                            if (GameSettings.d_log)
+                            {
+                                StreamWriter steam =
+                                    new StreamWriter(new FileStream("log.txt", FileMode.OpenOrCreate, FileAccess.Write));
+                                steam.WriteLine("mgcb finished with exit code = " + pProcess.ExitCode + ": " + message);
+                                steam.Close();
+                            }
+
+                            throw new Exception("mgcb finished with exit code = " + pProcess.ExitCode + ": " + message);
+                        }
                     }
                 }
-
-                //if (typeof(T) == typeof(Texture2D))
-                //{
-                //    if(ContentArray[position]!=null)
-                //        ((Texture2D)ContentArray[position]).Dispose();
-                //}
-
-                //string path = completeFilePath.Split('.')[0];
-                //ContentArray[position] = _contentManager.Load<T>(path);
-                //File.Delete(path + ".xnb");
 
                 if (typeof(T) == typeof(AnimatedModel))
                 {
                     //Have to load normal model
-                    if (tries != 10)
+                    if (mode == buildMode.retryWithoutAnimation)
                     {
-                        ContentArray[position] = _contentManager.Load<Model>("Runtime/Textures/" + shortFileName);
+                         ContentArray[position] = _contentManager.Load<Model>("Runtime/Textures/" + shortFileName);
                     }
                     else
                     {
                         ContentArray[position] = new AnimatedModel("Runtime/Textures/" + shortFileName);
-                    ((AnimatedModel)ContentArray[position]).
-                        LoadContent(_contentManager);
-                        //if (!((AnimatedModel) ContentArray[position]).LoadContent(_contentManager))
-                        //{
-
-                        //    ContentArray[position] = _contentManager.Load<Model>("Runtime/Textures/" + shortFileName);
-                        //}
-
+                        ((AnimatedModel)ContentArray[position]).LoadContent(_contentManager);
                     }
-                    
-                    //_contentManager.Load<T>("Runtime/Textures/" + shortFileName);
                 }
                 else
                 {

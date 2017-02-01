@@ -2,12 +2,12 @@
 using HelperSuite.HelperSuite.GUI;
 using HelperSuite.HelperSuite.GUIHelper;
 using HelperSuite.HelperSuite.GUIRenderer;
-using HelperSuite.HelperSuite.GUIRenderer.Helper;
 using HelperSuite.HelperSuite.Static;
-using HelperSuite.Renderer.ShaderModules.Helper;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using ModelViewer.HelperSuite.GUIRenderer.Helper;
+using ModelViewer.Renderer.ShaderModules.Helper;
 
 namespace HelperSuite.Logic
 {
@@ -19,6 +19,9 @@ namespace HelperSuite.Logic
         private GUITextBlock _sizeBlock;
         private GUITextBlock _roughnessBlock;
         private GUITextBlock _metallicBlock;
+
+        private GUITextBlock _aoRadiiBlock;
+        private GUITextBlock _aoSamplesBlock;
 
         private GUIStyle defaultStyle;
 
@@ -50,7 +53,7 @@ namespace HelperSuite.Logic
 
             screenCanvas.AddElement(animationList);
 
-            baseList = new GuiListToggle(Vector2.Zero, new Vector2(200, 30), 0, GUIStyle.GUIAlignment.TopRight, screenCanvas.Dimensions);
+            baseList = new GuiListToggleScroll(new Vector2(-20,0), new Vector2(200, 30), 0, GUIStyle.GUIAlignment.TopRight, screenCanvas.Dimensions);
             screenCanvas.AddElement(baseList);
             
             baseList.AddElement(new GUITextBlockToggle(Vector2.Zero, new Vector2(200, 35), "debug info", GUIRenderer.MonospaceFont, Color.Gray, Color.White )
@@ -59,7 +62,7 @@ namespace HelperSuite.Logic
                 Toggle = (bool)typeof(GameSettings).GetField("ui_debug").GetValue(null)
             });
             //baseList.AddElement(new GUITextBlock(Vector2.Zero, new Vector2(200, 35), "this is a generic testblock and it tests wrap ", GUIRenderer.MonospaceFont, Color.Gray, Color.White));
-            baseList.AddElement(new GuiSlider(Vector2.Zero, new Vector2(200, 35), 0, 3, Color.Gray, Color.Black )
+            baseList.AddElement(new GuiSliderFloat(Vector2.Zero, new Vector2(200, 35), -2, 4, Color.Gray, Color.Black )
             {
                 SliderField = typeof(GameSettings).GetField("m_size"),
                 SliderValue = (float)typeof(GameSettings).GetField("m_size").GetValue(null)
@@ -166,7 +169,7 @@ namespace HelperSuite.Logic
                     _roughnessBlock =
                         new GUITextBlock(Vector2.Zero, new Vector2(200, 35), "Roughness: " + GameSettings.m_roughness,
                             GUIRenderer.MonospaceFont, Color.Gray, Color.White));
-                colorList.AddElement(new GuiSlider(Vector2.Zero, new Vector2(200, 35), 0, 1, Color.Gray, Color.Black)
+                colorList.AddElement(new GuiSliderFloat(Vector2.Zero, new Vector2(200, 35), 0, 1, Color.Gray, Color.Black)
                 {
                     SliderField = typeof(GameSettings).GetField("m_roughness"),
                     SliderValue = (float) typeof(GameSettings).GetField("m_roughness").GetValue(null)
@@ -176,14 +179,52 @@ namespace HelperSuite.Logic
                     _metallicBlock =
                         new GUITextBlock(Vector2.Zero, new Vector2(200, 35), "Metallic: " + GameSettings.m_metallic,
                             GUIRenderer.MonospaceFont, Color.Gray, Color.White));
-                colorList.AddElement(new GuiSlider(Vector2.Zero, new Vector2(200, 35), 0, 1, Color.Gray, Color.Black)
+                colorList.AddElement(new GuiSliderFloat(Vector2.Zero, new Vector2(200, 35), 0, 1, Color.Gray, Color.Black)
                 {
                     SliderField = typeof(GameSettings).GetField("m_metallic"),
                     SliderValue = (float) typeof(GameSettings).GetField("m_metallic").GetValue(null)
                 });
             }
-            baseList.AddElement(colorList);
             colorList.IsToggled = false;
+            baseList.AddElement(colorList);
+
+            //AO
+
+            baseList.AddElement(new GUITextBlock(Vector2.Zero, new Vector2(200, 25), "Ambient Occlusion", GUIRenderer.MonospaceFont, Color.DimGray, Color.White, GUIStyle.TextAlignment.Center));
+            GuiListToggle aoList = new GuiListToggle(Vector2.Zero, new Vector2(200, 30), 0, GUIStyle.GUIAlignment.None, screenCanvas.Dimensions);
+            {
+                aoList.AddElement(new GUITextBlockToggle(Vector2.Zero, new Vector2(200, 35), "Enable AO", GUIRenderer.MonospaceFont, Color.Gray, Color.White)
+                {
+                    ToggleField = typeof(GameSettings).GetField("r_DrawAo"),
+                    Toggle = (bool)typeof(GameSettings).GetField("r_DrawAo").GetValue(null)
+                });
+
+                aoList.AddElement(
+                    _aoRadiiBlock =
+                        new GUITextBlock(Vector2.Zero, new Vector2(200, 35), "AO Radius: " + GameSettings.ao_Radii,
+                            GUIRenderer.MonospaceFont, Color.Gray, Color.White));
+                aoList.AddElement(new GuiSliderFloat(Vector2.Zero, new Vector2(200, 35), 0, 4, Color.Gray, Color.Black)
+                {
+                    SliderField = typeof(GameSettings).GetField("ao_Radii"),
+                    SliderValue = (float)typeof(GameSettings).GetField("ao_Radii").GetValue(null)
+                });
+
+                aoList.AddElement(
+                    _aoSamplesBlock =
+                        new GUITextBlock(Vector2.Zero, new Vector2(200, 35), "AO Samples ppx: " + GameSettings.ao_Samples,
+                            GUIRenderer.MonospaceFont, Color.Gray, Color.White));
+
+                aoList.AddElement(new GuiSliderInt(Vector2.Zero, new Vector2(200, 35), 0, 64, Color.Gray, Color.Black)
+                {
+                    SliderField = typeof(GameSettings).GetField("ao_Samples"),
+                    SliderValue = (int)typeof(GameSettings).GetField("ao_Samples").GetValue(null)
+                });
+
+            }
+            aoList.IsToggled = false;
+
+            baseList.AddElement(aoList);
+
         }
 
         public void Load(ContentManager content)
@@ -205,7 +246,7 @@ namespace HelperSuite.Logic
 
         public void Update(GameTime gameTime)
         {
-            GameStats.UIWasClicked = false;
+            GameStats.UIWasUsed = false;
             if (GameSettings.ui_DrawUI)
             {
                 _sizeBlock.Text.Clear();
@@ -220,10 +261,20 @@ namespace HelperSuite.Logic
                 _metallicBlock.Text.Append("Metallic: ");
                 _metallicBlock.Text.Concat(GameSettings.m_metallic, 2);
 
+                _aoRadiiBlock.Text.Clear();
+                _aoRadiiBlock.Text.Append("AO Radius: ");
+                _aoRadiiBlock.Text.Concat(GameSettings.ao_Radii, 3);
+
+                _aoSamplesBlock.Text.Clear();
+                _aoSamplesBlock.Text.Append("AO Samples ppx: ");
+                _aoSamplesBlock.Text.Concat(GameSettings.ao_Samples);
+
                 screenCanvas.Update(gameTime, Input.GetMousePosition().ToVector2(), Vector2.Zero);
-
-
             }
+
+            //Safety
+            if (!Input.IsLMBPressed() && GameStats.UIElementEngaged)
+                GameStats.UIElementEngaged = false;
         }
 
         public GUICanvas getCanvas()

@@ -24,5 +24,10 @@ namespace HelperSuite.HelperSuite.Static
         public static bool r_UseLinear = true;
         public static bool m_startClip = true;
         public static bool m_updateAnimation = true;
+        public static bool r_DrawAo = true;
+        public static bool r_DrawDepthMap = false;
+        public static bool d_log = true;
+        public static int ao_Samples = 32;
+        public static float ao_Radii = 1;
     }
 }

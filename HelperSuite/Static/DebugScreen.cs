@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using HelperSuite.HelperSuite.GUIRenderer.Helper;
 using HelperSuite.HelperSuite.Static;
 using HelperSuite.Logic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using ModelViewer.HelperSuite.GUIRenderer.Helper;
 
 namespace HelperSuite.Static
 {

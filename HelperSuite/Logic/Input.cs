@@ -3,7 +3,6 @@ using HelperSuite.HelperSuite.Static;
 using HelperSuite.Static;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using OceanRender.Main;
 
 namespace HelperSuite.Logic
 {

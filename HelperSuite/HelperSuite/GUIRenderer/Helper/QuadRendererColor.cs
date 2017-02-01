@@ -6,15 +6,15 @@ using Microsoft.Xna.Framework.Graphics;
 
 #endregion
 
-namespace HelperSuite.HelperSuite.GUIRenderer.Helper
+namespace ModelViewer.HelperSuite.GUIRenderer.Helper
 {
-    public class QuadRenderer
+    public class QuadRendererColor
     {
         //buffers for rendering the quad
         private readonly VertexPositionColor[] _vertexBuffer;
         private readonly short[] _indexBuffer;
 
-        public QuadRenderer()
+        public QuadRendererColor()
         {
             //_vertexBuffer = new VertexPositionTexture[4];
             //_vertexBuffer[0] = new VertexPositionTexture(new Vector3(-1, 1, 1), new Vector2(0, 0));

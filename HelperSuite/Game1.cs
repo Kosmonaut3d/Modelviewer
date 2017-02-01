@@ -28,7 +28,7 @@ namespace HelperSuite
 
             //Set up graphics properties, no vsync, no framelock
             _graphics.SynchronizeWithVerticalRetrace = false;
-            IsFixedTimeStep = true;
+            IsFixedTimeStep = false;
             //TargetElapsedTime = TimeSpan.FromMilliseconds(100);
 
             //Size of our application / starting back buffer
@@ -37,6 +37,7 @@ namespace HelperSuite
 
             _graphics.PreferMultiSampling = true;
             _graphics.PreferredBackBufferFormat = SurfaceFormat.Color;
+            _graphics.PreferredDepthStencilFormat = DepthFormat.Depth24Stencil8;
 
             //_graphics.PreferredDepthStencilFormat = DepthFormat.Depth24;
             //HiDef enables usable shaders

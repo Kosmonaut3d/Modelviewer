@@ -1,11 +1,9 @@
 ﻿using HelperSuite.HelperSuite.GUIRenderer;
 using HelperSuite.Logic;
-using HelperSuite.Renderer;
 using HelperSuite.Static;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 
 namespace OceanRender.Main
 {
@@ -104,6 +102,7 @@ namespace OceanRender.Main
         public void UpdateResolution()
         {
             _guiLogicSample.UpdateResolution();
+            _renderer.UpdateRenderTargets();
         }
     }
 }

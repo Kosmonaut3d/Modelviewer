@@ -6,14 +6,14 @@ namespace HelperSuite.HelperSuite.GUI
 {
     class GuiListToggle : GUIList
     {
-        private static float ToggleButtonHeight = 14;
-        private static float ArrowButtonHeight = 8;
+        protected static float ToggleButtonHeight = 14;
+        protected static float ArrowButtonHeight = 8;
 
-        private static readonly Color HoverColor = Color.Tomato;
-        
-        private Vector2 _toggleDimensions;
+        protected static readonly Color HoverColor = Color.Tomato;
 
-        private bool _isHovered;
+        protected Vector2 _toggleDimensions;
+
+        protected bool _isHovered;
 
         public bool IsToggled = true;
 
@@ -43,23 +43,6 @@ namespace HelperSuite.HelperSuite.GUI
         {
             if (!IsEnabled) return;
 
-            _isHovered = false;
-
-            Vector2 bound1 = Position + parentPosition;
-            Vector2 bound2 = bound1 + _toggleDimensions;
-
-            if (mousePosition.X >= bound1.X && mousePosition.Y >= bound1.Y && mousePosition.X < bound2.X &&
-                mousePosition.Y < bound2.Y)
-            {
-                _isHovered = true;
-                if(Input.WasLMBClicked())
-                {
-                    GameStats.UIWasClicked = true;
-
-                    IsToggled = !IsToggled;
-                }
-            }
-
             if (IsToggled)
             {
                 float height = ToggleButtonHeight;
@@ -76,6 +59,26 @@ namespace HelperSuite.HelperSuite.GUI
             {
                 Dimensions = _toggleDimensions;
             }
+
+            _isHovered = false;
+
+            if (GameStats.UIElementEngaged) return;
+
+            Vector2 bound1 = Position + parentPosition;
+            Vector2 bound2 = bound1 + _toggleDimensions;
+
+            if (mousePosition.X >= bound1.X && mousePosition.Y >= bound1.Y && mousePosition.X < bound2.X &&
+                mousePosition.Y < bound2.Y)
+            {
+                _isHovered = true;
+                if (Input.WasLMBClicked())
+                {
+                    GameStats.UIWasUsed = true;
+
+                    IsToggled = !IsToggled;
+                }
+            }
+
         }
 
         public override void Draw(GUIRenderer.GUIRenderer guiRenderer, Vector2 parentPosition, Vector2 mousePosition)

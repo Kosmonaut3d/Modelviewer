@@ -14,6 +14,7 @@
     <FileAlignment>512</FileAlignment>
     <MonoGamePlatform>Windows</MonoGamePlatform>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -26,7 +27,6 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -36,9 +36,10 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\$(MonoGamePlatform)\$(Platform)\$(Configuration)\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;WINDOWS</DefineConstants>
+    <DefineConstants>WINDOWS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -61,21 +62,24 @@
     <Compile Include="HelperSuite\GUIHelper\GUIContentLoader.cs" />
     <Compile Include="HelperSuite\GUIRenderer\GUIRenderer.cs" />
     <Compile Include="HelperSuite\GUIRenderer\Helper\MngStringBuilder.cs" />
-    <Compile Include="HelperSuite\GUIRenderer\Helper\QuadRenderer.cs" />
+    <Compile Include="HelperSuite\GUIRenderer\Helper\QuadRendererColor.cs" />
     <Compile Include="HelperSuite\GUI\GUIBlock.cs" />
     <Compile Include="HelperSuite\GUI\GUICanvas.cs" />
     <Compile Include="HelperSuite\GUI\GUIColorPicker.cs" />
     <Compile Include="HelperSuite\GUI\GUIList.cs" />
     <Compile Include="HelperSuite\GUI\GuiListToggle.cs" />
-    <Compile Include="HelperSuite\GUI\GuiSlider.cs" />
+    <Compile Include="HelperSuite\GUI\GuiListToggleScroll.cs" />
+    <Compile Include="HelperSuite\GUI\GuiSliderFloat.cs" />
     <Compile Include="HelperSuite\GUI\GUIStyle.cs" />
     <Compile Include="HelperSuite\GUI\GUITextBlock.cs" />
     <Compile Include="HelperSuite\GUI\GuiTextBlockLoadDialog.cs" />
     <Compile Include="HelperSuite\GUI\GUITextBlockButton.cs" />
     <Compile Include="HelperSuite\GUI\GUITextBlockToggle.cs" />
     <Compile Include="Logic\Camera.cs" />
+    <Compile Include="Renderer\ShaderModules\AmbientOcclusionShader.cs" />
     <Compile Include="Renderer\ShaderModules\Helper\AnimatedModel.cs" />
     <Compile Include="Renderer\ShaderModules\Helper\AnimationPlayer.cs" />
+    <Compile Include="Renderer\ShaderModules\Helper\QuadRenderer.cs" />
     <Compile Include="Static\Extension.cs" />
     <Compile Include="Logic\GUILogic.cs" />
     <Compile Include="Logic\Input.cs" />
@@ -91,8 +95,9 @@
     <Compile Include="Static\ScreenManager.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="MonoGame.Framework">
-      <HintPath>$(MonoGameInstallDirectory)\MonoGame\v3.0\Assemblies\Windows\MonoGame.Framework.dll</HintPath>
+    <Reference Include="MonoGame.Framework, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Monogame\MonoGame.Framework\bin\Windows\AnyCPU\Debug\MonoGame.Framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Windows.Forms" />
@@ -161,6 +166,9 @@
     <Content Include="Content\mgcb\runtimeanimatedmodel.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\mgcb\runtimemodelnotangent.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\mgcb\runtimemodel.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -180,6 +188,10 @@
     <ProjectReference Include="..\..\OceanRender\MGSkinnedAnimationAux\MGSkinnedAnimationAux.csproj">
       <Project>{D1CC382B-7D83-4AB0-9978-DFDAFDE7F027}</Project>
       <Name>MGSkinnedAnimationAux</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\OceanRender\MGSkinnedAnimationPipeline\MGSkinnedAnimationPipeline.csproj">
+      <Project>{d19f0dbf-a3de-4fc3-bb2a-f6aebd8c50c7}</Project>
+      <Name>MGSkinnedAnimationPipeline</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

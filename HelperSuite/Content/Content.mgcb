@@ -151,3 +151,9 @@
 /processorParam:TextureFormat=Color
 /build:ShaderModules/AnimatedModelShader/fresnel2.png
 
+#begin ShaderModules/AmbientOcclusionShader/AmbientOcclusionShader.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:ShaderModules/AmbientOcclusionShader/AmbientOcclusionShader.fx
+

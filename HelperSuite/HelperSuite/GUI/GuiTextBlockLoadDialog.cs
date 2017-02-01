@@ -122,6 +122,18 @@ namespace HelperSuite.HelperSuite.GUI
             if (_loadTaskReference != null)
             {
                 _isLoaded = (short) (_loadTaskReference.IsCompleted ? 2 : 1);
+
+                if (_isLoaded == 2)
+                {
+                    if (_loadTaskReference.IsFaulted)
+                    {
+                        _isLoaded = 0;
+                        _loadedObjectName.Clear();
+                        _loadedObjectName.Append("Loading failed");
+                    }
+
+
+                }
             }
             else
             {
@@ -140,7 +152,7 @@ namespace HelperSuite.HelperSuite.GUI
 
                 if (!Input.WasLMBClicked()) return;
 
-                GameStats.UIWasClicked = true;
+                GameStats.UIWasUsed = true;
 
                 if (ButtonObject != null)
                 {

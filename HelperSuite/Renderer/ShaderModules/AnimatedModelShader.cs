@@ -35,6 +35,7 @@ namespace HelperSuite.Renderer.ShaderModules
         private EffectParameter _worldViewProjParameter;
         private EffectParameter _worldITParameter;
         private EffectParameter _worldParameter;
+        private EffectParameter _viewParameter;
         private EffectParameter _bonesParameter;
         private EffectParameter _cameraPositionParameter;
         private EffectParameter _normalMapParameter;
@@ -48,15 +49,20 @@ namespace HelperSuite.Renderer.ShaderModules
         private EffectParameter _metallicMapParameter;
         private EffectParameter _useMetallicMapParameter;
 
+        public EffectParameter DepthMapParameter;
+
         private EffectParameter _useLinearParameter;
 
         private EffectParameter _roughnessParameter;
         private EffectParameter _metallicParameter;
 
+        private EffectPass _noNormalUnskinnedPass;
         private EffectPass _unskinnedNormalMappedPass;
         private EffectPass _unskinnedPass;
         private EffectPass _skinnedPass;
         private EffectPass _skinnedNormalMappedPass;
+        private EffectPass _unskinnedDepthPass;
+        private EffectPass _skinnedDepthPass;
 
         private bool _useLinear = true;
         public bool UseLinear
@@ -210,7 +216,10 @@ namespace HelperSuite.Renderer.ShaderModules
 
         public enum EffectPasses
         {
-            Unskinned, UnskinnedNormalMapped, Skinned, SkinnedNormalMapped
+            Unskinned, UnskinnedNormalMapped, Skinned, SkinnedNormalMapped,
+            SkinnedDepth,
+            UnskinnedDepth,
+            NoNormalUnskinned
         };
 
 
@@ -229,8 +238,11 @@ namespace HelperSuite.Renderer.ShaderModules
             _worldViewProjParameter = _shaderEffect.Parameters["ViewProj"];
             _worldITParameter = _shaderEffect.Parameters["WorldIT"];
             _worldParameter = _shaderEffect.Parameters["World"];
+            _viewParameter = _shaderEffect.Parameters["View"];
             _bonesParameter = _shaderEffect.Parameters["Bones"];
             _cameraPositionParameter = _shaderEffect.Parameters["CameraPosition"];
+
+            DepthMapParameter = _shaderEffect.Parameters["DepthMap"];
 
             _normalMapParameter = _shaderEffect.Parameters["NormalMap"];
             _albedoColorParameter = _shaderEffect.Parameters["AlbedoColor"];
@@ -248,12 +260,16 @@ namespace HelperSuite.Renderer.ShaderModules
             _useMetallicMapParameter = _shaderEffect.Parameters["UseMetallicMap"];
 
             _useLinearParameter = _shaderEffect.Parameters["UseLinear"];
-
+            
+            _noNormalUnskinnedPass = _shaderEffect.Techniques["NoNormal_Unskinned"].Passes[0];
             _unskinnedPass = _shaderEffect.Techniques["Unskinned"].Passes[0];
             _unskinnedNormalMappedPass = _shaderEffect.Techniques["UnskinnedNormalMapped"].Passes[0];
 
             _skinnedPass = _shaderEffect.Techniques["Skinned"].Passes[0];
             _skinnedNormalMappedPass = _shaderEffect.Techniques["SkinnedNormalMapped"].Passes[0];
+            
+            _unskinnedDepthPass = _shaderEffect.Techniques["UnskinnedDepth"].Passes[0];
+            _skinnedDepthPass = _shaderEffect.Techniques["SkinnedDepth"].Passes[0];
         }
 
         public void Initialize(GraphicsDevice graphicsDevice)
@@ -270,11 +286,12 @@ namespace HelperSuite.Renderer.ShaderModules
         /// <param name="cameraPosition"></param>
         /// <param name="effectPass"></param>
         /// <param name="bones"></param>
-        public void DrawMesh(Model model, Matrix world, Matrix viewProjection, Vector3 cameraPosition, EffectPasses effectPass, Matrix[] bones = null)
+        public void DrawMesh(Model model, Matrix world, Matrix view, Matrix viewProjection, Vector3 cameraPosition, EffectPasses effectPass, Matrix[] bones = null)
         {
             _worldViewProjParameter.SetValue(viewProjection);
             _worldITParameter.SetValue(world/*Matrix.Transpose(Matrix.Invert(world))*/);
             _worldParameter.SetValue(world);
+            _viewParameter.SetValue(view);
             if(bones!=null)
              _bonesParameter.SetValue(bones);
             _cameraPositionParameter.SetValue(cameraPosition);
@@ -309,6 +326,9 @@ namespace HelperSuite.Renderer.ShaderModules
             
             switch (effectPass)
             {
+                case EffectPasses.NoNormalUnskinned:
+                    _noNormalUnskinnedPass.Apply();
+                    break;
                 case EffectPasses.Unskinned:
                     _unskinnedPass.Apply();
                     break;
@@ -320,6 +340,12 @@ namespace HelperSuite.Renderer.ShaderModules
                     break;
                 case EffectPasses.SkinnedNormalMapped:
                     _skinnedNormalMappedPass.Apply();
+                    break;
+                case EffectPasses.SkinnedDepth:
+                    _skinnedDepthPass.Apply();
+                    break;
+                case EffectPasses.UnskinnedDepth:
+                    _unskinnedDepthPass.Apply();
                     break;
             }
 

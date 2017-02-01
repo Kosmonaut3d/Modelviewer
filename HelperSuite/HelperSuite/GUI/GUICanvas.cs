@@ -7,6 +7,7 @@ namespace HelperSuite.HelperSuite.GUI
     public abstract class GUIElement
     {
         public Vector2 Position;
+        public Vector2 OffsetPosition;
         public virtual Vector2 Dimensions { get; set; }
         public abstract void Draw(GUIRenderer.GUIRenderer guiRenderer, Vector2 parentPosition, Vector2 mousePosition);
         public abstract void ParentResized(Vector2 dimensions);
@@ -29,6 +30,7 @@ namespace HelperSuite.HelperSuite.GUI
             Dimensions = dimensions;
             Alignment = alignment;
             Position = position;
+            OffsetPosition = position;
             Layer = layer;
             if (Alignment != GUIStyle.GUIAlignment.None)
             {
@@ -56,7 +58,7 @@ namespace HelperSuite.HelperSuite.GUI
         //Adjust things when resized
         public override void ParentResized(Vector2 parentDimensions)
         {
-            Position = UpdateAlignment(Alignment, parentDimensions, Dimensions, Position);
+            Position = UpdateAlignment(Alignment, parentDimensions, Dimensions, Position, OffsetPosition);
 
             for (int index = 0; index < _children.Count; index++)
             {
@@ -67,7 +69,7 @@ namespace HelperSuite.HelperSuite.GUI
         }
 
         //If the parent resized then our alignemnt may have changed and we need new position coordinates
-        public static Vector2 UpdateAlignment(GUIStyle.GUIAlignment alignment, Vector2 parentDimensions, Vector2 dimensions, Vector2 position)
+        public static Vector2 UpdateAlignment(GUIStyle.GUIAlignment alignment, Vector2 parentDimensions, Vector2 dimensions, Vector2 position, Vector2 offsetPosition)
         {
             if (parentDimensions == Vector2.Zero) throw new NotImplementedException();
 
@@ -93,7 +95,7 @@ namespace HelperSuite.HelperSuite.GUI
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            return position;
+            return position + offsetPosition;
         }
 
         public void AddElement(GUIElement element)

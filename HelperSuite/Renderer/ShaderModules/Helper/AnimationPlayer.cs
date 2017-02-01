@@ -3,7 +3,7 @@ using System.ComponentModel;
 using MGSkinnedAnimationAux;
 using Microsoft.Xna.Framework;
 
-namespace HelperSuite.Renderer.ShaderModules.Helper
+namespace ModelViewer.Renderer.ShaderModules.Helper
 {
     /// <summary>
     /// Animation clip player. It maps an animation clip onto a model

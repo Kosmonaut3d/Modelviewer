@@ -47,7 +47,7 @@ namespace HelperSuite.HelperSuite.GUI
 
                 if (!Input.WasLMBClicked()) return;
 
-                GameStats.UIWasClicked = true;
+                GameStats.UIWasUsed = true;
 
                 if (ButtonObject != null)
                 {

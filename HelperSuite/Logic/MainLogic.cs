@@ -39,7 +39,7 @@ namespace HelperSuite.Logic
             _graphicsDevice = graphicsDevice;
             _spriteBatch = new SpriteBatch(graphicsDevice);
 
-            _camera = new Camera(new Vector3(5,5,1), new Vector3(0,0,0));
+            _camera = new Camera(new Vector3(15,-15,12), new Vector3(0,0,0));
         }
 
         public void Load(ContentManager contentManager)
@@ -142,7 +142,7 @@ namespace HelperSuite.Logic
         
         public void Update(GameTime gameTime)
         {
-            if(!GameStats.UIWasClicked)
+            if(!GameStats.UIWasUsed)
             MouseEvents(_camera, ref modelPosition);      
         }
 

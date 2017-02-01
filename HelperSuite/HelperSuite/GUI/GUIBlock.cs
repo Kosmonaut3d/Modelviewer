@@ -34,7 +34,7 @@ namespace HelperSuite.HelperSuite.GUI
 
         public override void ParentResized(Vector2 dimensions)
         {
-            Position = GUICanvas.UpdateAlignment(Alignment, dimensions, Dimensions, Position);
+            Position = GUICanvas.UpdateAlignment(Alignment, dimensions, Dimensions, Position, OffsetPosition);
         }
 
         public override int Layer { get; set; }

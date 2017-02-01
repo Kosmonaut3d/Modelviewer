@@ -1,15 +1,12 @@
 /outputDir:Content/Runtime/Textures
 
-/reference:MGSkinnedAnimationAux.dll
-/reference:MGSkinnedAnimationPipeline.dll
-
 /importer:FbxImporter
-/processor:AnimationProcessor
+/processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
 /processorParam:ColorKeyEnabled=True
 /processorParam:DefaultEffect=BasicEffect
 /processorParam:GenerateMipmaps=False
-/processorParam:GenerateTangentFrames=True
+/processorParam:GenerateTangentFrames=False
 /processorParam:PremultiplyTextureAlpha=False
 /processorParam:PremultiplyVertexColors=True
 /processorParam:ResizeTexturesToPowerOfTwo=False

@@ -3,8 +3,9 @@
     public static class GameStats
     {
         public static double fps_avg;
-        public static bool UIWasClicked = false;
+        public static bool UIWasUsed = false;
+        public static bool UIElementEngaged = false;
 
-        public static string Version = "Version 0.3";
+        public static string Version = "Version 0.41";
     }
 }

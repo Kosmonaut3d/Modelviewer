@@ -1,11 +1,11 @@
 ﻿using System.Text;
 using HelperSuite.HelperSuite.GUI;
-using HelperSuite.HelperSuite.GUIRenderer.Helper;
 using HelperSuite.HelperSuite.Static;
 using HelperSuite.Logic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using ModelViewer.HelperSuite.GUIRenderer.Helper;
 
 namespace HelperSuite.HelperSuite.GUIRenderer
 {
@@ -13,7 +13,7 @@ namespace HelperSuite.HelperSuite.GUIRenderer
     {
         private GraphicsDevice _graphicsDevice;
         private SpriteBatch _spriteBatch;
-        private QuadRenderer _quadRenderer;
+        private QuadRendererColor _quadRendererColor;
 
         public Vector2 Resolution;
 
@@ -41,7 +41,7 @@ namespace HelperSuite.HelperSuite.GUIRenderer
             _graphicsDevice = graphicsDevice;
             _spriteBatch = new SpriteBatch(graphicsDevice);
 
-            _quadRenderer = new QuadRenderer();
+            _quadRendererColor = new QuadRendererColor();
 
             Resolution = new Vector2(GameSettings.g_ScreenWidth, GameSettings.g_ScreenHeight);
 

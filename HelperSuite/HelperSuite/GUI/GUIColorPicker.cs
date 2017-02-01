@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Reflection;
 using System.Text;
-using HelperSuite.HelperSuite.GUIRenderer.Helper;
 using HelperSuite.HelperSuite.Static;
 using HelperSuite.Logic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ModelViewer.HelperSuite.GUIRenderer.Helper;
 
 namespace HelperSuite.HelperSuite.GUI
 {
     class GUIColorPicker : GUIBlock
     {
-
+        protected bool IsEngaged = false;
+        
         public PropertyInfo ToggleProperty;
         public FieldInfo ToggleField;
         public Object ToggleObject;
@@ -80,6 +81,15 @@ namespace HelperSuite.HelperSuite.GUI
 
         public override void Update(GameTime gameTime, Vector2 mousePosition, Vector2 parentPosition)
         {
+            if (GameStats.UIElementEngaged && !IsEngaged) return;
+
+            //Break Engagement
+            if (IsEngaged && !Input.IsLMBPressed())
+            {
+                GameStats.UIElementEngaged = false;
+                IsEngaged = false;
+            }
+
             if (!Input.IsLMBPressed()) return;
 
             Vector2 bound1 = Position + parentPosition + Vector2.One*border;
@@ -88,19 +98,32 @@ namespace HelperSuite.HelperSuite.GUI
             float xcoord = (mousePosition.X - bound1.X)/(bound2.X - bound1.X);
             float ycoord = (mousePosition.Y - bound1.Y )/ (bound2.Y - bound1.Y);
 
-            if (xcoord >= 0 && xcoord <=1 && ycoord >= 0 && ycoord <=1)
+            if (!IsEngaged)
             {
-                GameStats.UIWasClicked = true;
+                if (xcoord >= 0 && xcoord <= 1 && ycoord >= 0 && ycoord <= 1)
+                {
+                    IsEngaged = true;
+                    GameStats.UIElementEngaged = true;
+                }
+            }
+
+            if(IsEngaged)
+            {
+                xcoord = MathHelper.Clamp(xcoord, -0.01f, 1);
+                ycoord = MathHelper.Clamp(ycoord, -0.01f, 1.01f);
+
+                GameStats.UIWasUsed = true;
 
                 Color? output = null;
                 //Get Color!
 
-                if (xcoord >= 0.85f)
+                if (xcoord >= 0.85f && xcoord <0.99f)
                 {
 
                     float sixth = 1.0f/6;
 
-                    if (ycoord <= sixth)
+                    if(ycoord <= 0) { }
+                    else if (ycoord <= sixth)
                     {
                         output = Color.Lerp(Color.Red, Color.Violet, ycoord/sixth);
                     }
@@ -120,21 +143,23 @@ namespace HelperSuite.HelperSuite.GUI
                     {
                         output = Color.Lerp(Color.Lime, Color.Yellow, (ycoord - sixth*4)/sixth);
                     }
-                    else if (ycoord <= sixth*6)
+                    else if (ycoord <= 1)
                     {
                         output = Color.Lerp(Color.Yellow, Color.Red, (ycoord - sixth*5)/sixth);
                     }
 
-                    if (output != null) CurrentFullColor = (Color) output;
-
-                    _mousePointerFull = mousePosition - Position - parentPosition;
+                    if (output != null)
+                    {
+                        CurrentFullColor = (Color) output;
+                        _mousePointerFull = mousePosition - Position - parentPosition;
+                    }
                 }
                 else
                 {
                     xcoord /= 0.75f;
                     ycoord /= 0.75f;
 
-                    if (ycoord <= 1.05f && xcoord <= 1.05f)
+                    if (ycoord <= 1.05f && xcoord <= 1.05f && xcoord >= 0 && ycoord >= 0)
                     {
                         _mouseFineX = xcoord;
                         _mouseFineY = ycoord;
@@ -143,6 +168,15 @@ namespace HelperSuite.HelperSuite.GUI
 
                         _mousePointerFine = mousePosition - Position - parentPosition;
                     }
+                    //if (ycoord <= 1.05f && ycoord <= 1.05f)
+                    //{
+                    //    _mouseFineX = xcoord;
+                    //    _mouseFineY = ycoord;
+
+                    //    output = CurrentFullColor;
+
+                    //    _mousePointerFine = mousePosition - Position - parentPosition;
+                    //}
 
 
                 }

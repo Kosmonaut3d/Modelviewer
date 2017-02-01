@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Text;
 using Microsoft.Xna.Framework;
 
-namespace HelperSuite.HelperSuite.GUIRenderer.Helper //StringBuilderII
+namespace ModelViewer.HelperSuite.GUIRenderer.Helper //StringBuilderII
 {
     /// <summary> 
     /// 

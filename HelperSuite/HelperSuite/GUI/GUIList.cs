@@ -23,6 +23,7 @@ namespace HelperSuite.HelperSuite.GUI
             DefaultDimensions = defaultDimensions;
             Alignment = alignment;
             Position = position;
+            OffsetPosition = position;
             Layer = layer;
             if (Alignment != GUIStyle.GUIAlignment.None)
             {
@@ -55,7 +56,7 @@ namespace HelperSuite.HelperSuite.GUI
             //    child.ParentResized(ElementDimensions);
             //}
 
-            Position = GUICanvas.UpdateAlignment(Alignment, parentDimensions, DefaultDimensions, Position);
+            Position = GUICanvas.UpdateAlignment(Alignment, parentDimensions, DefaultDimensions, Position, OffsetPosition);
         }
         
 

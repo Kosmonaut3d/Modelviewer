@@ -64,7 +64,7 @@ namespace HelperSuite.HelperSuite.GUI
                 mousePosition.Y < bound2.Y)
             {
                 Toggle = !Toggle;
-                GameStats.UIWasClicked = true;
+                GameStats.UIWasUsed = true;
 
                 if (ToggleObject != null)
                 {

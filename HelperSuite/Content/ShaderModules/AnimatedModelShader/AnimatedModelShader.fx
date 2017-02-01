@@ -48,13 +48,14 @@ Texture2D<float4> NormalMap;
 Texture2D<float4> AlbedoMap;
 Texture2D<float4> MetallicMap;
 Texture2D<float4> RoughnessMap;
+Texture2D<float4> DepthMap;
 
 Texture2D<float4> FresnelMap;
 TextureCube<float4> EnvironmentMap;
 
 sampler TextureSampler
 {
-	Texture = (Texture);
+	Texture = <AlbedoMap>;
 	Filter = Anisotropic;
 	MaxAnisotropy = 8;
 	AddressU = Wrap;
@@ -67,6 +68,17 @@ SamplerState FresnelSampler = sampler_state
 	MinFilter = LINEAR;
 	MagFilter = LINEAR; 
 	Mipfilter = LINEAR;
+
+	AddressU = Clamp;
+	AddressV = Clamp;
+};
+
+SamplerState DepthSampler = sampler_state
+{
+	Texture = <FresnelMap>;
+	MinFilter = POINT;
+	MagFilter = POINT;
+	Mipfilter = POINT;
 
 	AddressU = Clamp;
 	AddressV = Clamp;
@@ -89,6 +101,12 @@ struct VertexShaderInput
 {
 	float4 Position : POSITION0;
 	float3 Normal   : NORMAL0;
+	float2 TexCoord : TEXCOORD0;
+};
+
+struct NoNormal_VertexShaderInput
+{
+	float4 Position : POSITION0;
 	float2 TexCoord : TEXCOORD0;
 };
 
@@ -141,9 +159,17 @@ struct VertexShaderOutput
 	float3 WorldPosition : TEXCOORD2;
 }; 
 
+struct NoNormal_VertexShaderOutput
+{
+	float4 Position : SV_POSITION;
+	float2 TexCoord : TEXCOORD0;
+	float3 WorldPosition : TEXCOORD2;
+};
+
 struct Depth_VertexShaderOutput
 {
 	float4 Position : SV_POSITION;
+	float3 ViewPosition : POSITION1;
 	float Depth : DEPTH;
 };
 
@@ -226,15 +252,17 @@ VertexShaderOutput Unskinned_VertexShaderFunction(VertexShaderInput input)
 	return output;
 }
 
-Depth_VertexShaderOutput UnskinnedDepth_VertexShaderFunction(Depth_VertexShaderInput input)
+NoNormal_VertexShaderOutput NoNormal_Unskinned_VertexShaderFunction(NoNormal_VertexShaderInput input)
 {
-	Depth_VertexShaderOutput output;
+	NoNormal_VertexShaderOutput output;
 
 	float4 WorldPosition = mul(input.Position, World);
+	output.WorldPosition = WorldPosition.xyz;
 	output.Position = mul(WorldPosition, ViewProj);
-	output.Depth = mul(WorldPosition, View).z /-FarClip;
+	output.TexCoord = input.TexCoord;
 	return output;
 }
+
 
 Normal_VertexShaderOutput UnskinnedNormalMapped_VertexShaderFunction(Normal_VertexShaderInput input)
 {
@@ -268,17 +296,6 @@ VertexShaderOutput Skinned_VertexShaderFunction(SkinnedVertexShaderInput input)
 	return output;
 }
 
-Depth_VertexShaderOutput SkinnedDepth_VertexShaderFunction(Depth_SkinnedVertexShaderInput input)
-{
-	Depth_VertexShaderOutput output;
-
-	SkinWorld(input, 4);
-
-	float4 WorldPosition = mul(input.Position, World);
-	output.Position = mul(WorldPosition, ViewProj);
-	output.Depth = mul(WorldPosition, View).z / -FarClip;
-	return output;
-}
 
 Normal_VertexShaderOutput SkinnedNormalMapped_VertexShaderFunction(SkinnedNormal_VertexShaderInput input)
 {
@@ -296,6 +313,32 @@ Normal_VertexShaderOutput SkinnedNormalMapped_VertexShaderFunction(SkinnedNormal
 	output.TexCoord = input.TexCoord;
 	
 	//output.WorldPosition = WorldPos.xyz;
+	return output;
+}
+
+Depth_VertexShaderOutput UnskinnedDepth_VertexShaderFunction(Depth_VertexShaderInput input)
+{
+	Depth_VertexShaderOutput output;
+
+	float4 WorldPosition = mul(input.Position, World);
+	output.Position = mul(WorldPosition, ViewProj);
+	float4 viewPosition = mul(WorldPosition, View);
+	output.Depth = viewPosition.z / -FarClip;
+	output.ViewPosition = viewPosition.xyz / viewPosition.w;
+	return output;
+}
+
+Depth_VertexShaderOutput SkinnedDepth_VertexShaderFunction(Depth_SkinnedVertexShaderInput input)
+{
+	Depth_VertexShaderOutput output;
+
+	SkinWorld(input, 4);
+
+	float4 WorldPosition = mul(input.Position, World);
+	output.Position = mul(WorldPosition, ViewProj);
+	float4 viewPosition = mul(WorldPosition, View);
+	output.Depth = viewPosition.z / -FarClip;
+	output.ViewPosition = viewPosition.xyz / viewPosition.w;
 	return output;
 }
 
@@ -322,18 +365,6 @@ float4 Lighting(LightingParams input)
 
 	float f0 = lerp(0.04f, color.g * 0.25 + 0.75, metallic);
 
-	//float NdL = /*saturate((dot(normal, lightVector) + 0.5f) / 1.5f);*/saturate(dot(normal, lightVector));
-	//float3 diffuseLight = 0;
-	//[branch]
-	//if (metallic < 0.99)
-	//{
-	//	//diffuseLight = DiffuseOrenNayar(NdL, normal, lightVector, -cameraDirection, lightIntensity, lightColor, roughness); //NdL * lightColor.rgb;
-	//	diffuseLight = NdL*0;
-	//}
-	//float3 specularLight = float3(0,0,0);// SpecularCookTorrance(NdL, normal, lightVector, -viewDir, lightIntensity, lightColor, f0, roughness);
-
-	//diffuseLight = (diffuseLight * (1 - f0)); //* (1 - f0)) * (f0 + 1) * (f0 + 1);
-
 	float2 fresnelFactor = FresnelMap.Sample(FresnelSampler, float2(roughness, 1-dot(-viewDir, normal))).rg;
 
 	float3 reflectVector = -reflect(-viewDir, normal);
@@ -356,20 +387,17 @@ float4 Lighting(LightingParams input)
 	if (UseLinear) metalFinal = pow(abs(metalFinal), 0.45454545f);
 
 	float3 finalValue = lerp(plasticFinal, metalFinal, metallic);
-/*
-	if (UseLinear) finalValue = pow(abs(finalValue), 0.45454545f);
-*/
+
 	return float4(finalValue, 1);
 }
 
 float4 PixelShaderFunction(VertexShaderOutput input) : SV_TARGET0
 {
 	float3 normal = input.Normal;
-	///*input.WorldToTangentSpace[2];*/GetNormalMap(input.TexCoord);
-	////normal = normalize(mul(normal, input.WorldToTangentSpace));
+
 	float sampleLevel = AlbedoMap.CalculateLevelOfDetail(TextureSampler, input.TexCoord);
 
-	float4 albedo = AlbedoColor;//AlbedoMap.Sample(TextureSampler, input.TexCoord);
+	float4 albedo = AlbedoColor;
 
 	[branch]
 	if (UseAlbedoMap)
@@ -403,11 +431,24 @@ float4 PixelShaderFunction(VertexShaderOutput input) : SV_TARGET0
 	return Lighting(renderParams);
 }
 
+float4 NoNormal_PixelShaderFunction(NoNormal_VertexShaderOutput input) : SV_TARGET0
+{
+	float3 normal = normalize(cross(ddy(input.WorldPosition.xyz), ddx(input.WorldPosition.xyz)));
+
+	VertexShaderOutput output;
+	output.WorldPosition = input.WorldPosition;
+	output.Position = input.Position;
+	output.Normal = normal;
+	output.TexCoord = input.TexCoord;
+
+	return PixelShaderFunction(output);
+}
+
 float4 TangentSpace_PixelShaderFunction(Normal_VertexShaderOutput input) : SV_TARGET0
 {
 	float sampleLevel = AlbedoMap.CalculateLevelOfDetail(TextureSampler, input.TexCoord);
 
-	float4 albedo = AlbedoColor;//AlbedoMap.Sample(TextureSampler, input.TexCoord);
+	float4 albedo = AlbedoColor;
 
 	[branch]
 	if (UseAlbedoMap)
@@ -437,7 +478,6 @@ float4 TangentSpace_PixelShaderFunction(Normal_VertexShaderOutput input) : SV_TA
 
 	renderParams.Color = albedo;
 	renderParams.Normal = normal;
-	////renderParams.Depth = input.Depth;
 	renderParams.Metallic = metallic;
 	renderParams.Roughness = roughness;
 	renderParams.WorldPosition = input.WorldPosition;
@@ -447,12 +487,23 @@ float4 TangentSpace_PixelShaderFunction(Normal_VertexShaderOutput input) : SV_TA
 
 float4 Depth_PixelShaderFunction(Depth_VertexShaderOutput input) : SV_TARGET
 {
-	return float4(input.Depth,0,0,0);
+	float3 normal = normalize(cross(ddy(input.ViewPosition), ddx(input.ViewPosition)));
+	normal = (normal + float3(1, 1, 1)) * 0.5f;
+	return float4(input.Depth, normal);// float4(normal.xyz, input.Depth);
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Techniques
+
+technique NoNormal_Unskinned
+{
+	pass Pass1
+	{
+		VertexShader = compile vs_5_0 NoNormal_Unskinned_VertexShaderFunction();
+		PixelShader = compile ps_5_0 NoNormal_PixelShaderFunction();
+	}
+}
 
 technique Unskinned
 {
