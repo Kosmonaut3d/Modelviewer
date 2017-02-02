@@ -24,6 +24,8 @@ namespace ModelViewer.Renderer
 
         private RenderTarget2D _linearDepthTarget;
         private RenderTarget2D _ambientOcclusionTarget;
+        private RenderTarget2D _ambientOcclusionBlur0;
+        private RenderTarget2D _ambientOcclusionBlur1;
         private DepthStencilState _stencilWriteOnly;
         private DepthStencilState _stencilReadOnly;
         private BlendState _blendNoColorWrite;
@@ -31,7 +33,9 @@ namespace ModelViewer.Renderer
         private int _aoSamples;
         private float _aoRadii;
         private float _aoStrength;
-
+        private bool _aoEnable;
+        private bool _aoUseBlur;
+        private bool _aoHalfRes;
 
         private Texture2D rollTexture2D;
         private TextureCube skyboxCube;
@@ -225,7 +229,13 @@ namespace ModelViewer.Renderer
                     }
 
                     _graphics.BlendState = BlendState.Opaque;
-                    _ambientOcclusionShader.Draw();
+                    _ambientOcclusionShader.DrawAmbientOcclusion();
+
+                    if (GameSettings.ao_UseBlur)
+                    {
+                        _ambientOcclusionShader.BlurAmbientOcclusion(_ambientOcclusionTarget, _ambientOcclusionBlur0, _ambientOcclusionBlur1);
+
+                    }
                 }
 
                 _graphics.SetRenderTarget(null);
@@ -247,6 +257,12 @@ namespace ModelViewer.Renderer
             }
             else
             {
+                if (GameSettings.ao_Enable)
+                {
+                    _graphics.SetRenderTarget(GameSettings.ao_UseBlur ? _ambientOcclusionBlur1 : _ambientOcclusionTarget);
+                    _graphics.Clear(Color.White);
+                }
+
                 _graphics.SetRenderTarget(null);
                 _graphics.BlendState = BlendState.Opaque;
                 _graphics.Clear(Color.White);
@@ -266,8 +282,8 @@ namespace ModelViewer.Renderer
             }
             if (GameSettings.r_DrawAoMap)
             {
-                _spriteBatch.Begin();
-                _spriteBatch.Draw(_ambientOcclusionTarget, new Rectangle(0, 0, GameSettings.g_ScreenWidth, GameSettings.g_ScreenHeight), Color.White);
+                _spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Opaque, SamplerState.PointClamp);
+                _spriteBatch.Draw(GameSettings.ao_UseBlur ? _ambientOcclusionBlur0 : _ambientOcclusionTarget, new Rectangle(0, 0, GameSettings.g_ScreenWidth, GameSettings.g_ScreenHeight), Color.White);
                 _spriteBatch.End();
             }
 
@@ -292,6 +308,21 @@ namespace ModelViewer.Renderer
             {
                 _aoStrength = GameSettings.ao_Strength;
                 _ambientOcclusionShader.SampleStrength = _aoStrength;
+            }
+            if (GameSettings.ao_Enable != _aoEnable)
+            {
+                _aoEnable = GameSettings.ao_Enable;
+                _animatedModelShader.UseAo = _aoEnable;
+            }
+            if (GameSettings.ao_UseBlur != _aoUseBlur)
+            {
+                _aoUseBlur = GameSettings.ao_UseBlur;
+                _animatedModelShader.AoMap = _aoUseBlur ? _ambientOcclusionBlur1 : _ambientOcclusionTarget;
+            }
+            if (GameSettings.ao_HalfRes != _aoHalfRes)
+            {
+                _aoHalfRes = GameSettings.ao_HalfRes;
+                UpdateAOTarget();
             }
         }
 
@@ -357,24 +388,39 @@ namespace ModelViewer.Renderer
             //Shaders.deferredEnvironmentParameter_FrustumCorners.SetValue(_currentFrustumCorners);
         }
 
+        public void UpdateAOTarget()
+        {
+            if(_ambientOcclusionTarget!=null) _ambientOcclusionTarget.Dispose();
+
+            int halfWidth = GameSettings.ao_HalfRes ? GameSettings.g_ScreenWidth / 2 : GameSettings.g_ScreenWidth;
+            int halfHeight = GameSettings.ao_HalfRes ? GameSettings.g_ScreenHeight/2 : GameSettings.g_ScreenHeight;
+
+            _ambientOcclusionShader.Resolution = new Vector2(halfWidth, halfHeight);
+            _ambientOcclusionTarget = new RenderTarget2D(_graphics, halfWidth, halfHeight, false, SurfaceFormat.Vector4, DepthFormat.Depth24Stencil8);
+
+            _animatedModelShader.AoMap = _aoUseBlur ? _ambientOcclusionBlur1 : _ambientOcclusionTarget;
+        }
+
         public void UpdateRenderTargets()
         {
             if (_linearDepthTarget != null)
             {
                 _linearDepthTarget.Dispose();
-                _ambientOcclusionTarget.Dispose();
+                _ambientOcclusionBlur0.Dispose();
+                _ambientOcclusionBlur1.Dispose();
             }
 
-            int width = GameSettings.g_ScreenWidth;
-            int height = GameSettings.g_ScreenHeight;
-            
+            UpdateAOTarget();
+
+            int width = GameSettings.g_ScreenWidth ;
+            int height = GameSettings.g_ScreenHeight ;
+
             _linearDepthTarget = new RenderTarget2D(_graphics, width, height, false, SurfaceFormat.Vector4, DepthFormat.Depth24);
             
             _ambientOcclusionShader.DepthMap = _linearDepthTarget;
-            _ambientOcclusionShader.Resolution = new Vector2(width, height);
 
-            _ambientOcclusionTarget = new RenderTarget2D(_graphics, width, height, false, SurfaceFormat.Vector4, DepthFormat.Depth24Stencil8);
-
+            _ambientOcclusionBlur0 = new RenderTarget2D(_graphics, width, height, false, SurfaceFormat.Vector4, DepthFormat.None);
+            _ambientOcclusionBlur1 = new RenderTarget2D(_graphics, width, height, false, SurfaceFormat.Vector4, DepthFormat.None);
         }
     }
 }

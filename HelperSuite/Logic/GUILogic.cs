@@ -204,7 +204,7 @@ namespace ModelViewer.Logic
                     _aoRadiiBlock =
                         new GUITextBlock(Vector2.Zero, new Vector2(200, 35), "AO Radius: " + GameSettings.ao_Radii,
                             GUIRenderer.MonospaceFont, Color.Gray, Color.White));
-                aoList.AddElement(new GuiSliderFloat(Vector2.Zero, new Vector2(200, 35), 0, 4, Color.Gray, Color.Black)
+                aoList.AddElement(new GuiSliderFloat(Vector2.Zero, new Vector2(200, 35), 0, 8, Color.Gray, Color.Black)
                 {
                     SliderField = typeof(GameSettings).GetField("ao_Radii"),
                     SliderValue = (float)typeof(GameSettings).GetField("ao_Radii").GetValue(null)
@@ -230,6 +230,18 @@ namespace ModelViewer.Logic
                 {
                     SliderField = typeof(GameSettings).GetField("ao_Strength"),
                     SliderValue = (float)typeof(GameSettings).GetField("ao_Strength").GetValue(null)
+                });
+
+                aoList.AddElement(new GUITextBlockToggle(Vector2.Zero, new Vector2(200, 35), "Blur AO", GUIRenderer.MonospaceFont, Color.Gray, Color.White)
+                {
+                    ToggleField = typeof(GameSettings).GetField("ao_UseBlur"),
+                    Toggle = (bool)typeof(GameSettings).GetField("ao_UseBlur").GetValue(null)
+                });
+
+                aoList.AddElement(new GUITextBlockToggle(Vector2.Zero, new Vector2(200, 35), "Half resolution", GUIRenderer.MonospaceFont, Color.Gray, Color.White)
+                {
+                    ToggleField = typeof(GameSettings).GetField("ao_HalfRes"),
+                    Toggle = (bool)typeof(GameSettings).GetField("ao_HalfRes").GetValue(null)
                 });
 
             }

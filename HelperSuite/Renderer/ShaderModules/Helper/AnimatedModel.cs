@@ -261,7 +261,8 @@ namespace ModelViewer.Renderer.ShaderModules.Helper
 
             if(!hasNormals) pass = AnimatedModelShader.EffectPasses.NoNormalUnskinned;
 
-            if (!hasTexCoords) pass = AnimatedModelShader.EffectPasses.NoNormalNoTexUnskinned;
+            if (!hasTexCoords)
+                pass = AnimatedModelShader.EffectPasses.NoNormalNoTexUnskinned;
 
             _skinnedShader.DrawMesh(model, world, view, viewProjection, cameraPosition, pass, null);
 

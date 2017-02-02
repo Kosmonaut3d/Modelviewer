@@ -25,8 +25,7 @@ float2 InverseResolution = float2(1.0f / 1280.0f, 1.0f / 800.0f);
 
 float3 FrustumCorners[4]; //In Viewspace!
 
-Texture2D NormalMap;
-Texture2D SSAOMap;
+Texture2D TargetMap;
 Texture2D DepthMap;
 
 int Samples = 8;
@@ -44,8 +43,9 @@ SamplerState texSampler
 	Mipfilter = POINT;
 };
 
-SamplerState blurSamplerPoint
+SamplerState PointSampler
 {
+	Texture = <TargetMap>;
 	AddressU = CLAMP;
 	AddressV = CLAMP;
 	MagFilter = POINT;
@@ -53,8 +53,9 @@ SamplerState blurSamplerPoint
 	Mipfilter = POINT;
 };
 
-SamplerState blurSamplerLinear
+SamplerState LinearSampler
 {
+	Texture = <TargetMap>;
 	AddressU = CLAMP;
 	AddressV = CLAMP;
 	MagFilter = LINEAR;
@@ -286,7 +287,7 @@ float4 PixelShaderFunction(VertexShaderOutput input) : SV_Target
 		float sampleVecLength;
 		float sampleAngle;
 
-		[unroll]
+		[loop]
 		for (int b = 1; b <= searchSteps; b++)
 		{
 			sampleVec = getPosition(texCoord + kernelVector * b / searchSteps) - currentPos;
@@ -307,7 +308,7 @@ float4 PixelShaderFunction(VertexShaderOutput input) : SV_Target
 
 		}
 
-		[unroll]
+		[loop]
 		for (int b = 1; b <= searchSteps; b++)
 		{
 			sampleVec = getPosition(texCoord - kernelVector * b / searchSteps) - currentPos;
@@ -342,22 +343,21 @@ float4 PixelShaderFunction(VertexShaderOutput input) : SV_Target
 
 	amount = saturate(0.5f + diff);
 	*/
-	return float4(amount, amount, amount, 1);
+	return float4(amount, linearDepth, amount, 1);
 }
 
 
 
 float4 BilateralBlurVertical(VertexShaderOutputBlur input) : SV_TARGET
 {
-		const uint numSamples = 9;
-	const float texelsize = InverseResolution.x;
+	const uint numSamples = 9;
+	const uint centerSample = 5;
 	const float samplerOffsets[numSamples] =
 	{ -4.0f, -3.0f, -2.0f, -1.0f, 0.0f, 1.0f, 2.0f, 3.0f, 4.0f };
 	const float gaussianWeights[numSamples] =
 	{
 		0.055119, 0.081029, 0.106701, 0.125858, 0.13298, 0.125858, 0.106701, 0.081029, 0.055119
 	};
-
 	const uint numSamples2 = 4;
 	const float samplerOffsets2[numSamples2] =
 	{ -7.5f, -5.5f, 5.5f, 7.5f };
@@ -366,21 +366,32 @@ float4 BilateralBlurVertical(VertexShaderOutputBlur input) : SV_TARGET
 		0.012886, 0.051916, 0.051916, 0.012886,
 	};
 
-	float compareDepth = DepthMap.Sample(texSampler, input.TexCoord).r;
+	//Store depth in g
+	float2 centerStruct = TargetMap.SampleLevel(PointSampler, input.TexCoord, 0).rg;
+	float centerValue = centerStruct.r;
+	//float centerDepth = centerStruct.g;
+	float centerDepth = DepthMap.SampleLevel(PointSampler, input.TexCoord, 0).r;
 
-	float4 result = 0;
-	float weightSum = 0.0f;
+	//fullres
+	float texelsize = InverseResolution.x;
+
+	float weightSum = gaussianWeights[centerSample];
+	float result = centerValue * weightSum;
+
 	[unroll]
 	for (uint i = 0; i < numSamples; ++i)
 	{
+		//Do not compute for mid sample
+		if (i == centerSample) continue;
+
 		float2 sampleOffset = float2(texelsize * samplerOffsets[i],0);
 		float2 samplePos = input.TexCoord + sampleOffset;
 
-		float sampleDepth = DepthMap.Sample(texSampler, samplePos).r;
+		float2 sampleStruct = TargetMap.SampleLevel(PointSampler, samplePos, 0).rg;
 
-		float weight = (1.0f / (0.0001f + abs(compareDepth - sampleDepth))) * gaussianWeights[i];
+		float weight = (1.0f / (0.0001f + abs(centerDepth - sampleStruct.g))) * gaussianWeights[i];
 
-		result += SSAOMap.Sample(blurSamplerPoint, samplePos) * weight;
+		result += sampleStruct.r * weight;
 
 		weightSum += weight;
 	}
@@ -391,32 +402,31 @@ float4 BilateralBlurVertical(VertexShaderOutputBlur input) : SV_TARGET
 		float2 sampleOffset = float2(texelsize * samplerOffsets2[j],0);
 		float2 samplePos = input.TexCoord + sampleOffset;
 
-		float sampleDepth = DepthMap.Sample(texSampler, samplePos).r;
+		float2 sampleStruct = TargetMap.SampleLevel(LinearSampler, samplePos, 0).rg;
 
-		float weight = (1.0f / (0.0001f + abs(compareDepth - sampleDepth))) * gaussianWeights2[j];
+		float weight = (1.0f / (0.0001f + abs(centerDepth - sampleStruct.g))) * gaussianWeights2[j];
 
-		result += SSAOMap.Sample(blurSamplerLinear, samplePos, 0) * weight;
+		result += sampleStruct.r * weight;
 
 		weightSum += weight;
-
 	}
 
 	result /= weightSum;
 
-	return result;
+	return float4(result, centerDepth, 0, 0);
 }
+
 
 float4 BilateralBlurHorizontal(VertexShaderOutputBlur input) : SV_TARGET
 {
-		const uint numSamples = 9;
-	const float texelsize = InverseResolution.y;
+	const uint numSamples = 9;
+	const uint centerSample = 5;
 	const float samplerOffsets[numSamples] =
 	{ -4.0f, -3.0f, -2.0f, -1.0f, 0.0f, 1.0f, 2.0f, 3.0f, 4.0f };
 	const float gaussianWeights[numSamples] =
 	{
-		0.055119, 0.081029,0.106701, 0.125858, 0.13298, 0.125858,0.106701,0.081029, 0.055119
+		0.055119, 0.081029, 0.106701, 0.125858, 0.13298, 0.125858, 0.106701, 0.081029, 0.055119
 	};
-
 	const uint numSamples2 = 4;
 	const float samplerOffsets2[numSamples2] =
 	{ -7.5f, -5.5f, 5.5f, 7.5f };
@@ -425,46 +435,56 @@ float4 BilateralBlurHorizontal(VertexShaderOutputBlur input) : SV_TARGET
 		0.012886, 0.051916, 0.051916, 0.012886,
 	};
 
-	float compareDepth = DepthMap.Sample(texSampler, input.TexCoord).r;
+	//Store depth in g
+	float2 centerStruct = TargetMap.SampleLevel(PointSampler, input.TexCoord, 0).rg;
+	float centerValue = centerStruct.r;
+	//float centerDepth = centerStruct.g;
+	float centerDepth = DepthMap.SampleLevel(PointSampler, input.TexCoord, 0).r;
 
-	float4 result = 0;
-	float weightSum = 0.0f;
+	//fullres
+	float texelsize = InverseResolution.y * 0.5f ;
+
+	float weightSum = gaussianWeights[centerSample];
+	float result = centerValue * weightSum;
+
 	[unroll]
 	for (uint i = 0; i < numSamples; ++i)
 	{
-		float2 sampleOffset = float2(0.0f, texelsize * samplerOffsets[i]);
+		//Do not compute for mid sample
+		if (i == centerSample) continue;
+
+		float2 sampleOffset = float2(0,texelsize * samplerOffsets[i]);
 		float2 samplePos = input.TexCoord + sampleOffset;
 
-		float sampleDepth = DepthMap.Sample(texSampler, samplePos).r;
+		float2 sampleStruct = TargetMap.SampleLevel(PointSampler, samplePos, 0).rg;
 
-		float weight = (1.0f / (0.0001f + abs(compareDepth - sampleDepth))) * gaussianWeights[i];
+		float weight = (1.0f / (0.0001f + abs(centerDepth - sampleStruct.g))) * gaussianWeights[i];
 
-		result += SSAOMap.Sample(blurSamplerPoint, samplePos) * weight;
+		result += sampleStruct.r * weight;
 
 		weightSum += weight;
-
 	}
 
 	[unroll]
 	for (uint j = 0; j < numSamples2; ++j)
 	{
-		float2 sampleOffset = float2(0.0f, texelsize * samplerOffsets2[j]);
+		float2 sampleOffset = float2(0,texelsize * samplerOffsets2[j]);
 		float2 samplePos = input.TexCoord + sampleOffset;
 
-		float sampleDepth = DepthMap.SampleLevel(texSampler, samplePos, 0).r;
+		float2 sampleStruct = TargetMap.SampleLevel(LinearSampler, samplePos, 0).rg;
 
-		float weight = (1.0f / (0.0001f + abs(compareDepth - sampleDepth))) * gaussianWeights2[j];
+		float weight = (1.0f / (0.0001f + abs(centerDepth - sampleStruct.g))) * gaussianWeights2[j];
 
-		result += SSAOMap.Sample(blurSamplerLinear, samplePos) * weight;
+		result += sampleStruct.r * weight;
 
 		weightSum += weight;
-
 	}
 
 	result /= weightSum;
 
-	return result;
+	return float4(result, centerDepth, 0, 0);
 }
+
 
 
 technique SSAO

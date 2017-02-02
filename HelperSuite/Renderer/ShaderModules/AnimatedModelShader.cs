@@ -48,6 +48,8 @@ namespace ModelViewer.Renderer.ShaderModules
         private EffectParameter _useRoughnessMapParameter;
         private EffectParameter _metallicMapParameter;
         private EffectParameter _useMetallicMapParameter;
+        private EffectParameter _aoMapParameter;
+        private EffectParameter _useAoMapParameter;
 
         public EffectParameter DepthMapParameter;
 
@@ -75,6 +77,31 @@ namespace ModelViewer.Renderer.ShaderModules
                     _useLinear = value;
                     _useLinearParameter.SetValue(_useLinear);
                 } }
+        }
+
+        private Texture2D _aoMap;
+        public Texture2D AoMap
+        {
+            get { return _aoMap; }
+            set
+            {
+                if (_aoMap != value)
+                {
+                    _aoMap = value;
+                    _aoMapParameter.SetValue(_aoMap);
+                }
+            }
+        }
+
+        private bool _useAo;
+        public bool UseAo
+        {
+            get { return _useAo; }
+            set
+            {
+                _useAo = value; 
+                _useAoMapParameter.SetValue(_useAo);
+            }
         }
 
 
@@ -250,7 +277,10 @@ namespace ModelViewer.Renderer.ShaderModules
             _albedoColorParameter = _shaderEffect.Parameters["AlbedoColor"];
             _albedoMapParameter = _shaderEffect.Parameters["AlbedoMap"];
             _useAlbedoMapParameter = _shaderEffect.Parameters["UseAlbedoMap"];
-            
+
+            _aoMapParameter = _shaderEffect.Parameters["AoMap"];
+            _useAoMapParameter = _shaderEffect.Parameters["UseAo"];
+
             _environmentMapParameter = _shaderEffect.Parameters["EnvironmentMap"];
             _fresnelMapParameter = _shaderEffect.Parameters["FresnelMap"];
             

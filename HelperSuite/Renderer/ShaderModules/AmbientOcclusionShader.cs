@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using ModelViewer.Renderer.ShaderModules.Helper;
@@ -41,8 +42,11 @@ namespace ModelViewer.Renderer.ShaderModules
         private EffectParameter _sampleStrengthParameter;
 
         private EffectParameter _depthMapParameter;
-        
-        private EffectPass _ssao;
+        private EffectParameter _targetMapParameter;
+
+        private EffectPass _ssaoPass;
+        private EffectPass _blurVerticalPass;
+        private EffectPass _blurHorizontalPass;
 
         private Vector3[] _frustumCorners;
 
@@ -66,6 +70,20 @@ namespace ModelViewer.Renderer.ShaderModules
                 {
                     _depthMap = value;
                     _depthMapParameter.SetValue(_depthMap);
+                }
+            }
+        }
+
+        private Texture2D _targetMap;
+        public Texture2D TargetMap
+        {
+            get { return _targetMap; }
+            set
+            {
+                if (_targetMap != value)
+                {
+                    _targetMap = value;
+                    _targetMapParameter.SetValue(_targetMap);
                 }
             }
         }
@@ -139,8 +157,11 @@ namespace ModelViewer.Renderer.ShaderModules
             _sampleStrengthParameter = _shaderEffect.Parameters["Strength"];
 
             _depthMapParameter = _shaderEffect.Parameters["DepthMap"];
+            _targetMapParameter = _shaderEffect.Parameters["TargetMap"];
             
-            _ssao = _shaderEffect.Techniques["SSAO"].Passes[0];
+            _ssaoPass = _shaderEffect.Techniques["SSAO"].Passes[0];
+            _blurVerticalPass = _shaderEffect.Techniques["BilateralVertical"].Passes[0];
+            _blurHorizontalPass = _shaderEffect.Techniques["BilateralHorizontal"].Passes[0];
         }
 
         public void Initialize(GraphicsDevice graphicsDevice)
@@ -149,11 +170,25 @@ namespace ModelViewer.Renderer.ShaderModules
             _quadRenderer = new QuadRenderer();
         }
         
-        public void Draw()
+        public void DrawAmbientOcclusion()
         {
-            _ssao.Apply();
+            _ssaoPass.Apply();
             _quadRenderer.RenderQuad(_graphicsDevice, -Vector2.One, Vector2.One);
-           
+        }
+        
+        internal void BlurAmbientOcclusion(RenderTarget2D ao, RenderTarget2D blur0, RenderTarget2D blur1)
+        {
+            TargetMap = ao;
+
+            _graphicsDevice.SetRenderTarget(blur0);
+            _blurVerticalPass.Apply();
+            _quadRenderer.RenderQuad(_graphicsDevice, -Vector2.One, Vector2.One);
+
+            _graphicsDevice.SetRenderTarget(blur1);
+            TargetMap = blur0;
+            _blurHorizontalPass.Apply();
+            _quadRenderer.RenderQuad(_graphicsDevice, -Vector2.One, Vector2.One);
+
         }
     }
 }

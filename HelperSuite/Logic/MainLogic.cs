@@ -51,7 +51,7 @@ namespace ModelViewer.Logic
 
         private void MouseEvents(Camera camera, ref Vector3 position)
         {
-            if (Input.WasKeyPressed(Keys.Space))
+            if (!DebugScreen.ConsoleOpen && Input.WasKeyPressed(Keys.Space))
             {
                 modelPosition = Vector3.Zero;
             }

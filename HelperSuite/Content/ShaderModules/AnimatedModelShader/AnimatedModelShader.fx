@@ -42,13 +42,13 @@ float4 AlbedoColor = float4(1, 1, 1, 1);
 bool UseAlbedoMap = false;
 
 bool UseLinear = true;
-
+bool UseAo = false;
 
 Texture2D<float4> NormalMap;
 Texture2D<float4> AlbedoMap;
 Texture2D<float4> MetallicMap;
 Texture2D<float4> RoughnessMap;
-Texture2D<float4> DepthMap;
+Texture2D<float4> AoMap;
 
 Texture2D<float4> FresnelMap;
 TextureCube<float4> EnvironmentMap;
@@ -73,10 +73,10 @@ SamplerState FresnelSampler
 	AddressV = Clamp;
 };
 
-SamplerState DepthSampler
+SamplerState AoSampler
 {
-	Texture = <FresnelMap>;
-	MinFilter = POINT;
+	Texture = <AoMap>;
+	MinFilter = LINEAR;
 	MagFilter = POINT;
 	Mipfilter = POINT;
 
@@ -155,8 +155,9 @@ struct VertexShaderOutput
 {
 	float4 Position : SV_POSITION;
     float3 Normal : NORMAL;
-	float2 TexCoord : TEXCOORD0;
+	float2 TexCoord : TEXCOORD1;
 	float3 WorldPosition : TEXCOORD2;
+	float4 ScreenTexCoord :TEXCOORD3;
 }; 
 
 struct NoNormal_VertexShaderOutput
@@ -164,6 +165,7 @@ struct NoNormal_VertexShaderOutput
 	float4 Position : SV_POSITION;
 	float2 TexCoord : TEXCOORD0;
 	float3 WorldPosition : TEXCOORD2;
+	float4 ScreenTexCoord :TEXCOORD3;
 };
 
 struct Depth_VertexShaderOutput
@@ -176,9 +178,10 @@ struct Depth_VertexShaderOutput
 struct Normal_VertexShaderOutput
 {
 	float4 Position : SV_POSITION0;
-	float3x3 WorldToTangentSpace : TEXCOORD3;
+	float3x3 WorldToTangentSpace : TEXCOORD4;
 	float2 TexCoord : TEXCOORD1;
 	float3 WorldPosition : TEXCOORD2;
+	float4 ScreenTexCoord : TEXCOORD3;
 	//float Depth : TEXCOORD0;
 };
 
@@ -189,6 +192,7 @@ struct LightingParams
 	float Metallic : TEXCOORD1;
 	float Roughness : TEXCOORD2;
 	float3 WorldPosition : TEXCOORD3;
+	float2 ScreenTexCoord : TeXCOORD4;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -249,6 +253,7 @@ VertexShaderOutput Unskinned_VertexShaderFunction(VertexShaderInput input)
 	output.Position = mul(WorldPosition, ViewProj);
 	output.Normal = mul(input.Normal, WorldIT).xyz;
 	output.TexCoord = input.TexCoord;
+	output.ScreenTexCoord = output.Position; /*0.5f * (float2(output.Position.x, -output.Position.y) / output.Position.w + float2(1, 1));*/
 	return output;
 }
 
@@ -260,6 +265,7 @@ NoNormal_VertexShaderOutput NoNormalNoTex_Unskinned_VertexShaderFunction(float4 
 	output.WorldPosition = WorldPosition.xyz;
 	output.Position = mul(WorldPosition, ViewProj);
 	output.TexCoord = float2(0,0);
+	output.ScreenTexCoord = output.Position;
 	return output;
 }
 
@@ -271,6 +277,7 @@ NoNormal_VertexShaderOutput NoNormal_Unskinned_VertexShaderFunction(NoNormal_Ver
 	output.WorldPosition = WorldPosition.xyz;
 	output.Position = mul(WorldPosition, ViewProj);
 	output.TexCoord = input.TexCoord;
+	output.ScreenTexCoord = output.Position;
 	return output;
 }
 
@@ -286,7 +293,8 @@ Normal_VertexShaderOutput UnskinnedNormalMapped_VertexShaderFunction(Normal_Vert
 	output.WorldToTangentSpace[0] = mul(input.Tangent, WorldIT);
 	output.WorldToTangentSpace[1] = mul(input.Binormal, WorldIT);
 	output.WorldToTangentSpace[2] = mul(input.Normal, WorldIT);
-	output.TexCoord = input.TexCoord;
+	output.TexCoord = input.TexCoord; 
+	output.ScreenTexCoord = output.Position;
 
 	//output.WorldPosition = WorldPos.xyz;
 	return output;
@@ -304,6 +312,7 @@ VertexShaderOutput Skinned_VertexShaderFunction(SkinnedVertexShaderInput input)
     output.Position = mul(WorldPosition, ViewProj);
 	output.Normal = mul(input.Normal, WorldIT).xyz;
 	output.TexCoord = input.TexCoord;
+	output.ScreenTexCoord = output.Position;
 	return output;
 }
 
@@ -322,7 +331,7 @@ Normal_VertexShaderOutput SkinnedNormalMapped_VertexShaderFunction(SkinnedNormal
 	output.WorldToTangentSpace[1] = mul(input.Binormal, WorldIT);
 	output.WorldToTangentSpace[2] = mul(input.Normal, WorldIT);
 	output.TexCoord = input.TexCoord;
-	
+	output.ScreenTexCoord = output.Position;
 	//output.WorldPosition = WorldPos.xyz;
 	return output;
 }
@@ -399,6 +408,17 @@ float4 Lighting(LightingParams input)
 
 	float3 finalValue = lerp(plasticFinal, metalFinal, metallic);
 
+	[branch]
+	if (UseAo)
+	{
+		float ao = AoMap.SampleLevel(AoSampler, input.ScreenTexCoord, 0).r;
+
+		//increase ao
+		ao = 1 - ((1 - ao) * 2);
+
+		finalValue *= ao;
+	}
+
 	return float4(finalValue, 1);
 }
 
@@ -438,6 +458,7 @@ float4 PixelShaderFunction(VertexShaderOutput input) : SV_TARGET0
 	renderParams.Metallic = metallic;
 	renderParams.Roughness = roughness;
 	renderParams.WorldPosition = input.WorldPosition;
+	renderParams.ScreenTexCoord = 0.5f * (float2(input.ScreenTexCoord.x, -input.ScreenTexCoord.y) / input.ScreenTexCoord.w + float2(1, 1));
 
 	return Lighting(renderParams);
 }
@@ -451,6 +472,7 @@ float4 NoNormal_PixelShaderFunction(NoNormal_VertexShaderOutput input) : SV_TARG
 	output.Position = input.Position;
 	output.Normal = normal;
 	output.TexCoord = input.TexCoord;
+	output.ScreenTexCoord = input.ScreenTexCoord;
 
 	return PixelShaderFunction(output);
 }
@@ -492,6 +514,7 @@ float4 TangentSpace_PixelShaderFunction(Normal_VertexShaderOutput input) : SV_TA
 	renderParams.Metallic = metallic;
 	renderParams.Roughness = roughness;
 	renderParams.WorldPosition = input.WorldPosition;
+	renderParams.ScreenTexCoord = 0.5f * (float2(input.ScreenTexCoord.x, -input.ScreenTexCoord.y) / input.ScreenTexCoord.w + float2(1, 1));
 
 	return Lighting(renderParams);
 }
