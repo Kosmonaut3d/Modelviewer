@@ -57,6 +57,7 @@ namespace ModelViewer.Renderer.ShaderModules
         private EffectParameter _metallicParameter;
 
         private EffectPass _noNormalUnskinnedPass;
+        private EffectPass _noNormalNoTexUnskinnedPass;
         private EffectPass _unskinnedNormalMappedPass;
         private EffectPass _unskinnedPass;
         private EffectPass _skinnedPass;
@@ -219,7 +220,8 @@ namespace ModelViewer.Renderer.ShaderModules
             Unskinned, UnskinnedNormalMapped, Skinned, SkinnedNormalMapped,
             SkinnedDepth,
             UnskinnedDepth,
-            NoNormalUnskinned
+            NoNormalUnskinned,
+            NoNormalNoTexUnskinned
         };
 
 
@@ -262,6 +264,7 @@ namespace ModelViewer.Renderer.ShaderModules
             _useLinearParameter = _shaderEffect.Parameters["UseLinear"];
             
             _noNormalUnskinnedPass = _shaderEffect.Techniques["NoNormal_Unskinned"].Passes[0];
+            _noNormalNoTexUnskinnedPass = _shaderEffect.Techniques["NoNormalNoTex_Unskinned"].Passes[0];
             _unskinnedPass = _shaderEffect.Techniques["Unskinned"].Passes[0];
             _unskinnedNormalMappedPass = _shaderEffect.Techniques["UnskinnedNormalMapped"].Passes[0];
 
@@ -326,6 +329,9 @@ namespace ModelViewer.Renderer.ShaderModules
             
             switch (effectPass)
             {
+                case EffectPasses.NoNormalNoTexUnskinned:
+                    _noNormalNoTexUnskinnedPass.Apply();
+                    break;
                 case EffectPasses.NoNormalUnskinned:
                     _noNormalUnskinnedPass.Apply();
                     break;

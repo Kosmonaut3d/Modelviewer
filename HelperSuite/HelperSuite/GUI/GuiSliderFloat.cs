@@ -113,6 +113,7 @@ namespace ModelViewer.HelperSuite.GUI
     {
         public int MaxValueInt = 1;
         public int MinValueInt = 0;
+        public int StepSize = 1;
 
         public int _sliderValue;
         public int SliderValue
@@ -125,10 +126,11 @@ namespace ModelViewer.HelperSuite.GUI
             }
         }
 
-        public GuiSliderInt(Vector2 position, Vector2 dimensions, int min, int max, Color color, Color sliderColor, int layer = 0, GUIStyle.GUIAlignment alignment = GUIStyle.GUIAlignment.None, Vector2 ParentDimensions = new Vector2()) : base(position, dimensions, min, max, color, sliderColor, layer, alignment, ParentDimensions)
+        public GuiSliderInt(Vector2 position, Vector2 dimensions, int min, int max, int stepSize, Color color, Color sliderColor, int layer = 0, GUIStyle.GUIAlignment alignment = GUIStyle.GUIAlignment.None, Vector2 ParentDimensions = new Vector2()) : base(position, dimensions, min, max, color, sliderColor, layer, alignment, ParentDimensions)
         {
             MaxValueInt = max;
             MinValueInt = min;
+            StepSize = stepSize;
         }
 
 
@@ -164,7 +166,9 @@ namespace ModelViewer.HelperSuite.GUI
 
                 _sliderPercent = MathHelper.Clamp((mousePosition.X - lowerx) / (upperx - lowerx), 0, 1);
 
-                _sliderValue = (int) (_sliderPercent * (float)(MaxValue - MinValue) + MinValue);
+                _sliderValue = (int) (_sliderPercent * (float)(MaxValue - MinValue) + MinValue) / StepSize * StepSize;
+
+                _sliderPercent = (float)_sliderValue/( MaxValueInt - MinValueInt);
 
                 if (SliderObject != null)
                 {

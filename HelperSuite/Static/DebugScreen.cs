@@ -26,6 +26,8 @@ namespace ModelViewer.Static
 
         private static readonly List<string> StringList = new List<string>();
         public static readonly List<StringColor> AiDebugString = new List<StringColor>();
+        
+        public Color consoleColor = Color.Coral;
 
         //private GraphicsDevice _graphicsDevice;
 
@@ -234,7 +236,6 @@ namespace ModelViewer.Static
                 
                 if (ConsoleOpen)
                 {
-                    Color consoleColor = Color.White;
                     if (_consoleErrorTimer > 0)
                     {
                         _consoleErrorTimer -= gameTime.ElapsedGameTime.Milliseconds;
@@ -255,15 +256,16 @@ namespace ModelViewer.Static
                     _consoleStringBuilder.Append(_consoleString);
                     _consoleStringBuilder.Append(ins);
                     //For console we don't care about performance
-                    _spriteBatch.DrawString(_sprFont, _consoleStringBuilder.StringBuilder
-                        ,
-                        new Vector2(10.0f, 105.0f), consoleColor);
+                    _spriteBatch.DrawString(_sprFont, _consoleStringBuilder.StringBuilder, new Vector2(11.0f, 106.0f), Color.Black);
+                    _spriteBatch.DrawString(_sprFont, _consoleStringBuilder.StringBuilder,new Vector2(10.0f, 105.0f), consoleColor);
 
                     Vector2 strLength = _sprFont.MeasureString(_consoleStringBuilder.StringBuilder);
 
                     for (int index = 0; index < _consoleStringSuggestion.Count; index++)
                     {
                         string suggestion = _consoleStringSuggestion[index];
+                        _spriteBatch.DrawString(_sprFont, suggestion,
+                            new Vector2(11.0f + strLength.X, 106.0f + strLength.Y * index), Color.Black);
                         _spriteBatch.DrawString(_sprFont, suggestion,
                             new Vector2(10.0f + strLength.X, 105.0f + strLength.Y * index), consoleColor);
                     }

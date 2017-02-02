@@ -47,6 +47,7 @@ namespace ModelViewer.Renderer.ShaderModules.Helper
 
         private bool hasSkinnedVertexType = false;
         private bool hasNormals = false;
+        private bool hasTexCoords = false;
 
         #endregion
 
@@ -122,6 +123,10 @@ namespace ModelViewer.Renderer.ShaderModules.Helper
                 else if (t.VertexElementUsage == VertexElementUsage.Normal)
                 {
                     hasNormals = true;
+                }
+                else if (t.VertexElementUsage == VertexElementUsage.TextureCoordinate)
+                {
+                    hasTexCoords = true;
                 }
             }
 
@@ -216,7 +221,7 @@ namespace ModelViewer.Renderer.ShaderModules.Helper
             //
             // Compute all of the bone absolute transforms
             //
-            if (modelExtra != null && hasSkinnedVertexType && hasNormals)
+            if (modelExtra != null && hasSkinnedVertexType && hasNormals && hasTexCoords)
             {
                 if (computeTransform)
                 {
@@ -255,6 +260,8 @@ namespace ModelViewer.Renderer.ShaderModules.Helper
             }
 
             if(!hasNormals) pass = AnimatedModelShader.EffectPasses.NoNormalUnskinned;
+
+            if (!hasTexCoords) pass = AnimatedModelShader.EffectPasses.NoNormalNoTexUnskinned;
 
             _skinnedShader.DrawMesh(model, world, view, viewProjection, cameraPosition, pass, null);
 

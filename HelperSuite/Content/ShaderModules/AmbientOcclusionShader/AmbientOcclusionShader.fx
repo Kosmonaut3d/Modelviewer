@@ -1,16 +1,24 @@
-﻿//The MIT License(MIT)
-//
-//Copyright(c) 2014 Sam Hardeman, NHTV University of Applied Sciences
-//
-//Permission is hereby granted, free of charge, to any person obtaining a copy
-//of this software and associated documentation files(the "Software"), to deal
-//in the Software without restriction, including without limitation the rights
-//to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
-//copies of the Software, and to permit persons to whom the Software is
-//furnished to do so, subject to the following conditions :
-//
-//The above copyright notice and this permission notice shall be included in
-//all copies or substantial portions of the Software.
+﻿/*The MIT License(MIT)
+
+Copyright(c) 2017 by kosmonautgames
+
+Parts of the SSAO Implementation:
+Copyright(c) 2014 Sam Hardeman, NHTV University of Applied Sciences
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files(the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions :
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+*/
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  Variables
 
 float2 Resolution = float2(1280, 800); 
 float2 InverseResolution = float2(1.0f / 1280.0f, 1.0f / 800.0f);
@@ -19,10 +27,13 @@ float3 FrustumCorners[4]; //In Viewspace!
 
 Texture2D NormalMap;
 Texture2D SSAOMap;
+Texture2D DepthMap;
 
+int Samples = 8;
+float Strength = 1;
+float SampleRadius = 1.0f;
 const float PI = 3.14159265359;
 
-Texture2D DepthMap;
 SamplerState texSampler
 {
 	Texture = <DepthMap>;
@@ -51,12 +62,6 @@ SamplerState blurSamplerLinear
 	Mipfilter = POINT;
 };
 
-float FalloffMin = 0.000001f;
-float FalloffMax = 0.002f;
-
-int Samples = 8;
-float Strength = 1;
-float SampleRadius = 1.0f;
 
 ////////////////////////////////////////////////////////////////////////////
 //  STRUCT DEFINITIONS
@@ -211,7 +216,7 @@ float4 PixelShaderFunction(VertexShaderOutput input) : SV_Target
 
 	if (linearDepth > 0.99999f)
 	{
-		return float4(1, 1, 1, 0);
+		return float4(0, 1, 1, 1);
 	}
 	float3 viewRay = GetFrustumRay2(texCoord);
 	float3 currentPos = viewRay * linearDepth;
@@ -239,7 +244,7 @@ float4 PixelShaderFunction(VertexShaderOutput input) : SV_Target
 		kernelVec.xy *= aspectRatio;
 
 
-		float radius = SampleRadius * (kernelVec.z + 1);
+		float radius = SampleRadius * (kernelVec.z + 1.01f);
 
 		float2 kernelVector = (kernelVec.xy / currentDistance) * radius;
 
@@ -337,7 +342,7 @@ float4 PixelShaderFunction(VertexShaderOutput input) : SV_Target
 
 	amount = saturate(0.5f + diff);
 	*/
-	return float4(1,1,1, amount);
+	return float4(amount, amount, amount, 1);
 }
 
 

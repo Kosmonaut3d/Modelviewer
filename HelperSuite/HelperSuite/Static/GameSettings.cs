@@ -23,11 +23,13 @@ namespace ModelViewer.HelperSuite.Static
         public static bool r_UseLinear = true;
         public static bool m_startClip = true;
         public static bool m_updateAnimation = true;
-        public static bool r_DrawAo = false;
+        public static bool ao_Enable = false;
         public static bool r_DrawDepthMap = false;
         public static bool d_log = true;
         public static int ao_Samples = 16;
         public static float ao_Radii = 1;
         public static float ao_Strength = 1;
+        public static bool r_DrawAoMap;
+        public static bool ao_UseStencil = true;
     }
 }

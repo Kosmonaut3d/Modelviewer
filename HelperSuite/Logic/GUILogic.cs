@@ -196,8 +196,8 @@ namespace ModelViewer.Logic
             {
                 aoList.AddElement(new GUITextBlockToggle(Vector2.Zero, new Vector2(200, 35), "Enable AO", GUIRenderer.MonospaceFont, Color.Gray, Color.White)
                 {
-                    ToggleField = typeof(GameSettings).GetField("r_DrawAo"),
-                    Toggle = (bool)typeof(GameSettings).GetField("r_DrawAo").GetValue(null)
+                    ToggleField = typeof(GameSettings).GetField("ao_Enable"),
+                    Toggle = (bool)typeof(GameSettings).GetField("ao_Enable").GetValue(null)
                 });
 
                 aoList.AddElement(
@@ -215,7 +215,7 @@ namespace ModelViewer.Logic
                         new GUITextBlock(Vector2.Zero, new Vector2(200, 35), "AO Samples ppx: " + GameSettings.ao_Samples,
                             GUIRenderer.MonospaceFont, Color.Gray, Color.White));
 
-                aoList.AddElement(new GuiSliderInt(Vector2.Zero, new Vector2(200, 35), 0, 64, Color.Gray, Color.Black)
+                aoList.AddElement(new GuiSliderInt(Vector2.Zero, new Vector2(200, 35), 0, 64, 2, Color.Gray, Color.Black)
                 {
                     SliderField = typeof(GameSettings).GetField("ao_Samples"),
                     SliderValue = (int)typeof(GameSettings).GetField("ao_Samples").GetValue(null)
@@ -226,7 +226,7 @@ namespace ModelViewer.Logic
                         new GUITextBlock(Vector2.Zero, new Vector2(200, 35), "AO Strength: " + GameSettings.ao_Strength,
                             GUIRenderer.MonospaceFont, Color.Gray, Color.White));
 
-                aoList.AddElement(new GuiSliderFloat(Vector2.Zero, new Vector2(200, 35), 0, 2, Color.Gray, Color.Black)
+                aoList.AddElement(new GuiSliderFloat(Vector2.Zero, new Vector2(200, 35), 0, 4, Color.Gray, Color.Black)
                 {
                     SliderField = typeof(GameSettings).GetField("ao_Strength"),
                     SliderValue = (float)typeof(GameSettings).GetField("ao_Strength").GetValue(null)

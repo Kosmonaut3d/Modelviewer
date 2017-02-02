@@ -23,8 +23,10 @@ namespace ModelViewer.Renderer
         private ThreadSafeContentManager _contentManager;
 
         private RenderTarget2D _linearDepthTarget;
+        private RenderTarget2D _ambientOcclusionTarget;
         private DepthStencilState _stencilWriteOnly;
         private DepthStencilState _stencilReadOnly;
+        private BlendState _blendNoColorWrite;
         private BlendState _subtractive;
         private int _aoSamples;
         private float _aoRadii;
@@ -87,6 +89,11 @@ namespace ModelViewer.Renderer
                 CounterClockwiseStencilPass = StencilOperation.Keep,
                 ReferenceStencil = 0,
                 StencilEnable = true
+            };
+            
+            _blendNoColorWrite = new BlendState()
+            {
+                ColorWriteChannels = ColorWriteChannels.None
             };
 
             _subtractive = new BlendState()
@@ -185,23 +192,45 @@ namespace ModelViewer.Renderer
 
             if (loadedModel != null)
             {
-                if (GameSettings.r_DrawAo )
+                if (GameSettings.ao_Enable)
                 {
                     //Draw to depth buffer first!
                     _graphics.SetRenderTarget(_linearDepthTarget);
-                    _graphics.BlendState = BlendState.Opaque;
                     _graphics.Clear(Color.White);
-                    usedModel.Draw(world, _view, _viewProjection, camera.Position, _animatedModelShader, AnimatedModelShader.EffectPasses.UnskinnedDepth, true);
+                    
+                    _graphics.RasterizerState = RasterizerState.CullCounterClockwise;
+                    _graphics.BlendState = BlendState.Opaque;
 
-                    _graphics.SetRenderTarget(null);
-                    //_graphics.Clear(ClearOptions.Stencil | ClearOptions.Target, Color.Red, 0, 0);
-                    _graphics.DepthStencilState = _stencilWriteOnly;
-                    usedModel.Draw(world, _view, _viewProjection, camera.Position, _animatedModelShader, pass, false);
+                    usedModel.Draw(world, _view, _viewProjection, camera.Position, _animatedModelShader,
+                        AnimatedModelShader.EffectPasses.UnskinnedDepth, true);
+
+                    //Draw to the AO Map
+                    _graphics.SetRenderTarget(_ambientOcclusionTarget);
+                    _graphics.Clear(Color.White);
+
+                    //We draw the depth again onto our ao target, but without color and use only the pixels affected
+                    if (GameSettings.ao_UseStencil)
+                    {
+                        _graphics.BlendState = _blendNoColorWrite;
+                        _graphics.DepthStencilState = _stencilWriteOnly;
+
+                        usedModel.Draw(world, _view, _viewProjection, camera.Position, _animatedModelShader,
+                        AnimatedModelShader.EffectPasses.UnskinnedDepth, true);
+
+                        _graphics.DepthStencilState = _stencilReadOnly;
+                    }
+                    else
+                    {
+                        _graphics.DepthStencilState = DepthStencilState.None;
+                    }
+
+                    _graphics.BlendState = BlendState.Opaque;
+                    _ambientOcclusionShader.Draw();
                 }
-                else
-                {
-                    usedModel.Draw(world, _view, _viewProjection, camera.Position, _animatedModelShader, pass, true);
-                }
+
+                _graphics.SetRenderTarget(null);
+                _graphics.DepthStencilState = DepthStencilState.Default;//_stencilWriteOnly;
+                usedModel.Draw(world, _view, _viewProjection, camera.Position, _animatedModelShader, pass, false);
 
                 if (usedModel.HasModelExtra())
                 {
@@ -224,27 +253,21 @@ namespace ModelViewer.Renderer
                 _animatedModelShader.DrawMesh(model, world, _view, _viewProjection, camera.Position, pass);
             }
 
-            if (GameSettings.r_DrawAo)
-            {
-                _graphics.BlendState = _subtractive;
-
-                _graphics.DepthStencilState = _stencilReadOnly;
-                _graphics.RasterizerState = RasterizerState.CullCounterClockwise;
-                _ambientOcclusionShader.Draw(null);
-            }
-
             _graphics.BlendState = BlendState.Opaque;
             _graphics.RasterizerState = RasterizerState.CullClockwise;
             _graphics.DepthStencilState = DepthStencilState.Default;
-            _skyboxRenderModule.Draw(Matrix.CreateTranslation(camera.Position) *  _viewProjection, Vector3.Zero, 300);
-
+            _skyboxRenderModule.Draw(Matrix.CreateTranslation(camera.Position) * _viewProjection, Vector3.Zero, 300);
+            
             if (GameSettings.r_DrawDepthMap)
             {
-                _graphics.SetRenderTarget(null);
-                _graphics.BlendState = BlendState.Opaque;
-                _graphics.RasterizerState = RasterizerState.CullCounterClockwise;
                 _spriteBatch.Begin();
                 _spriteBatch.Draw(_linearDepthTarget, new Rectangle(0,0,GameSettings.g_ScreenWidth, GameSettings.g_ScreenHeight), Color.White);
+                _spriteBatch.End();
+            }
+            if (GameSettings.r_DrawAoMap)
+            {
+                _spriteBatch.Begin();
+                _spriteBatch.Draw(_ambientOcclusionTarget, new Rectangle(0, 0, GameSettings.g_ScreenWidth, GameSettings.g_ScreenHeight), Color.White);
                 _spriteBatch.End();
             }
 
@@ -336,12 +359,22 @@ namespace ModelViewer.Renderer
 
         public void UpdateRenderTargets()
         {
-            if(_linearDepthTarget!=null) _linearDepthTarget.Dispose();
+            if (_linearDepthTarget != null)
+            {
+                _linearDepthTarget.Dispose();
+                _ambientOcclusionTarget.Dispose();
+            }
 
-            _linearDepthTarget = new RenderTarget2D(_graphics, GameSettings.g_ScreenWidth, GameSettings.g_ScreenHeight, false, SurfaceFormat.Vector4, DepthFormat.Depth24);
+            int width = GameSettings.g_ScreenWidth;
+            int height = GameSettings.g_ScreenHeight;
+            
+            _linearDepthTarget = new RenderTarget2D(_graphics, width, height, false, SurfaceFormat.Vector4, DepthFormat.Depth24);
+            
             _ambientOcclusionShader.DepthMap = _linearDepthTarget;
-            _ambientOcclusionShader.Resolution = new Vector2( GameSettings.g_ScreenWidth, GameSettings.g_ScreenHeight);
-           
+            _ambientOcclusionShader.Resolution = new Vector2(width, height);
+
+            _ambientOcclusionTarget = new RenderTarget2D(_graphics, width, height, false, SurfaceFormat.Vector4, DepthFormat.Depth24Stencil8);
+
         }
     }
 }

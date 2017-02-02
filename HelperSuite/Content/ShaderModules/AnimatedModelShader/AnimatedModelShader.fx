@@ -1,5 +1,5 @@
 ﻿/*
-Copyright 2017 by kosmonautgames
+Copyright(c) 2017 by kosmonautgames
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),
 to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
@@ -53,7 +53,7 @@ Texture2D<float4> DepthMap;
 Texture2D<float4> FresnelMap;
 TextureCube<float4> EnvironmentMap;
 
-sampler TextureSampler
+SamplerState TextureSampler
 {
 	Texture = <AlbedoMap>;
 	Filter = Anisotropic;
@@ -73,7 +73,7 @@ SamplerState FresnelSampler
 	AddressV = Clamp;
 };
 
-SamplerState DepthSampler = sampler_state
+SamplerState DepthSampler
 {
 	Texture = <FresnelMap>;
 	MinFilter = POINT;
@@ -249,6 +249,17 @@ VertexShaderOutput Unskinned_VertexShaderFunction(VertexShaderInput input)
 	output.Position = mul(WorldPosition, ViewProj);
 	output.Normal = mul(input.Normal, WorldIT).xyz;
 	output.TexCoord = input.TexCoord;
+	return output;
+}
+
+NoNormal_VertexShaderOutput NoNormalNoTex_Unskinned_VertexShaderFunction(float4 Position : POSITION0)
+{
+	NoNormal_VertexShaderOutput output;
+
+	float4 WorldPosition = mul(Position, World);
+	output.WorldPosition = WorldPosition.xyz;
+	output.Position = mul(WorldPosition, ViewProj);
+	output.TexCoord = float2(0,0);
 	return output;
 }
 
@@ -495,6 +506,15 @@ float4 Depth_PixelShaderFunction(Depth_VertexShaderOutput input) : SV_TARGET
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Techniques
+
+technique NoNormalNoTex_Unskinned
+{
+	pass Pass1
+	{
+		VertexShader = compile vs_5_0 NoNormalNoTex_Unskinned_VertexShaderFunction();
+		PixelShader = compile ps_5_0 NoNormal_PixelShaderFunction();
+	}
+}
 
 technique NoNormal_Unskinned
 {

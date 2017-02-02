@@ -149,10 +149,8 @@ namespace ModelViewer.Renderer.ShaderModules
             _quadRenderer = new QuadRenderer();
         }
         
-        public void Draw(RenderTarget2D output)
+        public void Draw()
         {
-            //_graphicsDevice.SetRenderTarget(output);
-
             _ssao.Apply();
             _quadRenderer.RenderQuad(_graphicsDevice, -Vector2.One, Vector2.One);
            
