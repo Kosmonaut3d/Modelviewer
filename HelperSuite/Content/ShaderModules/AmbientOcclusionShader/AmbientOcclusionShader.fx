@@ -1,18 +1,31 @@
-﻿
+﻿//The MIT License(MIT)
+//
+//Copyright(c) 2014 Sam Hardeman, NHTV University of Applied Sciences
+//
+//Permission is hereby granted, free of charge, to any person obtaining a copy
+//of this software and associated documentation files(the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions :
+//
+//The above copyright notice and this permission notice shall be included in
+//all copies or substantial portions of the Software.
+
 float2 Resolution = float2(1280, 800); 
 float2 InverseResolution = float2(1.0f / 1280.0f, 1.0f / 800.0f);
 
 float3 FrustumCorners[4]; //In Viewspace!
 
 Texture2D NormalMap;
-Texture2D DepthMap;
-
 Texture2D SSAOMap;
 
 const float PI = 3.14159265359;
 
+Texture2D DepthMap;
 SamplerState texSampler
 {
+	Texture = <DepthMap>;
 	AddressU = CLAMP;
 	AddressV = CLAMP;
 	MagFilter = POINT;
@@ -22,7 +35,6 @@ SamplerState texSampler
 
 SamplerState blurSamplerPoint
 {
-	Texture = <SSAOMap>;
 	AddressU = CLAMP;
 	AddressV = CLAMP;
 	MagFilter = POINT;
@@ -32,7 +44,6 @@ SamplerState blurSamplerPoint
 
 SamplerState blurSamplerLinear
 {
-	Texture = <SSAOMap>;
 	AddressU = CLAMP;
 	AddressV = CLAMP;
 	MagFilter = LINEAR;
@@ -44,9 +55,7 @@ float FalloffMin = 0.000001f;
 float FalloffMax = 0.002f;
 
 int Samples = 8;
-
 float Strength = 1;
-
 float SampleRadius = 1.0f;
 
 ////////////////////////////////////////////////////////////////////////////
@@ -188,6 +197,8 @@ float4 PixelShaderFunction(VertexShaderOutput input) : SV_Target
 	};
 
 	const float clampMax = 0.1f; //0.2*0.2
+	const float searchSteps = 4.0f;
+	const float rcpSearchSteps = 0.25f;
 
 	float2 texCoord = float2(input.TexCoord);
 
@@ -214,6 +225,8 @@ float4 PixelShaderFunction(VertexShaderOutput input) : SV_Target
 
 	float2 aspectRatio = float2(min(1, Resolution.y / Resolution.x), min(1.0f, Resolution.x / Resolution.y));
 
+	float2 texelSize = InverseResolution;
+
 	float amount = 1.0;
 
 	float3 noise = randomNormal(texCoord);
@@ -225,9 +238,20 @@ float4 PixelShaderFunction(VertexShaderOutput input) : SV_Target
 		float3 kernelVec = reflect(kernel[i], noise);
 		kernelVec.xy *= aspectRatio;
 
-		float radius = SampleRadius;
+
+		float radius = SampleRadius * (kernelVec.z + 1);
 
 		float2 kernelVector = (kernelVec.xy / currentDistance) * radius;
+
+		//make it at least one pixel
+		if (texelSize.x > abs(kernelVector.x * rcpSearchSteps))
+		{
+			kernelVector *= texelSize.x / kernelVector.x * searchSteps;
+		}
+		if (texelSize.y > abs(kernelVector.y * rcpSearchSteps))
+		{
+			kernelVector *= texelSize.y / kernelVector.y * searchSteps;
+		}
 
 		//clamp to 0,1
 		kernelVector = saturate(kernelVector + texCoord) - texCoord;
@@ -247,9 +271,9 @@ float4 PixelShaderFunction(VertexShaderOutput input) : SV_Target
 		}
 
 
-		float biggestAnglePos = 0.0f;
+		float biggestAnglePos = 0.3f;
 
-		float biggestAngleNeg = 0.0f;
+		float biggestAngleNeg = 0.3f;
 
 		float wAO = 0.0;
 
@@ -258,15 +282,15 @@ float4 PixelShaderFunction(VertexShaderOutput input) : SV_Target
 		float sampleAngle;
 
 		[unroll]
-		for (int b = 1; b <= 4; b++)
+		for (int b = 1; b <= searchSteps; b++)
 		{
-			sampleVec = getPosition(texCoord + kernelVector * b / 4.0f) - currentPos;
+			sampleVec = getPosition(texCoord + kernelVector * b / searchSteps) - currentPos;
 
 			sampleVecLength = fastlength(sampleVec);
 
 			sampleAngle = dot(sampleVec / sampleVecLength, currentNormal);
 
-			sampleAngle *= step(0.3, sampleAngle);
+			//sampleAngle *= step(0.3, sampleAngle);
 
 			[branch]
 			if (sampleAngle > biggestAnglePos)
@@ -279,15 +303,15 @@ float4 PixelShaderFunction(VertexShaderOutput input) : SV_Target
 		}
 
 		[unroll]
-		for (int b = 1; b <= 4; b++)
+		for (int b = 1; b <= searchSteps; b++)
 		{
-			sampleVec = getPosition(texCoord - kernelVector * b / 4.0f) - currentPos;
+			sampleVec = getPosition(texCoord - kernelVector * b / searchSteps) - currentPos;
 
 			sampleVecLength = fastlength(sampleVec);
 
 			sampleAngle = dot(sampleVec / sampleVecLength, currentNormal);
 
-			sampleAngle *= step(0.3, sampleAngle);
+			//sampleAngle *= step(0.3, sampleAngle);
 
 			[branch]
 			if (sampleAngle > biggestAngleNeg)

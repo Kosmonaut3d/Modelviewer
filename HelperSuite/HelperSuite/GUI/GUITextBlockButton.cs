@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Reflection;
-using HelperSuite.HelperSuite.Static;
-using HelperSuite.Logic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ModelViewer.HelperSuite.Static;
+using ModelViewer.Logic;
 
-namespace HelperSuite.HelperSuite.GUI
+namespace ModelViewer.HelperSuite.GUI
 {
     public class GUITextBlockButton : GUITextBlock
     {

@@ -1,11 +1,8 @@
-﻿using System;
-using System.Diagnostics;
-using HelperSuite.HelperSuite.Static;
-using HelperSuite.Logic;
-using HelperSuite.Static;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
+using ModelViewer.HelperSuite.Static;
+using ModelViewer.Logic;
 
-namespace HelperSuite.HelperSuite.GUI
+namespace ModelViewer.HelperSuite.GUI
 {
     class GuiListToggleScroll : GuiListToggle
     {

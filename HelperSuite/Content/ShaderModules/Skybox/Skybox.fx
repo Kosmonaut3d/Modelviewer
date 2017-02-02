@@ -24,7 +24,7 @@ float3x3 World;
 TextureCube SkyboxTexture;
 SamplerState CubeMapSampler
 {
-	texture = <ReflectionCubeMap>;
+	Texture = <SkyboxTexture>;
 	AddressU = CLAMP;
 	AddressV = CLAMP;
 	MagFilter = LINEAR;
@@ -58,7 +58,7 @@ DrawBasic_VSIn DrawSkybox_VertexShader(DrawBasic_VSIn input)
 float4 DrawSkybox_PixelShader(DrawBasic_VSIn input) : COLOR
 {
 	float3 normal = normalize(input.Normal);
-	return SkyboxTexture.SampleLevel(CubeMapSampler, normal.xzy,2);
+	return SkyboxTexture.SampleLevel(CubeMapSampler, normal.xzy,4);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

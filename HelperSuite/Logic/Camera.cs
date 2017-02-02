@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 
-namespace HelperSuite.Logic
+namespace ModelViewer.Logic
 {
     public class Camera
     {

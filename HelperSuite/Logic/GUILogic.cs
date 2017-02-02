@@ -1,15 +1,15 @@
 ﻿using System;
-using HelperSuite.HelperSuite.GUI;
-using HelperSuite.HelperSuite.GUIHelper;
-using HelperSuite.HelperSuite.GUIRenderer;
-using HelperSuite.HelperSuite.Static;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using ModelViewer.HelperSuite.GUI;
+using ModelViewer.HelperSuite.GUIHelper;
+using ModelViewer.HelperSuite.GUIRenderer;
 using ModelViewer.HelperSuite.GUIRenderer.Helper;
+using ModelViewer.HelperSuite.Static;
 using ModelViewer.Renderer.ShaderModules.Helper;
 
-namespace HelperSuite.Logic
+namespace ModelViewer.Logic
 {
     public class GuiLogicSample
     {
@@ -22,6 +22,7 @@ namespace HelperSuite.Logic
 
         private GUITextBlock _aoRadiiBlock;
         private GUITextBlock _aoSamplesBlock;
+        private GUITextBlock _aoStrengthBlock;
 
         private GUIStyle defaultStyle;
 
@@ -220,6 +221,17 @@ namespace HelperSuite.Logic
                     SliderValue = (int)typeof(GameSettings).GetField("ao_Samples").GetValue(null)
                 });
 
+                aoList.AddElement(
+                    _aoStrengthBlock =
+                        new GUITextBlock(Vector2.Zero, new Vector2(200, 35), "AO Strength: " + GameSettings.ao_Strength,
+                            GUIRenderer.MonospaceFont, Color.Gray, Color.White));
+
+                aoList.AddElement(new GuiSliderFloat(Vector2.Zero, new Vector2(200, 35), 0, 2, Color.Gray, Color.Black)
+                {
+                    SliderField = typeof(GameSettings).GetField("ao_Strength"),
+                    SliderValue = (float)typeof(GameSettings).GetField("ao_Strength").GetValue(null)
+                });
+
             }
             aoList.IsToggled = false;
 
@@ -268,6 +280,10 @@ namespace HelperSuite.Logic
                 _aoSamplesBlock.Text.Clear();
                 _aoSamplesBlock.Text.Append("AO Samples ppx: ");
                 _aoSamplesBlock.Text.Concat(GameSettings.ao_Samples);
+
+                _aoStrengthBlock.Text.Clear();
+                _aoStrengthBlock.Text.Append("AO Strength: ");
+                _aoStrengthBlock.Text.Concat(GameSettings.ao_Strength, 2);
 
                 screenCanvas.Update(gameTime, Input.GetMousePosition().ToVector2(), Vector2.Zero);
             }

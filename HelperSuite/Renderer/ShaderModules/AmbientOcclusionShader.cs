@@ -1,9 +1,7 @@
-﻿using System;
-using DeferredEngine.Renderer.Helper;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using ModelViewer.HelperSuite.GUIRenderer.Helper;
+using ModelViewer.Renderer.ShaderModules.Helper;
 
 /*
 Copyright 2017 by kosmonautgames
@@ -20,7 +18,7 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRA
 IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace HelperSuite.Renderer.ShaderModules
+namespace ModelViewer.Renderer.ShaderModules
 {
     /// <summary>
     /// A shader to draw a uniform color across a mesh
@@ -40,6 +38,7 @@ namespace HelperSuite.Renderer.ShaderModules
         private EffectParameter _frustumCornersParameter;
         private EffectParameter _samplesParameter;
         private EffectParameter _sampleRadiusParameter;
+        private EffectParameter _sampleStrengthParameter;
 
         private EffectParameter _depthMapParameter;
         
@@ -108,6 +107,18 @@ namespace HelperSuite.Renderer.ShaderModules
             }
         }
 
+        private float _sampleStrength;
+
+        public float SampleStrength
+        {
+            get { return _sampleStrength; }
+            set
+            {
+                _sampleStrength = value;
+                _sampleStrengthParameter.SetValue(_sampleStrength);
+            }
+        }
+
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //  Functions
 
@@ -125,6 +136,7 @@ namespace HelperSuite.Renderer.ShaderModules
             _frustumCornersParameter = _shaderEffect.Parameters["FrustumCorners"];
             _samplesParameter = _shaderEffect.Parameters["Samples"];
             _sampleRadiusParameter = _shaderEffect.Parameters["SampleRadius"];
+            _sampleStrengthParameter = _shaderEffect.Parameters["Strength"];
 
             _depthMapParameter = _shaderEffect.Parameters["DepthMap"];
             

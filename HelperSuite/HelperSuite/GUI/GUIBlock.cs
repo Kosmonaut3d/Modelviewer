@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 
-namespace HelperSuite.HelperSuite.GUI
+namespace ModelViewer.HelperSuite.GUI
 {
     /// <summary>
     /// Just a colored block

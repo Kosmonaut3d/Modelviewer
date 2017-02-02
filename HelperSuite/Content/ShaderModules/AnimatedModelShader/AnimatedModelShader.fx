@@ -62,7 +62,7 @@ sampler TextureSampler
 	AddressV = Wrap;
 };
 
-SamplerState FresnelSampler = sampler_state
+SamplerState FresnelSampler
 {
 	Texture = <FresnelMap>;
 	MinFilter = LINEAR;
@@ -86,7 +86,7 @@ SamplerState DepthSampler = sampler_state
 
 SamplerState CubeMapSampler
 {
-	texture = <EnvironmentMap>;
+	Texture = <EnvironmentMap>;
 	AddressU = CLAMP;
 	AddressV = CLAMP;
 	MagFilter = LINEAR;

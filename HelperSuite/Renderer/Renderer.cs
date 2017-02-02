@@ -1,18 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using HelperSuite.HelperSuite.ContentLoader;
-using HelperSuite.HelperSuite.Static;
-using HelperSuite.Logic;
-using HelperSuite.Renderer.ShaderModules;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using ModelViewer.HelperSuite.ContentLoader;
+using ModelViewer.HelperSuite.Static;
+using ModelViewer.Logic;
+using ModelViewer.Renderer.ShaderModules;
 using ModelViewer.Renderer.ShaderModules.Helper;
 
-namespace HelperSuite.Renderer
+namespace ModelViewer.Renderer
 {
     public class Renderer
     {
@@ -32,6 +28,8 @@ namespace HelperSuite.Renderer
         private BlendState _subtractive;
         private int _aoSamples;
         private float _aoRadii;
+        private float _aoStrength;
+
 
         private Texture2D rollTexture2D;
         private TextureCube skyboxCube;
@@ -48,7 +46,6 @@ namespace HelperSuite.Renderer
         private SkyboxRenderModule _skyboxRenderModule;
         private AnimatedModelShader _animatedModelShader;
         private AmbientOcclusionShader _ambientOcclusionShader;
-
 
         public void Initialize(GraphicsDevice graphicsDevice)
         {
@@ -140,7 +137,7 @@ namespace HelperSuite.Renderer
             _graphics.BlendState = BlendState.Opaque;
             _graphics.DepthStencilState = DepthStencilState.Default;
 
-            float meshsize = 10;
+            float meshsize = 0.5f;
 
             object loadedModel = mainLogic.modelLoader.LoadedObject;
             AnimatedModel usedModel = loadedModel != null ? (AnimatedModel)loadedModel : null;
@@ -267,6 +264,11 @@ namespace HelperSuite.Renderer
             {
                 _aoRadii = GameSettings.ao_Radii;
                 _ambientOcclusionShader.SampleRadii = _aoRadii;
+            }
+            if (GameSettings.ao_Strength != _aoStrength)
+            {
+                _aoStrength = GameSettings.ao_Strength;
+                _ambientOcclusionShader.SampleStrength = _aoStrength;
             }
         }
 

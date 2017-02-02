@@ -1,10 +1,10 @@
 ﻿using System;
-using HelperSuite.HelperSuite.Static;
-using HelperSuite.Static;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using ModelViewer.HelperSuite.Static;
+using ModelViewer.Static;
 
-namespace HelperSuite.Logic
+namespace ModelViewer.Logic
 {
     public static class Input
     {

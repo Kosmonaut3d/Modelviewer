@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 
-namespace HelperSuite.HelperSuite.GUI
+namespace ModelViewer.HelperSuite.GUI
 {
     public abstract class GUIElement
     {

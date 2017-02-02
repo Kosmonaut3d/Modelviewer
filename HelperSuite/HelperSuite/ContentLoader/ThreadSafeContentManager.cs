@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework.Content;
 
-namespace HelperSuite.HelperSuite.ContentLoader
+namespace ModelViewer.HelperSuite.ContentLoader
 {
     public class ThreadSafeContentManager : ContentManager
     {

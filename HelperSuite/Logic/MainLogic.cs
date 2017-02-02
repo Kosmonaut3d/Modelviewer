@@ -1,20 +1,18 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using HelperSuite.HelperSuite.ContentLoader;
-using HelperSuite.HelperSuite.GUI;
-using HelperSuite.HelperSuite.Static;
-using HelperSuite.Static;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using ModelViewer.HelperSuite.ContentLoader;
+using ModelViewer.HelperSuite.GUI;
+using ModelViewer.HelperSuite.Static;
+using ModelViewer.Static;
 using ButtonState = Microsoft.Xna.Framework.Input.ButtonState;
 using Keys = Microsoft.Xna.Framework.Input.Keys;
 
-namespace HelperSuite.Logic
+namespace ModelViewer.Logic
 {
     public class MainLogic
     {

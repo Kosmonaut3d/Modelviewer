@@ -1,11 +1,10 @@
-﻿using HelperSuite.HelperSuite.GUIRenderer;
-using HelperSuite.Logic;
-using HelperSuite.Static;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using ModelViewer.HelperSuite.GUIRenderer;
+using ModelViewer.Logic;
 
-namespace OceanRender.Main
+namespace ModelViewer.Static
 {
     /// <summary>
     /// Manages our different screens and passes information accordingly
@@ -20,7 +19,7 @@ namespace OceanRender.Main
         private GuiLogicSample _guiLogicSample;
         private MainLogic _mainLogic;
         private GUIRenderer _guiRenderer;
-        private HelperSuite.Renderer.Renderer _renderer;
+        private Renderer.Renderer _renderer;
 
         private bool _wasInactive = true;
         
@@ -77,7 +76,7 @@ namespace OceanRender.Main
             _guiLogicSample = new GuiLogicSample();
             _guiLogicSample.Load(content);
             
-            _renderer = new HelperSuite.Renderer.Renderer();
+            _renderer = new Renderer.Renderer();
             _renderer.Load(content);
         }
 

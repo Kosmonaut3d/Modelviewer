@@ -18,7 +18,7 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRA
 IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace HelperSuite.Renderer.ShaderModules
+namespace ModelViewer.Renderer.ShaderModules
 {
     /// <summary>
     /// A shader to draw a uniform color across a mesh

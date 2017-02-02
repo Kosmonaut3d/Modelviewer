@@ -1,4 +1,4 @@
-﻿namespace HelperSuite.HelperSuite.Static
+﻿namespace ModelViewer.HelperSuite.Static
 {
     public static class GameStats
     {
@@ -6,6 +6,6 @@
         public static bool UIWasUsed = false;
         public static bool UIElementEngaged = false;
 
-        public static string Version = "Version 0.41";
+        public static string Version = "Version 0.5";
     }
 }

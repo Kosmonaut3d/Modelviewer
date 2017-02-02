@@ -5,15 +5,15 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using HelperSuite.HelperSuite.ContentLoader;
-using HelperSuite.HelperSuite.Static;
-using HelperSuite.Logic;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using ModelViewer.HelperSuite.ContentLoader;
+using ModelViewer.HelperSuite.Static;
+using ModelViewer.Logic;
 using ModelViewer.Renderer.ShaderModules.Helper;
 
-namespace HelperSuite.HelperSuite.GUIHelper
+namespace ModelViewer.HelperSuite.GUIHelper
 {
     public class GUIContentLoader
     {

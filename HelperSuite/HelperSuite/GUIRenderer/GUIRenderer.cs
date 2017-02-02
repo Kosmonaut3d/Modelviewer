@@ -1,13 +1,13 @@
 ﻿using System.Text;
-using HelperSuite.HelperSuite.GUI;
-using HelperSuite.HelperSuite.Static;
-using HelperSuite.Logic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using ModelViewer.HelperSuite.GUI;
 using ModelViewer.HelperSuite.GUIRenderer.Helper;
+using ModelViewer.HelperSuite.Static;
+using ModelViewer.Logic;
 
-namespace HelperSuite.HelperSuite.GUIRenderer
+namespace ModelViewer.HelperSuite.GUIRenderer
 {
     public class GUIRenderer
     {

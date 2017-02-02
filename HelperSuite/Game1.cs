@@ -1,12 +1,12 @@
 ﻿using System;
-using HelperSuite.HelperSuite.Static;
-using HelperSuite.Logic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using OceanRender.Main;
+using ModelViewer.HelperSuite.Static;
+using ModelViewer.Logic;
+using ModelViewer.Static;
 
-namespace HelperSuite
+namespace ModelViewer
 {
     /// <summary>
     /// This is the main type for your game.

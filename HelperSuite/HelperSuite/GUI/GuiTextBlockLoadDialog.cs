@@ -2,13 +2,13 @@
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using HelperSuite.HelperSuite.GUIHelper;
-using HelperSuite.HelperSuite.Static;
-using HelperSuite.Logic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ModelViewer.HelperSuite.GUIHelper;
+using ModelViewer.HelperSuite.Static;
+using ModelViewer.Logic;
 
-namespace HelperSuite.HelperSuite.GUI
+namespace ModelViewer.HelperSuite.GUI
 {
     public class GuiTextBlockLoadDialog : GUITextBlock
     {

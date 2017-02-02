@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using HelperSuite.Renderer.ShaderModules;
 using MGSkinnedAnimationAux;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;

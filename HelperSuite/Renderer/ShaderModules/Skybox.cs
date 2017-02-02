@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace HelperSuite.Renderer.ShaderModules
+namespace ModelViewer.Renderer.ShaderModules
 {
     public class SkyboxRenderModule
     {

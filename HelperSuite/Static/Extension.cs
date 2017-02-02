@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace HelperSuite.Static
+namespace ModelViewer.Static
 {
     public static class Extension
     {
