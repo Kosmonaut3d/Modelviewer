@@ -65,14 +65,13 @@ namespace ModelViewer.HelperSuite.GUI
             if (mousePosition.X >= bound1.X && mousePosition.Y >= bound1.Y && mousePosition.X < bound2.X &&
                 mousePosition.Y < bound2.Y + 1)
             {
-                GameStats.UIWasUsed = true;
-
                 GameStats.UIElementEngaged = true;
                 IsEngaged = true;
             }
 
             if (IsEngaged)
             {
+                GameStats.UIWasUsed = true;
 
                 float lowerx = bound1.X + SliderIndicatorBorder;
                 float upperx = bound2.X - SliderIndicatorBorder;
@@ -135,6 +134,15 @@ namespace ModelViewer.HelperSuite.GUI
 
         public override void Update(GameTime gameTime, Vector2 mousePosition, Vector2 parentPosition)
         {
+            if (GameStats.UIElementEngaged && !IsEngaged) return;
+
+            //Break Engagement
+            if (IsEngaged && !Input.IsLMBPressed())
+            {
+                GameStats.UIElementEngaged = false;
+                IsEngaged = false;
+            }
+
             if (!Input.IsLMBPressed()) return;
 
             Vector2 bound1 = Position + parentPosition /*+ SliderIndicatorBorder*Vector2.UnitX*/;
@@ -142,6 +150,12 @@ namespace ModelViewer.HelperSuite.GUI
 
             if (mousePosition.X >= bound1.X && mousePosition.Y >= bound1.Y && mousePosition.X < bound2.X &&
                 mousePosition.Y < bound2.Y + 1)
+            {
+                GameStats.UIElementEngaged = true;
+                IsEngaged = true;
+            }
+
+            if (IsEngaged)
             {
                 GameStats.UIWasUsed = true;
 

@@ -6,6 +6,6 @@
         public static bool UIWasUsed = false;
         public static bool UIElementEngaged = false;
 
-        public static string Version = "Version 0.5";
+        public static string Version = "Version 0.52";
     }
 }
