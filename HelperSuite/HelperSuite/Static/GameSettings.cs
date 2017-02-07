@@ -17,8 +17,8 @@ namespace ModelViewer.HelperSuite.Static
         public static bool RotateOrbit = true;
         public static bool m_orientationy = true;
         public static float m_size = 1;
-        public static float m_roughness = 0.3f;
-        public static float m_metallic = 0.3f;
+        public static float m_roughness = 0.8f;
+        public static float m_metallic = 0.0f;
 
         public static bool r_UseLinear = true;
         public static bool m_startClip = true;
@@ -35,5 +35,7 @@ namespace ModelViewer.HelperSuite.Static
         public static bool ao_HalfRes = true;
         public static float pomScale = 0.05f;
         public static bool r_UsePOM = false;
+        public static bool r_POMCutoff = true;
+        public static float r_POMQuality = 1;
     }
 }

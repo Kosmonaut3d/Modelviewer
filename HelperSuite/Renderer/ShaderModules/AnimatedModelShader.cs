@@ -55,6 +55,8 @@ namespace ModelViewer.Renderer.ShaderModules
         public EffectParameter UsePomParameter;
         private EffectParameter _useBumpmapParameter;
         private EffectParameter _pomScaleParameter;
+        private EffectParameter _pomQualityParameter;
+        public EffectParameter  PomCutoffParameter;
 
         public EffectParameter DepthMapParameter;
 
@@ -191,6 +193,25 @@ namespace ModelViewer.Renderer.ShaderModules
                 }
             }
         }
+
+        private float _pomQuality;
+        public float PomQuality
+        {
+            get
+            {
+                return _pomQuality;
+            }
+
+            set
+            {
+                if (Math.Abs(_pomQuality - value) > 0.00001f && value > 0)
+                {
+                    _pomQuality = value;
+                    _pomQualityParameter.SetValue(_pomQuality);
+                }
+            }
+        }
+
 
         private Texture _fresnelMap;
 
@@ -338,6 +359,8 @@ namespace ModelViewer.Renderer.ShaderModules
             UsePomParameter = _shaderEffect.Parameters["UsePOM"];
             _useBumpmapParameter = _shaderEffect.Parameters["UseBumpmap"];
             _pomScaleParameter = _shaderEffect.Parameters["POMScale"];
+            _pomQualityParameter = _shaderEffect.Parameters["POMQuality"];
+            PomCutoffParameter = _shaderEffect.Parameters["POMCutoff"];
 
             _noNormalUnskinnedPass = _shaderEffect.Techniques["NoNormal_Unskinned"].Passes[0];
             _noNormalNoTexUnskinnedPass = _shaderEffect.Techniques["NoNormalNoTex_Unskinned"].Passes[0];

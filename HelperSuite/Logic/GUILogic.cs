@@ -20,6 +20,7 @@ namespace ModelViewer.Logic
         private GUITextBlock _roughnessBlock;
         private GUITextBlock _metallicBlock;
         private GUITextBlock _pomBlock;
+        private GUITextBlock _pomQualityBlock;
 
         private GUITextBlock _aoRadiiBlock;
         private GUITextBlock _aoSamplesBlock;
@@ -184,9 +185,9 @@ namespace ModelViewer.Logic
 
                 colorList.AddElement(
                     _roughnessBlock =
-                        new GUITextBlock(Vector2.Zero, new Vector2(200, 35), "Roughness: " + GameSettings.m_roughness,
+                        new GUITextBlock(Vector2.Zero, new Vector2(200, 25), "Roughness: " + GameSettings.m_roughness,
                             GUIRenderer.MonospaceFont, Color.Gray, Color.White));
-                colorList.AddElement(new GuiSliderFloat(Vector2.Zero, new Vector2(200, 35), 0, 1, Color.Gray, Color.Black)
+                colorList.AddElement(new GuiSliderFloat(Vector2.Zero, new Vector2(200, 25), 0, 1, Color.Gray, Color.Black)
                 {
                     SliderField = typeof(GameSettings).GetField("m_roughness"),
                     SliderValue = (float) typeof(GameSettings).GetField("m_roughness").GetValue(null)
@@ -194,9 +195,9 @@ namespace ModelViewer.Logic
 
                 colorList.AddElement(
                     _metallicBlock =
-                        new GUITextBlock(Vector2.Zero, new Vector2(200, 35), "Metallic: " + GameSettings.m_metallic,
+                        new GUITextBlock(Vector2.Zero, new Vector2(200, 25), "Metallic: " + GameSettings.m_metallic,
                             GUIRenderer.MonospaceFont, Color.Gray, Color.White));
-                colorList.AddElement(new GuiSliderFloat(Vector2.Zero, new Vector2(200, 35), 0, 1, Color.Gray, Color.Black)
+                colorList.AddElement(new GuiSliderFloat(Vector2.Zero, new Vector2(200, 25), 0, 1, Color.Gray, Color.Black)
                 {
                     SliderField = typeof(GameSettings).GetField("m_metallic"),
                     SliderValue = (float) typeof(GameSettings).GetField("m_metallic").GetValue(null)
@@ -208,20 +209,36 @@ namespace ModelViewer.Logic
             baseList.AddElement(new GUITextBlock(Vector2.Zero, new Vector2(200, 25), "Bump Mapping", GUIRenderer.MonospaceFont, Color.DimGray, Color.White, GUIStyle.TextAlignment.Center));
             GuiListToggle parallaxList = new GuiListToggle(Vector2.Zero, new Vector2(200, 30), 0, GUIStyle.GUIAlignment.None, screenCanvas.Dimensions);
             {
-                parallaxList.AddElement(new GUITextBlockToggle(Vector2.Zero, new Vector2(200, 35), "Parallax Occlusion", GUIRenderer.MonospaceFont, Color.Gray, Color.White)
+                parallaxList.AddElement(new GUITextBlockToggle(Vector2.Zero, new Vector2(200, 40), "Parallax OcclusionMapping", GUIRenderer.MonospaceFont, Color.Gray, Color.White)
                 {
                     ToggleField = typeof(GameSettings).GetField("r_UsePOM"),
                     Toggle = (bool)typeof(GameSettings).GetField("r_UsePOM").GetValue(null)
                 });
 
+                parallaxList.AddElement(new GUITextBlockToggle(Vector2.Zero, new Vector2(200, 25), "POM Cutoff", GUIRenderer.MonospaceFont, Color.Gray, Color.White)
+                {
+                    ToggleField = typeof(GameSettings).GetField("r_POMCutoff"),
+                    Toggle = (bool)typeof(GameSettings).GetField("r_POMCutoff").GetValue(null)
+                });
+
                 parallaxList.AddElement(
                     _pomBlock =
-                        new GUITextBlock(Vector2.Zero, new Vector2(200, 35), "Bump Scale: " + GameSettings.m_metallic,
+                        new GUITextBlock(Vector2.Zero, new Vector2(200, 25), "Bump Scale: " + GameSettings.pomScale,
                             GUIRenderer.MonospaceFont, Color.Gray, Color.White));
-                parallaxList.AddElement(new GuiSliderFloat(Vector2.Zero, new Vector2(200, 35), -0.5f, 0.5f, Color.Gray, Color.Black)
+                parallaxList.AddElement(new GuiSliderFloat(Vector2.Zero, new Vector2(200, 25), -0.5f, 0.5f, Color.Gray, Color.Black)
                 {
                     SliderField = typeof(GameSettings).GetField("pomScale"),
                     SliderValue = (float)typeof(GameSettings).GetField("pomScale").GetValue(null)
+                });
+
+                parallaxList.AddElement(
+                    _pomQualityBlock =
+                        new GUITextBlock(Vector2.Zero, new Vector2(200, 25), "POM Quality: " + GameSettings.r_POMQuality,
+                            GUIRenderer.MonospaceFont, Color.Gray, Color.White));
+                parallaxList.AddElement(new GuiSliderFloat(Vector2.Zero, new Vector2(200, 25), 0.5f, 3, Color.Gray, Color.Black)
+                {
+                    SliderField = typeof(GameSettings).GetField("r_POMQuality"),
+                    SliderValue = (float)typeof(GameSettings).GetField("r_POMQuality").GetValue(null)
                 });
             }
             parallaxList.IsToggled = false;
@@ -232,7 +249,7 @@ namespace ModelViewer.Logic
             baseList.AddElement(new GUITextBlock(Vector2.Zero, new Vector2(200, 25), "Ambient Occlusion", GUIRenderer.MonospaceFont, Color.DimGray, Color.White, GUIStyle.TextAlignment.Center));
             GuiListToggle aoList = new GuiListToggle(Vector2.Zero, new Vector2(200, 30), 0, GUIStyle.GUIAlignment.None, screenCanvas.Dimensions);
             {
-                aoList.AddElement(new GUITextBlockToggle(Vector2.Zero, new Vector2(200, 35), "Enable AO", GUIRenderer.MonospaceFont, Color.Gray, Color.White)
+                aoList.AddElement(new GUITextBlockToggle(Vector2.Zero, new Vector2(200, 25), "Enable AO", GUIRenderer.MonospaceFont, Color.Gray, Color.White)
                 {
                     ToggleField = typeof(GameSettings).GetField("ao_Enable"),
                     Toggle = (bool)typeof(GameSettings).GetField("ao_Enable").GetValue(null)
@@ -240,9 +257,9 @@ namespace ModelViewer.Logic
 
                 aoList.AddElement(
                     _aoRadiiBlock =
-                        new GUITextBlock(Vector2.Zero, new Vector2(200, 35), "AO Radius: " + GameSettings.ao_Radii,
+                        new GUITextBlock(Vector2.Zero, new Vector2(200, 25), "AO Radius: " + GameSettings.ao_Radii,
                             GUIRenderer.MonospaceFont, Color.Gray, Color.White));
-                aoList.AddElement(new GuiSliderFloat(Vector2.Zero, new Vector2(200, 35), 0, 8, Color.Gray, Color.Black)
+                aoList.AddElement(new GuiSliderFloat(Vector2.Zero, new Vector2(200, 25), 0, 8, Color.Gray, Color.Black)
                 {
                     SliderField = typeof(GameSettings).GetField("ao_Radii"),
                     SliderValue = (float)typeof(GameSettings).GetField("ao_Radii").GetValue(null)
@@ -250,10 +267,10 @@ namespace ModelViewer.Logic
 
                 aoList.AddElement(
                     _aoSamplesBlock =
-                        new GUITextBlock(Vector2.Zero, new Vector2(200, 35), "AO Samples ppx: " + GameSettings.ao_Samples,
+                        new GUITextBlock(Vector2.Zero, new Vector2(200, 25), "AO Samples ppx: " + GameSettings.ao_Samples,
                             GUIRenderer.MonospaceFont, Color.Gray, Color.White));
 
-                aoList.AddElement(new GuiSliderInt(Vector2.Zero, new Vector2(200, 35), 0, 64, 2, Color.Gray, Color.Black)
+                aoList.AddElement(new GuiSliderInt(Vector2.Zero, new Vector2(200, 25), 0, 64, 2, Color.Gray, Color.Black)
                 {
                     SliderField = typeof(GameSettings).GetField("ao_Samples"),
                     SliderValue = (int)typeof(GameSettings).GetField("ao_Samples").GetValue(null)
@@ -261,22 +278,22 @@ namespace ModelViewer.Logic
 
                 aoList.AddElement(
                     _aoStrengthBlock =
-                        new GUITextBlock(Vector2.Zero, new Vector2(200, 35), "AO Strength: " + GameSettings.ao_Strength,
+                        new GUITextBlock(Vector2.Zero, new Vector2(200,25), "AO Strength: " + GameSettings.ao_Strength,
                             GUIRenderer.MonospaceFont, Color.Gray, Color.White));
 
-                aoList.AddElement(new GuiSliderFloat(Vector2.Zero, new Vector2(200, 35), 0, 4, Color.Gray, Color.Black)
+                aoList.AddElement(new GuiSliderFloat(Vector2.Zero, new Vector2(200, 25), 0, 4, Color.Gray, Color.Black)
                 {
                     SliderField = typeof(GameSettings).GetField("ao_Strength"),
                     SliderValue = (float)typeof(GameSettings).GetField("ao_Strength").GetValue(null)
                 });
 
-                aoList.AddElement(new GUITextBlockToggle(Vector2.Zero, new Vector2(200, 35), "Blur AO", GUIRenderer.MonospaceFont, Color.Gray, Color.White)
+                aoList.AddElement(new GUITextBlockToggle(Vector2.Zero, new Vector2(200, 25), "Blur AO", GUIRenderer.MonospaceFont, Color.Gray, Color.White)
                 {
                     ToggleField = typeof(GameSettings).GetField("ao_UseBlur"),
                     Toggle = (bool)typeof(GameSettings).GetField("ao_UseBlur").GetValue(null)
                 });
 
-                aoList.AddElement(new GUITextBlockToggle(Vector2.Zero, new Vector2(200, 35), "Half resolution", GUIRenderer.MonospaceFont, Color.Gray, Color.White)
+                aoList.AddElement(new GUITextBlockToggle(Vector2.Zero, new Vector2(200, 25), "Half resolution", GUIRenderer.MonospaceFont, Color.Gray, Color.White)
                 {
                     ToggleField = typeof(GameSettings).GetField("ao_HalfRes"),
                     Toggle = (bool)typeof(GameSettings).GetField("ao_HalfRes").GetValue(null)
@@ -327,6 +344,10 @@ namespace ModelViewer.Logic
                 _pomBlock.Text.Append("Height Scale: ");
                 _pomBlock.Text.Concat(GameSettings.pomScale,2);
 
+                _pomQualityBlock.Text.Clear();
+                _pomQualityBlock.Text.Append("POM Quality: ");
+                _pomQualityBlock.Text.Concat(GameSettings.r_POMQuality, 2);
+
                 _aoRadiiBlock.Text.Clear();
                 _aoRadiiBlock.Text.Append("AO Radius: ");
                 _aoRadiiBlock.Text.Concat(GameSettings.ao_Radii, 3);
@@ -338,6 +359,8 @@ namespace ModelViewer.Logic
                 _aoStrengthBlock.Text.Clear();
                 _aoStrengthBlock.Text.Append("AO Strength: ");
                 _aoStrengthBlock.Text.Concat(GameSettings.ao_Strength, 2);
+
+                
 
                 screenCanvas.Update(gameTime, Input.GetMousePosition().ToVector2(), Vector2.Zero);
             }

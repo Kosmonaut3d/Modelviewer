@@ -36,7 +36,7 @@ namespace ModelViewer.Renderer
         private bool _aoEnable;
         private bool _aoUseBlur;
         private bool _aoHalfRes;
-        private float _pomScale;
+        private bool _pomCutoff;
         private bool _usePOM;
 
         private Texture2D rollTexture2D;
@@ -336,16 +336,24 @@ namespace ModelViewer.Renderer
                 _aoHalfRes = GameSettings.ao_HalfRes;
                 UpdateAOTarget();
             }
-            if (Math.Abs(GameSettings.pomScale - _pomScale) > 0.0000001f)
-            {
-                _pomScale = GameSettings.pomScale;
-                _animatedModelShader.PomScale = _pomScale;
-            }
+
+            //POM
+            
             if (GameSettings.r_UsePOM != _usePOM)
             {
                 _usePOM = GameSettings.r_UsePOM;
                 _animatedModelShader.UsePomParameter.SetValue(_usePOM);
             }
+            if (GameSettings.r_POMCutoff != _pomCutoff)
+            {
+                _pomCutoff = GameSettings.r_POMCutoff;
+                _animatedModelShader.PomCutoffParameter.SetValue(_pomCutoff);
+            }
+            //
+            _animatedModelShader.PomScale = GameSettings.pomScale;
+            _animatedModelShader.PomQuality = GameSettings.r_POMQuality;
+            
+
         }
 
         private void DrawInteractivityAnimation(GameTime gameTime)

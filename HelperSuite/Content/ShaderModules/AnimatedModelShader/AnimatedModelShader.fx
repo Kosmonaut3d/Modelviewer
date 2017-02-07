@@ -47,6 +47,8 @@ bool UseAo = false;
 bool UsePOM = false;
 bool UseBumpmap = false;
 float POMScale = 0.05f;
+float POMQuality = 1;
+bool POMCutoff = true;
 
 Texture2D<float4> NormalMap;
 Texture2D<float4> AlbedoMap;
@@ -394,13 +396,13 @@ float4 Lighting(LightingParams input)
 
 	float3 reflectVector = -reflect(-viewDir, normal);
 
-	float3 specularReflection = EnvironmentMap.SampleLevel(CubeMapSampler, reflectVector.xzy, (roughness) * 6).rgb;
+	float3 specularReflection = EnvironmentMap.SampleLevel(CubeMapSampler, reflectVector.xzy, (roughness) * 7).rgb;
 	if (UseLinear) specularReflection = pow(abs(specularReflection), 2.2f);
 
 	specularReflection = specularReflection * (fresnelFactor.r * f0 + fresnelFactor.g);
 	//specularReflection = lerp(float4(0, 0, 0, 0), specularReflection, fresnelFactor);
 
-	float3 diffuseReflection = EnvironmentMap.SampleLevel(CubeMapSampler, reflectVector.xzy,6).rgb ;
+	float3 diffuseReflection = EnvironmentMap.SampleLevel(CubeMapSampler, reflectVector.xzy,7).rgb ;
 	if (UseLinear) diffuseReflection = pow(abs(diffuseReflection), 2.2f);
 
 	diffuseReflection *= (1 - (fresnelFactor.r * f0 + fresnelFactor.g));
@@ -485,8 +487,8 @@ float3 CalculateSurfaceNormal(float3 position, float3 normal, float2 texCoord, f
 	dhdx /= 2;
 	dhdy /= 2;*/
 
-	dhdx *= POMScale; /** (1 + !UsePOM * 19);*/
-	dhdy *= POMScale; // *(1 + !UsePOM * 19);
+	dhdx *= -POMScale; /** (1 + !UsePOM * 19);*/
+	dhdy *= -POMScale; // *(1 + !UsePOM * 19);
 
 	/*dhdx = ApplyChainRule(dhdx, dhdy, dudx.x, dudx.y);
 	dhdy = ApplyChainRule(dhdx, dhdy, dudy.x, dudy.x);*/
@@ -575,24 +577,28 @@ float2 CalculatePOM(float3 WorldPosition, float3x3 TangentSpace, float2 texCoord
 	//texCoords = texCoords + viewDir.xy * height * height_scale;
 
 	// number of depth layers
-	float numLayers = lerp(10, 40, steepness);
+	float numLayers = lerp(10, 40, steepness) * POMQuality;
 	// calculate the size of each layer
 	float layerDepth = 1.0 / numLayers;
 	// depth of current layer
 	float currentLayerDepth = 0.0;
 
-	float2 P = viewDir.xy/(max(viewDir.z, 0.4f)) * height_scale;
+	float2 P = viewDir.xy/(max(viewDir.z, 0.4f)) * abs(height_scale);
 	float2 deltaTexCoords = P / numLayers;
 
-	float2  currentTexCoords = texCoords;
-	float currentDepthMapValue = HeightMap.SampleLevel(TextureSampler, currentTexCoords, sampleLevel);
+	float f1 = saturate(sign(height_scale));
+	float f2 = sign(-height_scale);
 
+	float2  currentTexCoords = texCoords;
+	float currentDepthMapValue = f1 + f2 *HeightMap.SampleLevel(TextureSampler, currentTexCoords, sampleLevel);
+
+	[loop]
 	while (currentLayerDepth < currentDepthMapValue)
 	{
 		// shift texture coordinates along direction of P
 		currentTexCoords -= deltaTexCoords;
 		// get depthmap value at current texture coordinates
-		currentDepthMapValue = HeightMap.SampleLevel(TextureSampler, currentTexCoords, sampleLevel);
+		currentDepthMapValue = f1 + f2 *HeightMap.SampleLevel(TextureSampler, currentTexCoords, sampleLevel);
 		// get depth of next layer
 		currentLayerDepth += layerDepth;
 	}
@@ -601,11 +607,17 @@ float2 CalculatePOM(float3 WorldPosition, float3x3 TangentSpace, float2 texCoord
 
 	// get depth after and before collision for linear interpolation
 	float afterDepth = currentDepthMapValue - currentLayerDepth;
-	float beforeDepth = HeightMap.SampleLevel(TextureSampler, prevTexCoords, sampleLevel) - currentLayerDepth + layerDepth;
+	float beforeDepth = f1 + f2 *HeightMap.SampleLevel(TextureSampler, prevTexCoords, sampleLevel) - currentLayerDepth + layerDepth;
 
 	// interpolation of texture coordinates
 	float weight = afterDepth / (afterDepth - beforeDepth);
-	float2 finalTexCoords = prevTexCoords * weight + currentTexCoords * (1.0 - weight);
+	float2 finalTexCoords = lerp(currentTexCoords, prevTexCoords, weight); /* prevTexCoords * weight + currentTexCoords * (1.0 - weight);*/
+
+	if (POMCutoff)
+	if (finalTexCoords.x != saturate(finalTexCoords.x) || finalTexCoords.y != saturate(finalTexCoords.y))
+	{
+		discard;
+	}
 
 	return finalTexCoords;
 }
