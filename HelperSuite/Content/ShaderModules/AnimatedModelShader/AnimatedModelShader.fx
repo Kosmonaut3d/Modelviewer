@@ -63,6 +63,9 @@ TextureCube<float4> EnvironmentMap;
 SamplerState TextureSampler
 {
 	Texture = <AlbedoMap>;
+	/*MinFilter = LINEAR;
+	MagFilter = LINEAR;
+	Mipfilter = LINEAR;*/
 	Filter = Anisotropic;
 	MaxAnisotropy = 8;
 	AddressU = Wrap;
@@ -392,7 +395,7 @@ float4 Lighting(LightingParams input)
 
 	float f0 = lerp(0.04f, color.g * 0.25 + 0.75, metallic);
 
-	float2 fresnelFactor = FresnelMap.Sample(FresnelSampler, float2(roughness, 1-dot(-viewDir, normal))).rg;
+	float2 fresnelFactor = FresnelMap.SampleLevel(FresnelSampler, float2(roughness, 1-dot(-viewDir, normal)), 0).rg;
 
 	float3 reflectVector = -reflect(-viewDir, normal);
 
@@ -502,7 +505,7 @@ float4 PixelShaderFunction(VertexShaderOutput input) : SV_TARGET0
 {
 	float3 normal = normalize(input.Normal);
 
-	float sampleLevel = AlbedoMap.CalculateLevelOfDetail(TextureSampler, input.TexCoord);
+	float sampleLevel = AlbedoMap.CalculateLevelOfDetailUnclamped(TextureSampler, input.TexCoord);
 
 	float4 albedo = AlbedoColor;
 
@@ -590,7 +593,7 @@ float2 CalculatePOM(float3 WorldPosition, float3x3 TangentSpace, float2 texCoord
 	float f2 = sign(-height_scale);
 
 	float2  currentTexCoords = texCoords;
-	float currentDepthMapValue = f1 + f2 *HeightMap.SampleLevel(TextureSampler, currentTexCoords, sampleLevel);
+	float currentDepthMapValue = f1 + f2 *HeightMap.SampleLevel(TextureSampler, currentTexCoords, sampleLevel).r;
 
 	[loop]
 	while (currentLayerDepth < currentDepthMapValue)
@@ -598,7 +601,7 @@ float2 CalculatePOM(float3 WorldPosition, float3x3 TangentSpace, float2 texCoord
 		// shift texture coordinates along direction of P
 		currentTexCoords -= deltaTexCoords;
 		// get depthmap value at current texture coordinates
-		currentDepthMapValue = f1 + f2 *HeightMap.SampleLevel(TextureSampler, currentTexCoords, sampleLevel);
+		currentDepthMapValue = f1 + f2 *HeightMap.SampleLevel(TextureSampler, currentTexCoords, sampleLevel).r;
 		// get depth of next layer
 		currentLayerDepth += layerDepth;
 	}
@@ -607,7 +610,7 @@ float2 CalculatePOM(float3 WorldPosition, float3x3 TangentSpace, float2 texCoord
 
 	// get depth after and before collision for linear interpolation
 	float afterDepth = currentDepthMapValue - currentLayerDepth;
-	float beforeDepth = f1 + f2 *HeightMap.SampleLevel(TextureSampler, prevTexCoords, sampleLevel) - currentLayerDepth + layerDepth;
+	float beforeDepth = f1 + f2 *HeightMap.SampleLevel(TextureSampler, prevTexCoords, sampleLevel).r - currentLayerDepth + layerDepth;
 
 	// interpolation of texture coordinates
 	float weight = afterDepth / (afterDepth - beforeDepth);
@@ -624,14 +627,16 @@ float2 CalculatePOM(float3 WorldPosition, float3x3 TangentSpace, float2 texCoord
 
 float4 TangentSpace_PixelShaderFunction(Normal_VertexShaderOutput input) : SV_TARGET0
 {
-	float sampleLevel = AlbedoMap.CalculateLevelOfDetail(TextureSampler, input.TexCoord);
+	float sampleLevel = AlbedoMap.CalculateLevelOfDetailUnclamped(TextureSampler, input.TexCoord);
 
 	float4 albedo = AlbedoColor;
 
-	[branch]
+	/*[branch]*/
 	if (UsePOM)
 	{
 		input.TexCoord = CalculatePOM(input.WorldPosition, input.WorldToTangentSpace, input.TexCoord, sampleLevel);
+
+		sampleLevel = AlbedoMap.CalculateLevelOfDetailUnclamped(TextureSampler, input.TexCoord);
 	}
 
 	[branch]
@@ -667,7 +672,7 @@ float4 TangentSpace_PixelShaderFunction(Normal_VertexShaderOutput input) : SV_TA
 	{
 		normal = normalize(input.WorldToTangentSpace[2]);
 
-		[branch]
+		/*[branch]*/
 		if (UseBumpmap)
 		{
 			normal = CalculateSurfaceNormal(input.WorldPosition, normal, input.TexCoord, sampleLevel);

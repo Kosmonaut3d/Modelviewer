@@ -1,6 +1,7 @@
 Version history:
 
 0.6 - Added Parallax Occlusion mapping to textures. Added the ability to shift-right click to rotate the sky. Added button to center model.
+0.7 - added mip mapping again
 
 
 Cubemaps from
