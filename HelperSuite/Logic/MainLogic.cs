@@ -126,8 +126,8 @@ namespace ModelViewer.Logic
                     camera.Position = camera.Lookat + new Vector3(-x, -y, z);
                     camera.Forward = (camera.Lookat - camera.Position);
 
+                    if (!Input.IsKeyDown(Keys.LeftAlt))
                     {
-
                         r = modelPosition.Length(); //Math.Sqrt(x*x + y*y + z*z);
                         tau = Math.Acos(modelPosition.Z / r);
                         phi = Math.Atan2(modelPosition.Y, modelPosition.X);
