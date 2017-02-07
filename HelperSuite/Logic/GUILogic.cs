@@ -19,6 +19,7 @@ namespace ModelViewer.Logic
         private GUITextBlock _sizeBlock;
         private GUITextBlock _roughnessBlock;
         private GUITextBlock _metallicBlock;
+        private GUITextBlock _pomBlock;
 
         private GUITextBlock _aoRadiiBlock;
         private GUITextBlock _aoSamplesBlock;
@@ -152,6 +153,21 @@ namespace ModelViewer.Logic
                         }
                 );
                 mainLogic.metallicLoader = metallicLoader;
+
+                GuiTextBlockLoadDialog bumpLoader;
+                textureList.AddElement(
+                    bumpLoader =
+                        new GuiTextBlockLoadDialog(Vector2.Zero, new Vector2(200, 35), "Heightmap:",
+                            GUIRenderer.MonospaceFont, Color.Gray, Color.White)
+                        {
+                            ButtonObject = _guiContentLoader,
+                            ButtonMethod =
+                                _guiContentLoader.GetType()
+                                    .GetMethod("LoadContentFile")
+                                    .MakeGenericMethod(typeof(Texture2D))
+                        }
+                );
+                mainLogic.bumpLoader = bumpLoader;
             }
             baseList.AddElement(textureList);
             textureList.IsToggled = false;
@@ -188,6 +204,28 @@ namespace ModelViewer.Logic
             }
             colorList.IsToggled = false;
             baseList.AddElement(colorList);
+
+            baseList.AddElement(new GUITextBlock(Vector2.Zero, new Vector2(200, 25), "Bump Mapping", GUIRenderer.MonospaceFont, Color.DimGray, Color.White, GUIStyle.TextAlignment.Center));
+            GuiListToggle parallaxList = new GuiListToggle(Vector2.Zero, new Vector2(200, 30), 0, GUIStyle.GUIAlignment.None, screenCanvas.Dimensions);
+            {
+                parallaxList.AddElement(new GUITextBlockToggle(Vector2.Zero, new Vector2(200, 35), "Parallax Occlusion", GUIRenderer.MonospaceFont, Color.Gray, Color.White)
+                {
+                    ToggleField = typeof(GameSettings).GetField("r_UsePOM"),
+                    Toggle = (bool)typeof(GameSettings).GetField("r_UsePOM").GetValue(null)
+                });
+
+                parallaxList.AddElement(
+                    _pomBlock =
+                        new GUITextBlock(Vector2.Zero, new Vector2(200, 35), "Bump Scale: " + GameSettings.m_metallic,
+                            GUIRenderer.MonospaceFont, Color.Gray, Color.White));
+                parallaxList.AddElement(new GuiSliderFloat(Vector2.Zero, new Vector2(200, 35), -0.5f, 0.5f, Color.Gray, Color.Black)
+                {
+                    SliderField = typeof(GameSettings).GetField("pomScale"),
+                    SliderValue = (float)typeof(GameSettings).GetField("pomScale").GetValue(null)
+                });
+            }
+            parallaxList.IsToggled = false;
+            baseList.AddElement(parallaxList);
 
             //AO
 
@@ -284,6 +322,10 @@ namespace ModelViewer.Logic
                 _metallicBlock.Text.Clear();
                 _metallicBlock.Text.Append("Metallic: ");
                 _metallicBlock.Text.Concat(GameSettings.m_metallic, 2);
+
+                _pomBlock.Text.Clear();
+                _pomBlock.Text.Append("Height Scale: ");
+                _pomBlock.Text.Concat(GameSettings.pomScale,2);
 
                 _aoRadiiBlock.Text.Clear();
                 _aoRadiiBlock.Text.Append("AO Radius: ");

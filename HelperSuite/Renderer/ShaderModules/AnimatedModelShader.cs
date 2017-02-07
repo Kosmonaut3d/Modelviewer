@@ -39,6 +39,7 @@ namespace ModelViewer.Renderer.ShaderModules
         private EffectParameter _bonesParameter;
         private EffectParameter _cameraPositionParameter;
         private EffectParameter _normalMapParameter;
+        private EffectParameter _useNormalMapParameter;
         private EffectParameter _albedoMapParameter;
         private EffectParameter _albedoColorParameter;
         private EffectParameter _useAlbedoMapParameter;
@@ -50,6 +51,10 @@ namespace ModelViewer.Renderer.ShaderModules
         private EffectParameter _useMetallicMapParameter;
         private EffectParameter _aoMapParameter;
         private EffectParameter _useAoMapParameter;
+        private EffectParameter _heightMapParameter;
+        public EffectParameter UsePomParameter;
+        private EffectParameter _useBumpmapParameter;
+        private EffectParameter _pomScaleParameter;
 
         public EffectParameter DepthMapParameter;
 
@@ -103,8 +108,7 @@ namespace ModelViewer.Renderer.ShaderModules
                 _useAoMapParameter.SetValue(_useAo);
             }
         }
-
-
+        
         private Texture2D _normalMap;
         public Texture2D NormalMap
         {
@@ -114,6 +118,7 @@ namespace ModelViewer.Renderer.ShaderModules
                 if (_normalMap != value)
                 {
                     _normalMap = value;
+                    _useNormalMapParameter.SetValue(_normalMap!=null);
                     _normalMapParameter.SetValue(_normalMap);
                 }
             }
@@ -149,6 +154,40 @@ namespace ModelViewer.Renderer.ShaderModules
                     _albedoMap = value;
                     _useAlbedoMapParameter.SetValue(_albedoMap != null);
                     _albedoMapParameter.SetValue(_albedoMap);
+                }
+            }
+        }
+
+        private Texture2D _heightMap;
+
+        public Texture2D HeightMap
+        {
+            get { return _heightMap; }
+            set
+            {
+                if (_heightMap != value)
+                {
+                    _heightMap = value;
+                    _useBumpmapParameter.SetValue(_heightMap!=null);
+                    _heightMapParameter.SetValue(_heightMap);
+                }
+            }
+        }
+
+        private float _pomScale;
+        public float PomScale
+        {
+            get
+            {
+                return _pomScale;
+            }
+
+            set
+            {
+                if (Math.Abs(_pomScale - value) > 0.00001f)
+                {
+                    _pomScale = value;
+                    _pomScaleParameter.SetValue(_pomScale);
                 }
             }
         }
@@ -242,6 +281,7 @@ namespace ModelViewer.Renderer.ShaderModules
             }
         }
 
+
         public enum EffectPasses
         {
             Unskinned, UnskinnedNormalMapped, Skinned, SkinnedNormalMapped,
@@ -274,6 +314,7 @@ namespace ModelViewer.Renderer.ShaderModules
             DepthMapParameter = _shaderEffect.Parameters["DepthMap"];
 
             _normalMapParameter = _shaderEffect.Parameters["NormalMap"];
+            _useNormalMapParameter = _shaderEffect.Parameters["UseNormalMap"];
             _albedoColorParameter = _shaderEffect.Parameters["AlbedoColor"];
             _albedoMapParameter = _shaderEffect.Parameters["AlbedoMap"];
             _useAlbedoMapParameter = _shaderEffect.Parameters["UseAlbedoMap"];
@@ -292,7 +333,12 @@ namespace ModelViewer.Renderer.ShaderModules
             _useMetallicMapParameter = _shaderEffect.Parameters["UseMetallicMap"];
 
             _useLinearParameter = _shaderEffect.Parameters["UseLinear"];
-            
+
+            _heightMapParameter = _shaderEffect.Parameters["HeightMap"];
+            UsePomParameter = _shaderEffect.Parameters["UsePOM"];
+            _useBumpmapParameter = _shaderEffect.Parameters["UseBumpmap"];
+            _pomScaleParameter = _shaderEffect.Parameters["POMScale"];
+
             _noNormalUnskinnedPass = _shaderEffect.Techniques["NoNormal_Unskinned"].Passes[0];
             _noNormalNoTexUnskinnedPass = _shaderEffect.Techniques["NoNormalNoTex_Unskinned"].Passes[0];
             _unskinnedPass = _shaderEffect.Techniques["Unskinned"].Passes[0];

@@ -33,5 +33,7 @@ namespace ModelViewer.HelperSuite.Static
         public static bool ao_UseStencil = true;
         public static bool ao_UseBlur = true;
         public static bool ao_HalfRes = true;
+        public static float pomScale = 0.05f;
+        public static bool r_UsePOM = false;
     }
 }

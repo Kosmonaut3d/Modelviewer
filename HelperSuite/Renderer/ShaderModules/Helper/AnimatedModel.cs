@@ -258,13 +258,16 @@ namespace ModelViewer.Renderer.ShaderModules.Helper
                 }
                 _skinnedShader.DrawMesh(model, world, view, viewProjection, cameraPosition, pass, skeleton);
             }
+            else
+            {
 
-            if(!hasNormals) pass = AnimatedModelShader.EffectPasses.NoNormalUnskinned;
+                if (!hasNormals) pass = AnimatedModelShader.EffectPasses.NoNormalUnskinned;
 
-            if (!hasTexCoords)
-                pass = AnimatedModelShader.EffectPasses.NoNormalNoTexUnskinned;
+                if (!hasTexCoords)
+                    pass = AnimatedModelShader.EffectPasses.NoNormalNoTexUnskinned;
 
-            _skinnedShader.DrawMesh(model, world, view, viewProjection, cameraPosition, pass, null);
+                _skinnedShader.DrawMesh(model, world, view, viewProjection, cameraPosition, pass, null);
+            }
 
             //// Draw the model.
             //foreach (ModelMesh modelMesh in model.Meshes)

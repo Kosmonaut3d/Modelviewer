@@ -182,7 +182,7 @@ namespace ModelViewer.HelperSuite.GUI
                 {
                     GUIElement child = _children[index];
 
-                    if (height < ParentDimensions.Y)
+                    if (ScrollTranslation + height < ParentDimensions.Y)
                     {
                         child.Draw(guiRenderer, initialPosition + height*Vector2.UnitY, mousePosition);
                     }

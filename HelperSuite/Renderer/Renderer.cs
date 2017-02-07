@@ -36,6 +36,8 @@ namespace ModelViewer.Renderer
         private bool _aoEnable;
         private bool _aoUseBlur;
         private bool _aoHalfRes;
+        private float _pomScale;
+        private bool _usePOM;
 
         private Texture2D rollTexture2D;
         private TextureCube skyboxCube;
@@ -172,17 +174,27 @@ namespace ModelViewer.Renderer
                 if(loadedNormal!=null)
                 pass = AnimatedModelShader.EffectPasses.UnskinnedNormalMapped;
             }
+
             {
                 object loadedMaterial = mainLogic.roughnessLoader.LoadedObject;
                 Texture2D loadedAlbedo = loadedMaterial != null ? (Texture2D)loadedMaterial : null;
                 _animatedModelShader.RoughnessMap = loadedAlbedo;
             }
+
             {
                 object loadedMaterial = mainLogic.metallicLoader.LoadedObject;
                 Texture2D loadedAlbedo = loadedMaterial != null ? (Texture2D)loadedMaterial : null;
                 _animatedModelShader.MetallicMap = loadedAlbedo;
             }
 
+            {
+                object loadedMaterial = mainLogic.bumpLoader.LoadedObject;
+                Texture2D loadedAlbedo = loadedMaterial != null ? (Texture2D)loadedMaterial : null;
+                _animatedModelShader.HeightMap = loadedAlbedo;
+
+                if (loadedAlbedo != null && GameSettings.r_UsePOM)
+                    pass = AnimatedModelShader.EffectPasses.UnskinnedNormalMapped;
+            }
 
             Matrix size = Matrix.CreateScale(scale);
             Matrix meshscale = Matrix.CreateScale(meshsize);
@@ -240,7 +252,7 @@ namespace ModelViewer.Renderer
 
                 _graphics.SetRenderTarget(null);
                 _graphics.DepthStencilState = DepthStencilState.Default;//_stencilWriteOnly;
-                usedModel.Draw(world, _view, _viewProjection, camera.Position, _animatedModelShader, pass, false);
+                usedModel.Draw(world, _view, _viewProjection, camera.Position, _animatedModelShader, pass, !GameSettings.ao_Enable);
 
                 if (usedModel.HasModelExtra())
                 {
@@ -323,6 +335,16 @@ namespace ModelViewer.Renderer
             {
                 _aoHalfRes = GameSettings.ao_HalfRes;
                 UpdateAOTarget();
+            }
+            if (Math.Abs(GameSettings.pomScale - _pomScale) > 0.0000001f)
+            {
+                _pomScale = GameSettings.pomScale;
+                _animatedModelShader.PomScale = _pomScale;
+            }
+            if (GameSettings.r_UsePOM != _usePOM)
+            {
+                _usePOM = GameSettings.r_UsePOM;
+                _animatedModelShader.UsePomParameter.SetValue(_usePOM);
             }
         }
 

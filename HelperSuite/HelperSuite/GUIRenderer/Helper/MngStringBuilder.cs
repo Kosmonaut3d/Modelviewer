@@ -800,6 +800,9 @@ namespace ModelViewer.HelperSuite.GUIRenderer.Helper //StringBuilderII
             {
                 Debug.Assert(pad_amount >= 0);
 
+                if (float_val < 0)
+                    string_builder.Append('-');
+
                 if (decimal_places == 0)
                 {
                     // No decimal places, just round up and print it as an int
@@ -837,7 +840,11 @@ namespace ModelViewer.HelperSuite.GUIRenderer.Helper //StringBuilderII
                     {
                         remainder *= 10;
                         decimal_places--;
-                    }
+
+                        if(remainder<1)
+                        string_builder.Concat((uint)0, 0, '0', 10);
+
+                }
                     while (decimal_places > 0);
 
                     // Round up. It's guaranteed to be a positive number, so no extra work required here.

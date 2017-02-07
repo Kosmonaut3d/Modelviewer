@@ -26,11 +26,12 @@ namespace ModelViewer.Logic
         public GuiTextBlockLoadDialog normalLoader;
         public GuiTextBlockLoadDialog roughnessLoader;
         public GuiTextBlockLoadDialog metallicLoader;
+        public GuiTextBlockLoadDialog bumpLoader;
         private Texture2D rollTexture2D;
         private SpriteBatch _spriteBatch;
         private Camera _camera;
         public Vector3 modelPosition;
-        
+
 
         public void Initialize(GraphicsDevice graphicsDevice)
         {

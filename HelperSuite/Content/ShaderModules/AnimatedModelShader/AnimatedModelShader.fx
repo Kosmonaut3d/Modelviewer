@@ -41,14 +41,19 @@ bool UseRoughnessMap = false;
 float4 AlbedoColor = float4(1, 1, 1, 1);
 bool UseAlbedoMap = false;
 
+bool UseNormalMap = false;
 bool UseLinear = true;
 bool UseAo = false;
+bool UsePOM = false;
+bool UseBumpmap = false;
+float POMScale = 0.05f;
 
 Texture2D<float4> NormalMap;
 Texture2D<float4> AlbedoMap;
 Texture2D<float4> MetallicMap;
 Texture2D<float4> RoughnessMap;
 Texture2D<float4> AoMap;
+Texture2D<float4> HeightMap;
 
 Texture2D<float4> FresnelMap;
 TextureCube<float4> EnvironmentMap;
@@ -389,7 +394,7 @@ float4 Lighting(LightingParams input)
 
 	float3 reflectVector = -reflect(-viewDir, normal);
 
-	float3 specularReflection = EnvironmentMap.SampleLevel(CubeMapSampler, reflectVector.xzy, (roughness) * 8).rgb;
+	float3 specularReflection = EnvironmentMap.SampleLevel(CubeMapSampler, reflectVector.xzy, (roughness) * 6).rgb;
 	if (UseLinear) specularReflection = pow(abs(specularReflection), 2.2f);
 
 	specularReflection = specularReflection * (fresnelFactor.r * f0 + fresnelFactor.g);
@@ -422,9 +427,78 @@ float4 Lighting(LightingParams input)
 	return float4(finalValue, 1);
 }
 
+//http://www.rorydriscoll.com/2012/01/11/derivative-maps/
+
+// Project the surface gradient (dhdx, dhdy) onto the surface (n, dpdx, dpdy)
+float3 CalculateSurfaceGradient(float3 n, float3 dpdx, float3 dpdy, float dhdx, float dhdy)
+{
+	float3 r1 = cross(dpdy, n);
+	float3 r2 = cross(n, dpdx);
+
+	return (r1 * dhdx + r2 * dhdy) / dot(dpdx, r1);
+}
+
+float ApplyChainRule(float dhdu, float dhdv, float dud_, float dvd_)
+{
+	return dhdu * dud_ + dhdv * dvd_;
+}
+
+// Move the normal away from the surface normal in the opposite surface gradient direction
+float3 PerturbNormal(float3 normal, float3 dpdx, float3 dpdy, float dhdx, float dhdy)
+{
+	return normalize(normal - CalculateSurfaceGradient(normal, dpdx, dpdy, dhdx, dhdy));
+}
+
+// Calculate the surface normal using screen-space partial derivatives of the height field
+//float3 CalculateSurfaceNormal(float3 position, float3 normal, float height, float2 uv)
+//{
+//	float3 dpdx = ddx(position);
+//	float3 dpdy = ddy(position);
+//
+//	float2 gradient = float2(ddx(height), ddy(height));
+//
+//	float dhdx = ApplyChainRule(gradient.x, gradient.y, ddx(uv.x), ddx(uv.y));
+//	float dhdy = ApplyChainRule(gradient.x, gradient.y, ddy(uv.x), ddy(uv.y));
+//
+//	return PerturbNormal(normal, dpdx, dpdy, dhdx, dhdy);
+//}
+//
+float3 CalculateSurfaceNormal(float3 position, float3 normal, float2 texCoord, float sampleLevel)
+{
+	float3 dpdx = ddx_fine(position);
+	float3 dpdy = ddy_fine(position);
+
+	float height = HeightMap.SampleLevel(TextureSampler, texCoord, sampleLevel).r;
+
+	/*float dhdx = ddx_fine(height);
+	float dhdy = ddy_fine(height);*/
+
+	float2 dudx = float2(ddx(texCoord.x), ddx(texCoord.y));
+	float2 dudy = float2(ddy(texCoord.x), ddy(texCoord.y));
+
+	float dhdx = height - HeightMap.SampleLevel(TextureSampler, texCoord + dudx, sampleLevel).r;
+	float dhdy = height - HeightMap.SampleLevel(TextureSampler, texCoord + dudy, sampleLevel).r;
+
+	/*dhdx += -height + HeightMap.SampleLevel(TextureSampler, texCoord - dudx, sampleLevel);
+	dhdy += -height + HeightMap.SampleLevel(TextureSampler, texCoord - dudy, sampleLevel);
+
+	dhdx /= 2;
+	dhdy /= 2;*/
+
+	dhdx *= POMScale; /** (1 + !UsePOM * 19);*/
+	dhdy *= POMScale; // *(1 + !UsePOM * 19);
+
+	/*dhdx = ApplyChainRule(dhdx, dhdy, dudx.x, dudx.y);
+	dhdy = ApplyChainRule(dhdx, dhdy, dudy.x, dudy.x);*/
+
+	return PerturbNormal(normal, dpdx, dpdy, dhdx, dhdy);
+}
+
+
+
 float4 PixelShaderFunction(VertexShaderOutput input) : SV_TARGET0
 {
-	float3 normal = input.Normal;
+	float3 normal = normalize(input.Normal);
 
 	float sampleLevel = AlbedoMap.CalculateLevelOfDetail(TextureSampler, input.TexCoord);
 
@@ -448,6 +522,13 @@ float4 PixelShaderFunction(VertexShaderOutput input) : SV_TARGET0
 	if (UseMetallicMap)
 	{
 		metallic = MetallicMap.SampleLevel(TextureSampler, input.TexCoord, sampleLevel).r;
+	}
+
+	//Derivative gradient
+	[branch]
+	if (UseBumpmap)
+	{
+		normal = CalculateSurfaceNormal(input.WorldPosition, normal, input.TexCoord, sampleLevel);
 	}
 
 	LightingParams renderParams;
@@ -477,11 +558,69 @@ float4 NoNormal_PixelShaderFunction(NoNormal_VertexShaderOutput input) : SV_TARG
 	return PixelShaderFunction(output);
 }
 
+float2 CalculatePOM(float3 WorldPosition, float3x3 TangentSpace, float2 texCoords, float sampleLevel)
+{
+	float height_scale = POMScale / 5.0f;
+	TangentSpace = transpose(TangentSpace);
+	float3 cameraPositionTS = mul(CameraPosition, TangentSpace);
+	float3 positionTS = mul(WorldPosition, TangentSpace);
+	//Vector TO camera
+	float3 viewDir = normalize(cameraPositionTS - positionTS);
+
+	//steepness
+	float steepness = (1 - viewDir.z);
+
+	//float height = HeightMap.SampleLevel(TextureSampler, texCoords, sampleLevel);
+
+	//texCoords = texCoords + viewDir.xy * height * height_scale;
+
+	// number of depth layers
+	float numLayers = lerp(10, 40, steepness);
+	// calculate the size of each layer
+	float layerDepth = 1.0 / numLayers;
+	// depth of current layer
+	float currentLayerDepth = 0.0;
+
+	float2 P = viewDir.xy/(max(viewDir.z, 0.4f)) * height_scale;
+	float2 deltaTexCoords = P / numLayers;
+
+	float2  currentTexCoords = texCoords;
+	float currentDepthMapValue = HeightMap.SampleLevel(TextureSampler, currentTexCoords, sampleLevel);
+
+	while (currentLayerDepth < currentDepthMapValue)
+	{
+		// shift texture coordinates along direction of P
+		currentTexCoords -= deltaTexCoords;
+		// get depthmap value at current texture coordinates
+		currentDepthMapValue = HeightMap.SampleLevel(TextureSampler, currentTexCoords, sampleLevel);
+		// get depth of next layer
+		currentLayerDepth += layerDepth;
+	}
+
+	float2 prevTexCoords = currentTexCoords + deltaTexCoords;
+
+	// get depth after and before collision for linear interpolation
+	float afterDepth = currentDepthMapValue - currentLayerDepth;
+	float beforeDepth = HeightMap.SampleLevel(TextureSampler, prevTexCoords, sampleLevel) - currentLayerDepth + layerDepth;
+
+	// interpolation of texture coordinates
+	float weight = afterDepth / (afterDepth - beforeDepth);
+	float2 finalTexCoords = prevTexCoords * weight + currentTexCoords * (1.0 - weight);
+
+	return finalTexCoords;
+}
+
 float4 TangentSpace_PixelShaderFunction(Normal_VertexShaderOutput input) : SV_TARGET0
 {
 	float sampleLevel = AlbedoMap.CalculateLevelOfDetail(TextureSampler, input.TexCoord);
 
 	float4 albedo = AlbedoColor;
+
+	[branch]
+	if (UsePOM)
+	{
+		input.TexCoord = CalculatePOM(input.WorldPosition, input.WorldToTangentSpace, input.TexCoord, sampleLevel);
+	}
 
 	[branch]
 	if (UseAlbedoMap)
@@ -503,9 +642,25 @@ float4 TangentSpace_PixelShaderFunction(Normal_VertexShaderOutput input) : SV_TA
 		metallic = MetallicMap.SampleLevel(TextureSampler, input.TexCoord, sampleLevel).r;
 	}
 
-	float3 normalMap = NormalMap.SampleLevel(TextureSampler, input.TexCoord, sampleLevel).xyz - float3(0.5f, 0.5f, 0.5f);
+	float3 normal;
 
-	float3 normal = normalize(mul(normalMap, input.WorldToTangentSpace));
+	[branch]
+	if (UseNormalMap)
+	{
+		float3 normalMap = NormalMap.SampleLevel(TextureSampler, input.TexCoord, sampleLevel).xyz - float3(0.5f, 0.5f, 0.5f);
+
+		normal = normalize(mul(normalMap, input.WorldToTangentSpace));
+	}
+	else
+	{
+		normal = normalize(input.WorldToTangentSpace[2]);
+
+		[branch]
+		if (UseBumpmap)
+		{
+			normal = CalculateSurfaceNormal(input.WorldPosition, normal, input.TexCoord, sampleLevel);
+		}
+	}
 
 	LightingParams renderParams;
 
