@@ -12,6 +12,7 @@ using ModelViewer.HelperSuite.ContentLoader;
 using ModelViewer.HelperSuite.Static;
 using ModelViewer.Logic;
 using ModelViewer.Renderer.ShaderModules.Helper;
+using ButtonState = Microsoft.Xna.Framework.Input.ButtonState;
 
 namespace ModelViewer.HelperSuite.GUIHelper
 {
@@ -33,6 +34,9 @@ namespace ModelViewer.HelperSuite.GUIHelper
 
         public void LoadContentFile<T>(out Task loadTaskOut, ref int pointerPositionInOut, out string filenameOut/*, string path*/)
         {
+            Input.mouseLastState = Mouse.GetState();
+            Input.mouseState = Mouse.GetState();
+            
             string dialogFilter = "All files(*.*) | *.*";
             string pipeLineFile = "runtime.txt";
             //Switch the content pipeline parameters depending on the content type
@@ -71,9 +75,6 @@ namespace ModelViewer.HelperSuite.GUIHelper
                 RestoreDirectory = true,
                 Multiselect = false
             };
-
-            Input.mouseLastState = Mouse.GetState();
-            Input.mouseState = Mouse.GetState();
 
             //"c:\\";
 

@@ -72,6 +72,11 @@ namespace ModelViewer.Logic
             }
         }
 
+        public static bool IsKeyDown(Keys key)
+        {
+            return keyboardState.IsKeyDown(key);
+        }
+
         // Checks if a key was just pressed down
         public static bool WasKeyPressed(Keys key)
         {

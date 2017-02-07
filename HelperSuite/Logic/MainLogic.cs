@@ -31,6 +31,8 @@ namespace ModelViewer.Logic
         private SpriteBatch _spriteBatch;
         private Camera _camera;
         public Vector3 modelPosition;
+        public Matrix modelRotation = Matrix.Identity;
+        private double defaultphi = 0;
 
 
         public void Initialize(GraphicsDevice graphicsDevice)
@@ -49,12 +51,19 @@ namespace ModelViewer.Logic
 
         }
 
+        public void CenterModel()
+        {
+            modelPosition = Vector3.Zero;
+            modelRotation = Matrix.Identity;
+
+            defaultphi = 0;
+        }
 
         private void MouseEvents(Camera camera, ref Vector3 position)
         {
             if (!DebugScreen.ConsoleOpen && Input.WasKeyPressed(Keys.Space))
             {
-                modelPosition = Vector3.Zero;
+                CenterModel();
             }
             if (Input.mouseState.ScrollWheelValue != Input.mouseLastState.ScrollWheelValue)
             {
@@ -116,16 +125,35 @@ namespace ModelViewer.Logic
                     //camera.Forward = new Vector3(x, y, 0);
                     camera.Position = camera.Lookat + new Vector3(-x, -y, z);
                     camera.Forward = (camera.Lookat - camera.Position);
-                    
 
+                    {
+
+                        r = modelPosition.Length(); //Math.Sqrt(x*x + y*y + z*z);
+                        tau = Math.Acos(modelPosition.Z / r);
+                        phi = Math.Atan2(modelPosition.Y, modelPosition.X);
+
+                        phi += (Input.mouseState.X - Input.mouseLastState.X) / 60.0f;
+                        tau = (tau + (Input.mouseState.Y - Input.mouseLastState.Y) / 100.0f).Clamp(0.01f, Math.PI - 0.1f);
+
+                        //Convert back
+                        x = (float)(r * Math.Sin(tau) * Math.Cos(phi));
+                        y = (float)(r * Math.Sin(tau) * Math.Sin(phi));
+                        z = modelPosition.Z;// (float)(r * Math.Cos(tau));
+                        modelPosition = new Vector3(x,y,z);
+                    }
+
+                    if (Input.IsKeyDown(Keys.LeftShift))
+                    {
+                        defaultphi += (Input.mouseState.X - Input.mouseLastState.X) / 60.0f;
+                        modelRotation = Matrix.CreateRotationZ((float) (defaultphi));
+                    }
                 }
             }
             if (Input.mouseState.LeftButton == ButtonState.Pressed)
             {
-
                 float x = (Input.mouseState.X - Input.mouseLastState.X) / 1000.0f * camera.DistanceFromCenter;
                 float y = -(Input.mouseState.Y - Input.mouseLastState.Y) / 1000.0f * camera.DistanceFromCenter;
-
+                
                 Vector3 normal = Vector3.Cross(camera.Up, camera.Forward);
                 Vector3 realup = Vector3.Cross(normal, camera.Forward);
                 

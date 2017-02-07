@@ -88,7 +88,7 @@ namespace ModelViewer.Static
         
         public void Draw(GameTime gameTime)
         {
-            _renderer.Draw(_mainLogic.GetCamera(), _mainLogic, _mainLogic.modelPosition, gameTime);
+            _renderer.Draw(_mainLogic.GetCamera(), _mainLogic, _mainLogic.modelPosition, _mainLogic.modelRotation, gameTime);
 
             _mainLogic.Draw(gameTime);
 

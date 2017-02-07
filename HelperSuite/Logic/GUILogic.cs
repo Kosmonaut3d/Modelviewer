@@ -64,13 +64,19 @@ namespace ModelViewer.Logic
                 ToggleField = typeof(GameSettings).GetField("ui_debug"),
                 Toggle = (bool)typeof(GameSettings).GetField("ui_debug").GetValue(null)
             });
-            //baseList.AddElement(new GUITextBlock(Vector2.Zero, new Vector2(200, 35), "this is a generic testblock and it tests wrap ", GUIRenderer.MonospaceFont, Color.Gray, Color.White));
-            baseList.AddElement(new GuiSliderFloat(Vector2.Zero, new Vector2(200, 35), -2, 4, Color.Gray, Color.Black )
+
+            baseList.AddElement(_sizeBlock = new GUITextBlock(Vector2.Zero, new Vector2(200, 25), "Size: " + GameSettings.m_size, GUIRenderer.MonospaceFont, Color.Gray, Color.White));
+            baseList.AddElement(new GuiSliderFloat(Vector2.Zero, new Vector2(200, 25), -2, 4, Color.Gray, Color.Black )
             {
                 SliderField = typeof(GameSettings).GetField("m_size"),
                 SliderValue = (float)typeof(GameSettings).GetField("m_size").GetValue(null)
             });
-            baseList.AddElement(_sizeBlock = new GUITextBlock(Vector2.Zero, new Vector2(200, 25), "Size: " + GameSettings.m_size, GUIRenderer.MonospaceFont, Color.Gray, Color.White));
+
+            baseList.AddElement(new GUITextBlockButton(Vector2.Zero, new Vector2(200, 25), "Center Model", GUIRenderer.MonospaceFont, Color.Gray, Color.White)
+            {
+                ButtonObject = mainLogic,
+                ButtonMethod = mainLogic.GetType().GetMethod("CenterModel")
+            });
             
             baseList.AddElement(new GUITextBlockToggle(Vector2.Zero, new Vector2(200, 25), "Orientation: Y", GUIRenderer.MonospaceFont, Color.Gray, Color.White)
             {

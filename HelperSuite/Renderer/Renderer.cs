@@ -137,7 +137,7 @@ namespace ModelViewer.Renderer
             _ambientOcclusionShader.Load(_contentManager, "ShaderModules/AmbientOcclusionShader/AmbientOcclusionShader");
         }
 
-        public void Draw(Camera camera, MainLogic mainLogic, Vector3 modelPosition, GameTime gameTime)
+        public void Draw(Camera camera, MainLogic mainLogic, Vector3 modelPosition, Matrix modelRotation, GameTime gameTime)
         {
             float scale = (float)Math.Pow(10, GameSettings.m_size);
 
@@ -196,10 +196,10 @@ namespace ModelViewer.Renderer
                     pass = AnimatedModelShader.EffectPasses.UnskinnedNormalMapped;
             }
 
-            Matrix size = Matrix.CreateScale(scale);
+            Matrix size = Matrix.CreateScale(scale * meshsize);
             Matrix meshscale = Matrix.CreateScale(meshsize);
 
-            Matrix world = meshscale * (GameSettings.m_orientationy ? YupOrientation : Matrix.Identity) * Matrix.CreateTranslation(/*-usedModel.Meshes[0].BoundingSphere.Center*/ - modelPosition/ scale) * size ;
+            Matrix world = /*meshscale * */(GameSettings.m_orientationy ? YupOrientation : Matrix.Identity) * modelRotation * Matrix.CreateTranslation(/*-usedModel.Meshes[0].BoundingSphere.Center*/ - modelPosition/ (scale*meshsize))  * size ;
 
             _animatedModelShader.AlbedoColor = GameSettings.bgColor;
             _animatedModelShader.Roughness = GameSettings.m_roughness;
