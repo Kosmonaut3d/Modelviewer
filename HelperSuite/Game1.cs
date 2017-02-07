@@ -27,7 +27,7 @@ namespace ModelViewer
             _screenManager = new ScreenManager();
 
             //Set up graphics properties, no vsync, no framelock
-            _graphics.SynchronizeWithVerticalRetrace = true;
+            _graphics.SynchronizeWithVerticalRetrace = false;
             IsFixedTimeStep = true;
             //TargetElapsedTime = TimeSpan.FromMilliseconds(100);
 

@@ -583,7 +583,7 @@ float2 CalculatePOM(float3 WorldPosition, float3x3 TangentSpace, float2 texCoord
 	// depth of current layer
 	float currentLayerDepth = 0.0;
 
-	float2 P = viewDir.xy/(max(viewDir.z, 0.4f)) * abs(height_scale);
+	float2 P = viewDir.xy/(max(viewDir.z, 0.2f)) * abs(height_scale);
 	float2 deltaTexCoords = P / numLayers;
 
 	float f1 = saturate(sign(height_scale));

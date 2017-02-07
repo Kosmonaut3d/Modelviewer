@@ -115,6 +115,7 @@ namespace ModelViewer.Logic
                     var phi = Math.Atan2(y, x);
 
                     phi += (Input.mouseState.X - Input.mouseLastState.X)/60.0f;
+                    if(!Input.IsKeyDown(Keys.LeftControl))
                     tau = (tau + (Input.mouseState.Y - Input.mouseLastState.Y)/100.0f).Clamp(0.01f, Math.PI - 0.1f);
 
                     //Convert back

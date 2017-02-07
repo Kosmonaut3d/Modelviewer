@@ -19,6 +19,7 @@ namespace ModelViewer.Renderer
         private Matrix _projection;
         private Matrix _viewProjection;
         private bool _viewProjectionHasChanged;
+        private BoundingFrustum _boundingFrustum;
 
         private ThreadSafeContentManager _contentManager;
 
@@ -65,6 +66,8 @@ namespace ModelViewer.Renderer
             _ambientOcclusionShader.Initialize(_graphics);
 
             YupOrientation = Matrix.CreateRotationX((float) (Math.PI/2));
+
+            _boundingFrustum = new BoundingFrustum(Matrix.Identity);
 
             UpdateRenderTargets();
 
@@ -387,7 +390,6 @@ namespace ModelViewer.Renderer
                 _viewProjection = _view * _projection;
             }
 
-            BoundingFrustum _boundingFrustum = new BoundingFrustum(Matrix.Identity);
             _boundingFrustum.Matrix = _viewProjection;
             ComputeFrustumCorners(_boundingFrustum);
 

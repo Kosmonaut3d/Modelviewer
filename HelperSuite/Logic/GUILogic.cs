@@ -231,7 +231,7 @@ namespace ModelViewer.Logic
                     _pomBlock =
                         new GUITextBlock(Vector2.Zero, new Vector2(200, 25), "Bump Scale: " + GameSettings.pomScale,
                             GUIRenderer.MonospaceFont, Color.Gray, Color.White));
-                parallaxList.AddElement(new GuiSliderFloat(Vector2.Zero, new Vector2(200, 25), -0.5f, 0.5f, Color.Gray, Color.Black)
+                parallaxList.AddElement(new GuiSliderFloat(Vector2.Zero, new Vector2(200, 25), -0.7f, 0.7f, Color.Gray, Color.Black)
                 {
                     SliderField = typeof(GameSettings).GetField("pomScale"),
                     SliderValue = (float)typeof(GameSettings).GetField("pomScale").GetValue(null)
