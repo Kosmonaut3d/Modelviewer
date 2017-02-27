@@ -2,7 +2,7 @@
 
 ##Features:
 
-- Import a variety of .obj and .fbx files. They must contain texture coordinates. A mesh cannot have different materials for submeshes (yet?).#
+- Import a variety of .obj and .fbx files. They must contain texture coordinates. A mesh cannot have different materials for submeshes (yet?).
 - Meshes without normals are supported. Meshes without texcoords/uv are supported, too, but they won't display textures.
 - Skinned Meshes with up to 4 bones per vertex are supported
 - Animated Skinned Meshes
