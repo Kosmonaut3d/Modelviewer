@@ -71,7 +71,7 @@ namespace ModelViewer.Renderer.ShaderModules.Helper
         /// </summary>
         public List<AnimationClip> Clips { get { return modelExtra.Clips; } }
 
-        public bool HasModelExtra()
+        public bool HasAnimation()
         {
             return modelExtra != null;
         }

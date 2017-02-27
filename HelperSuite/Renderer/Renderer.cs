@@ -257,7 +257,7 @@ namespace ModelViewer.Renderer
                 _graphics.DepthStencilState = DepthStencilState.Default;//_stencilWriteOnly;
                 usedModel.Draw(world, _view, _viewProjection, camera.Position, _animatedModelShader, pass, !GameSettings.ao_Enable);
 
-                if (usedModel.HasModelExtra())
+                if (usedModel.HasAnimation())
                 {
                     if (usedModel.Clips.Count > 0 && GameSettings.m_updateAnimation)
                         usedModel.Update(gameTime);

@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MGSkinnedAnimationPipeline"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D713AD7B-7B54-4772-87B0-D572CECEFA3F}"
 	ProjectSection(SolutionItems) = preProject
-		Readme.txt = Readme.txt
+		Readme.md = Readme.md
 	EndProjectSection
 EndProject
 Global
