@@ -442,8 +442,6 @@ namespace ModelViewer.Renderer
                 _ambientOcclusionBlur1.Dispose();
             }
 
-            UpdateAOTarget();
-
             int width = GameSettings.g_ScreenWidth ;
             int height = GameSettings.g_ScreenHeight ;
 
@@ -453,6 +451,9 @@ namespace ModelViewer.Renderer
 
             _ambientOcclusionBlur0 = new RenderTarget2D(_graphics, width, height, false, SurfaceFormat.Vector4, DepthFormat.None);
             _ambientOcclusionBlur1 = new RenderTarget2D(_graphics, width, height, false, SurfaceFormat.Vector4, DepthFormat.None);
+
+            UpdateAOTarget();
+
         }
     }
 }

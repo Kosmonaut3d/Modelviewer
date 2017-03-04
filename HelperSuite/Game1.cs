@@ -81,6 +81,7 @@ namespace ModelViewer
                 if (Window.ClientBounds.Width == 0) return;
                 _graphics.PreferredBackBufferWidth = Window.ClientBounds.Width;
                 _graphics.PreferredBackBufferHeight = Window.ClientBounds.Height;
+                
                 _graphics.ApplyChanges();
 
                 GameSettings.g_ScreenWidth = Window.ClientBounds.Width;
