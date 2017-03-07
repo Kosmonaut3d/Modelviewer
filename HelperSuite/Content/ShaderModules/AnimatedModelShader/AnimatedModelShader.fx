@@ -50,6 +50,9 @@ float POMScale = 0.05f;
 float POMQuality = 1;
 bool POMCutoff = true;
 
+
+float CubeSize = 512;
+
 Texture2D<float4> NormalMap;
 Texture2D<float4> AlbedoMap;
 Texture2D<float4> MetallicMap;
@@ -381,6 +384,20 @@ float3 GetNormalMap(float2 TexCoord)
 	return NormalMap.Sample(TextureSampler, TexCoord).rgb - float3(0.5f, 0.5f, 0.5f);
 }
 
+//http://the-witness.net/news/2012/02/seamless-cube-map-filtering/
+
+float3 FixCubeLookup(float3 v, int level)
+{
+	float M = max(max(abs(v.x), abs(v.y)), abs(v.z));
+	//float size = CubeSize >> level;
+	//float scale = (size - 1) / size;
+	float scale = 1 - exp2(level) / CubeSize;
+	if (abs(v.x) != M) v.x *= scale;
+	if (abs(v.y) != M) v.y *= scale;
+	if (abs(v.z) != M) v.z *= scale;
+	return v;
+}
+
 float4 Lighting(LightingParams input)
 {
 	float3 normal = normalize(input.Normal);
@@ -399,13 +416,13 @@ float4 Lighting(LightingParams input)
 
 	float3 reflectVector = -reflect(-viewDir, normal);
 
-	float3 specularReflection = EnvironmentMap.SampleLevel(CubeMapSampler, reflectVector.xzy, (roughness) * 7).rgb;
+	float3 specularReflection = EnvironmentMap.SampleLevel(CubeMapSampler, FixCubeLookup(reflectVector.xzy, roughness * 7), roughness * 7).rgb;
 	if (UseLinear) specularReflection = pow(abs(specularReflection), 2.2f);
 
 	specularReflection = specularReflection * (fresnelFactor.r * f0 + fresnelFactor.g);
 	//specularReflection = lerp(float4(0, 0, 0, 0), specularReflection, fresnelFactor);
 
-	float3 diffuseReflection = EnvironmentMap.SampleLevel(CubeMapSampler, reflectVector.xzy,7).rgb ;
+	float3 diffuseReflection = EnvironmentMap.SampleLevel(CubeMapSampler, FixCubeLookup(reflectVector.xzy, 7),7).rgb ;
 	if (UseLinear) diffuseReflection = pow(abs(diffuseReflection), 2.2f);
 
 	diffuseReflection *= (1 - (fresnelFactor.r * f0 + fresnelFactor.g));

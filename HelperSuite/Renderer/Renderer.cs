@@ -136,6 +136,12 @@ namespace ModelViewer.Renderer
             _animatedModelShader.EnvironmentMap = skyboxCube;
             _animatedModelShader.FresnelMap = fresnelMap;
 
+            int test = 1024;
+            int level = 7;
+
+            int outp = test >> level;
+
+
             _ambientOcclusionShader = new AmbientOcclusionShader();
             _ambientOcclusionShader.Load(_contentManager, "ShaderModules/AmbientOcclusionShader/AmbientOcclusionShader");
         }

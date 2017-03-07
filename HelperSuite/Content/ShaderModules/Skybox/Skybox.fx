@@ -21,6 +21,8 @@ IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 float4x4 WorldViewProj;
 float3x3 World;
 
+float CubeSize = 512;
+
 TextureCube SkyboxTexture;
 SamplerState CubeMapSampler
 {
@@ -55,10 +57,24 @@ DrawBasic_VSIn DrawSkybox_VertexShader(DrawBasic_VSIn input)
 	return Output;
 }
 
+//http://the-witness.net/news/2012/02/seamless-cube-map-filtering/
+float3 FixCubeLookup(float3 v, int level)
+{
+	float M = max(max(abs(v.x), abs(v.y)), abs(v.z));
+	//float size = CubeSize >> level;
+	//float scale = (size - 1) / size;
+
+	float scale = 1 - exp2(level) / CubeSize;
+	if (abs(v.x) != M) v.x *= scale;
+	if (abs(v.y) != M) v.y *= scale;
+	if (abs(v.z) != M) v.z *= scale;
+	return v;
+}
+
 float4 DrawSkybox_PixelShader(DrawBasic_VSIn input) : COLOR
 {
 	float3 normal = normalize(input.Normal);
-	return SkyboxTexture.SampleLevel(CubeMapSampler, normal.xzy,4);
+	return SkyboxTexture.SampleLevel(CubeMapSampler, FixCubeLookup(normal.xzy,4),4);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

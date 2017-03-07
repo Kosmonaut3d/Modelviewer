@@ -79,11 +79,11 @@ namespace ModelViewer
                 GraphicsDevice.Viewport.Height != _graphics.PreferredBackBufferHeight)
             {
                 if (Window.ClientBounds.Width == 0) return;
-                _graphics.PreferredBackBufferWidth = Window.ClientBounds.Width;
-                _graphics.PreferredBackBufferHeight = Window.ClientBounds.Height;
+                //_graphics.PreferredBackBufferWidth = Window.ClientBounds.Width;
+                //_graphics.PreferredBackBufferHeight = Window.ClientBounds.Height;
                 
-                _graphics.ApplyChanges();
-
+                //_graphics.ApplyChanges();
+                
                 GameSettings.g_ScreenWidth = Window.ClientBounds.Width;
                 GameSettings.g_ScreenHeight = Window.ClientBounds.Height;
 
@@ -163,10 +163,9 @@ namespace ModelViewer
 
             //GraphicsDevice.Clear(new Color(GameSettings.testvaluer, GameSettings.testvalueg, GameSettings.testvalueb));
             GraphicsDevice.Clear(GameSettings.bgColor);
-            if(_isActive)
             _screenManager.Draw(gameTime);
 
-            // TODO: Add your drawing code here
+            //// TODO: Add your drawing code here
 
             base.Draw(gameTime);
         }
