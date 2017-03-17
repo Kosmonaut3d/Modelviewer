@@ -1,6 +1,6 @@
-#Modelviewer for Monogame
+# Modelviewer for Monogame
 
-##Features:
+## Features:
 
 - Import a variety of .obj and .fbx files. They must contain texture coordinates. A mesh cannot have different materials for submeshes (yet?).
 - Meshes without normals are supported. Meshes without texcoords/uv are supported, too, but they won't display textures.
@@ -11,7 +11,7 @@
 - Parallax Occlusion Mapping
 - Intuitive UI
 
-##Controls
+## Controls
 
 - LMB drag the object
 - RMB -rotate around the object
@@ -21,7 +21,7 @@
 
 
 
-##Version history:
+## Version history:
 
 0.6 - Added Parallax Occlusion mapping to textures. Added the ability to shift-right click to rotate the sky. Added button to center model.
 0.7 - added mip mapping again
