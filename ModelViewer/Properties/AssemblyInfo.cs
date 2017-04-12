@@ -4,12 +4,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("HelperSuite")]
-[assembly: AssemblyProduct("HelperSuite")]
+[assembly: AssemblyTitle("ModelViewer")]
+[assembly: AssemblyProduct("ModelViewer")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyCopyright("Copyright ©  2017")]
+[assembly: AssemblyCopyright("Copyright TheKosmonaut©  2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -19,7 +19,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("58e65e27-5d11-435c-9b8f-0876bf5bd231")]
+[assembly: Guid("8a6c4f83-5833-4727-bc3a-934115d3f09d")]
 
 // Version information for an assembly consists of the following four values:
 //
