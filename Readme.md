@@ -20,6 +20,9 @@
 - space - center object
 
 
+## Discussion Thread
+http://community.monogame.net/t/3d-model-viewer-for-monogame-ver-0-6/8696
+
 
 ## Version history:
 
