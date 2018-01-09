@@ -197,7 +197,7 @@ namespace ModelViewer.HelperSuiteExtension.GUI
 
                 if (GUILoader != null)
                 {
-                    object[] args = {_loadTaskReference, _loadedObjectPointer};
+                    object[] args = {_loadTaskReference, _loadedObjectPointer, ""};
                     if (LoaderMethod != null) LoaderMethod.Invoke(GUILoader, args);
                     
                     _loadTaskReference = (Task) args[0];

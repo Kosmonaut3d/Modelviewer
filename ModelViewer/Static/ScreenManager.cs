@@ -21,7 +21,7 @@ namespace ModelViewer.Static
         private GUIRenderer _guiRenderer;
         private Renderer.Renderer _renderer;
 
-        private bool _wasInactive = true;
+        //private bool _wasInactive = true;
         
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //  FUNCTIONS
@@ -39,11 +39,11 @@ namespace ModelViewer.Static
         //Update per frame
         public void Update(GameTime gameTime, bool isActive)
         {
-            if (!isActive)
-            {
-                _wasInactive = true;
-                return;
-            }
+            //if (!isActive)
+            //{
+            //    _wasInactive = true;
+            //    return;
+            //}
 
             //if (_wasInactive)
             //{
