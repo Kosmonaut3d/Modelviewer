@@ -180,13 +180,16 @@ namespace ModelViewer.Logic
             string MGCBpathDirectory = Application.StartupPath + "/Content/Runtime";
             DirectoryInfo di = new DirectoryInfo(MGCBpathDirectory);
 
-            foreach (FileInfo file in di.GetFiles())
+            if (di.Exists)
             {
-                file.Delete();
-            }
-            foreach (DirectoryInfo dir in di.GetDirectories())
-            {
-                dir.Delete(true);
+                foreach (FileInfo file in di.GetFiles())
+                {
+                    file.Delete();
+                }
+                foreach (DirectoryInfo dir in di.GetDirectories())
+                {
+                    dir.Delete(true);
+                }
             }
 
             _contentManager.Dispose();
