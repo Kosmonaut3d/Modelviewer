@@ -31,13 +31,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MonoGame.Framework, Version=3.7.1.189, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MonoGame.Framework.Portable.3.7.1.189\lib\portable-net45+win8+wpa81\MonoGame.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoGame.Framework.Content.Pipeline, Version=3.7.1.189, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MonoGame.Framework.Content.Pipeline.Portable.3.7.1.189\lib\portable-net45+win8+wpa81\MonoGame.Framework.Content.Pipeline.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
-    <Reference Include="MonoGame.Framework">
-      <HintPath>$(MSBuildExtensionsPath)\MonoGame\v3.0\Tools\MonoGame.Framework.dll</HintPath>
-    </Reference>
-    <Reference Include="MonoGame.Framework.Content.Pipeline">
-      <HintPath>$(MSBuildExtensionsPath)\MonoGame\v3.0\Tools\MonoGame.Framework.Content.Pipeline.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AnimationClipWriter.cs" />
@@ -50,6 +50,9 @@
       <Project>{d1cc382b-7d83-4ab0-9978-dfdafde7f027}</Project>
       <Name>MGSkinnedAnimationAux</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
